@@ -60,6 +60,7 @@
     <Compile Include="Aes.fs" />
     <Compile Include="Password.fs" />
     <Compile Include="PasswordManager.fs" />
+    <Compile Include="ManagerModes.fs" />
     <Compile Include="Program.fs" />
     <None Include="App.config" />
     <Content Include="packages.config" />
@@ -75,6 +76,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.DirectoryServices" />
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

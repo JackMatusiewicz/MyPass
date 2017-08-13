@@ -2,6 +2,7 @@
 open Password
 open System.Text
 open PasswordManager
+open ManagerModes
 open Result
 
 let stupidTest () =
@@ -22,16 +23,12 @@ let stupidTest () =
 
 [<EntryPoint>]
 let main argv =
-    let salt = Salt "testSalt"
-    let pw = PassPhrase "password"
-    let key = Aes.generateFromPassPhrase salt pw
+    let mutable result = createPasswordStore ()
+    fmap (printfn "%s") result |> ignore
 
-    let data = Encoding.UTF8.GetBytes("Hot potato is hot. I wonder why this is? Who knows!");
-    let encryptedBytes = Aes.encrypt key data
-    let decryptedBytes = Aes.decrypt key encryptedBytes
-    let resultString = Encoding.UTF8.GetString(decryptedBytes);
+    result <- addPassword ()
+    fmap (printfn "%s") result |> ignore
 
-    stupidTest ()
-
-    printfn "%s" resultString
+    result <- showPassword ()
+    fmap (printfn "%s") result |> ignore
     0
