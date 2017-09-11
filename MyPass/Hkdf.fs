@@ -11,7 +11,7 @@ let expand (initialKeyData : byte[]) (salt : byte[]) (info : byte[]) (length : i
 
     let rec expandKey (result : byte[]) (previousResultBlock : byte[]) (remainingBytes : int) (i : int) =
         match remainingBytes with
-        | _ when remainingBytes < 0 -> result
+        | _ when remainingBytes <= 0 -> result
         | _ ->
             let ci = Array.create (previousResultBlock.Length + info.Length + 1) (byte 0)
             System.Array.Copy(previousResultBlock, 0, ci, 0, previousResultBlock.Length)
