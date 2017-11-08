@@ -36,7 +36,7 @@ let generateFromPassPhrase (salt : Salt) (phrase : PassPhrase) =
     let keyBytes = deriver.GetBytes(keySizeBytes)
     {Key = keyBytes}
 
-let createEncryptionStream (key : AesKey) (data : Stream) : CryptoStream =
+let private createEncryptionStream (key : AesKey) (data : Stream) : CryptoStream =
     use aes = createAes ()
     aes.GenerateIV()
     aes.Key <- key.Key
@@ -60,7 +60,7 @@ let encrypt (key : AesKey) (data : byte[]) : byte[] =
     outputDataStream.Dispose()
     cipherText
 
-let createDecryptionStream (key : AesKey) (data : Stream) : CryptoStream =
+let private createDecryptionStream (key : AesKey) (data : Stream) : CryptoStream =
     use aes = createAes ()
     aes.GenerateIV()
     aes.Key <- key.Key
