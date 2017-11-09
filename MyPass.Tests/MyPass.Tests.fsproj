@@ -56,7 +56,7 @@
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="AesTests.fs" />
     <Compile Include="HkdfTests.fs" />
-    <None Include="Script.fsx" />
+    <Compile Include="StringTests.fs" />
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
