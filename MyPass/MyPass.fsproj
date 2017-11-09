@@ -57,10 +57,11 @@
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Result.fs" />
     <Compile Include="Streams.fs" />
+    <Compile Include="String.fs" />
     <Compile Include="Aes.fs" />
     <Compile Include="Hkdf.fs" />
-    <Compile Include="FileKey.fs" />
     <Compile Include="Password.fs" />
+    <Compile Include="FileKey.fs" />
     <Compile Include="PasswordManager.fs" />
     <Compile Include="ManagerModes.fs" />
     <Compile Include="Program.fs" />
