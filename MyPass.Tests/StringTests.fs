@@ -16,4 +16,3 @@ module StringTests =
     let ``Given a empty list of characters when converted to string then string is correct``() =
         let data = [] |> String.ofList
         Assert.That(data, Is.EqualTo(""))
-       

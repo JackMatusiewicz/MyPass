@@ -19,7 +19,7 @@ module Result =
         | _, Failure f -> Failure f
     let (<*>) = apply
 
-    let ret (x : 'a) : Result<'c, 'a> = Success x
+    let lift (x : 'a) : Result<'c, 'a> = Success x
 
     let bind (data : Result<'c, 'a>) (f : 'a -> Result<'c, 'b>) : Result<'c, 'b> =
         match data with
