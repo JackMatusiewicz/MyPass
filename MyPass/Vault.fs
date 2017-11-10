@@ -20,12 +20,12 @@ type PasswordEntry = {
     Description : Description
 }
 
-type PasswordManager = {
+type Vault = {
     passwords : Map<Name, PasswordEntry>
 }
 
 [<CompilationRepresentation (CompilationRepresentationFlags.ModuleSuffix)>]
-module PasswordManager =
+module Vault =
 
     let createEntry (desc : Description) (password : string) =
         let passwordKey = Aes.newKey ()
@@ -38,8 +38,8 @@ module PasswordManager =
         | BasicDescription (name,_) -> name
         | FullDescription (name,_,_) -> name
 
-    let storePassword (entry : PasswordEntry) (manager : PasswordManager)
-        : Result<string, PasswordManager> =
+    let storePassword (entry : PasswordEntry) (manager : Vault)
+        : Result<string, Vault> =
         let store = manager.passwords
         let name = getName (entry.Description)
         if Map.containsKey name store then
@@ -48,8 +48,8 @@ module PasswordManager =
             let newStore = Map.add name entry store
             Success <| {passwords = newStore}
 
-    let updatePassword (entry : PasswordEntry) (manager : PasswordManager)
-        : Result<string, PasswordManager> =
+    let updatePassword (entry : PasswordEntry) (manager : Vault)
+        : Result<string, Vault> =
         let store = manager.passwords
         let name = getName (entry.Description)
         if Map.containsKey name store = false then
@@ -58,8 +58,8 @@ module PasswordManager =
             let newStore = Map.add name entry store
             Success <| {passwords = newStore}
 
-    let removePassword (name : Name) (manager : PasswordManager)
-        : Result<string, PasswordManager> =
+    let removePassword (name : Name) (manager : Vault)
+        : Result<string, Vault> =
         let store = manager.passwords
         if Map.containsKey name store then
             let updatedStore = Map.remove name store
@@ -67,7 +67,7 @@ module PasswordManager =
         else
             Failure "Password entry did not exist under that name."
 
-    let encryptManager (key : AesKey) (manager : PasswordManager) : Result<string, byte[]> =
+    let encryptManager (key : AesKey) (manager : Vault) : Result<string, byte[]> =
         try
             let managerAsJson = JsonConvert.SerializeObject(manager)
             Success <| (Aes.encrypt key <| Encoding.UTF8.GetBytes(managerAsJson))
@@ -75,15 +75,15 @@ module PasswordManager =
          ex -> Failure ex.Message
 
     let decryptManager (key : AesKey) (encryptedManager : byte[])
-        : Result<string, PasswordManager> =
+        : Result<string, Vault> =
         try
             let managerAsBytes = Aes.decrypt key encryptedManager
             let managerAsString = Encoding.UTF8.GetString(managerAsBytes)
-            Success <| JsonConvert.DeserializeObject<PasswordManager>(managerAsString)
+            Success <| JsonConvert.DeserializeObject<Vault>(managerAsString)
         with
            ex -> Failure ex.Message
 
-    let getPassword (name : Name) (manager : PasswordManager)
+    let getPassword (name : Name) (manager : Vault)
         : Result<string, PasswordEntry> =
         let store = manager.passwords
         if Map.containsKey name store then

@@ -6,7 +6,7 @@ open Result
 open System
 open System.IO
 open System.Text
-open PasswordManager
+open Vault
 open Newtonsoft.Json
 
 module ManagerModes =
@@ -19,7 +19,7 @@ module ManagerModes =
         let password = Console.ReadLine()
         Aes.generateFromPassPhrase (Salt username) (PassPhrase password)
 
-    let exportManagerToFile (key : AesKey) (path : string) (manager : PasswordManager) =
+    let exportManagerToFile (key : AesKey) (path : string) (manager : Vault) =
         let storeJson = JsonConvert.SerializeObject(manager)
         let encryptedBytes = Aes.encrypt key <| Encoding.UTF8.GetBytes(storeJson)
         File.WriteAllBytes(path, encryptedBytes)
@@ -45,15 +45,15 @@ module ManagerModes =
             let encryptedBytes = File.ReadAllBytes(fullPath)
             let decryptedBytes = Aes.decrypt masterKey encryptedBytes
             let decryptedJson = Encoding.UTF8.GetString(decryptedBytes)
-            let passwordManager = JsonConvert.DeserializeObject<PasswordManager>(decryptedJson)
+            let vault = JsonConvert.DeserializeObject<Vault>(decryptedJson)
 
             printfn "Enter the name for the password"
             let passwordName = Console.ReadLine().ToLower()
             printfn "Enter a description"
             let description = Console.ReadLine()
             let genericPw = Password.createPassword 10u //TODO - make this customisable
-            let passwordEntry = PasswordManager.createEntry (BasicDescription (passwordName, description)) genericPw
-            let updatedManager = PasswordManager.storePassword passwordEntry passwordManager
+            let passwordEntry = Vault.createEntry (BasicDescription (passwordName, description)) genericPw
+            let updatedManager = Vault.storePassword passwordEntry vault
             map (exportManagerToFile masterKey fullPath) updatedManager |> ignore
             Success <| sprintf "Successfully added password."
         with
@@ -68,9 +68,9 @@ module ManagerModes =
             let encryptedBytes = File.ReadAllBytes(fullPath)
             let decryptedBytes = Aes.decrypt masterKey encryptedBytes
             let decryptedJson = Encoding.UTF8.GetString(decryptedBytes)
-            let passwordManager = JsonConvert.DeserializeObject<PasswordManager>(decryptedJson)
-            passwordManager.passwords |> Map.toList |> List.map snd |> List.iter (fun entry ->
-                printfn "%A : %A" entry.Description (PasswordManager.decryptPassword entry)
+            let vault = JsonConvert.DeserializeObject<Vault>(decryptedJson)
+            vault.passwords |> Map.toList |> List.map snd |> List.iter (fun entry ->
+                printfn "%A : %A" entry.Description (Vault.decryptPassword entry)
             )
             Success <| sprintf "Successfully showed passwords."
         with
@@ -87,10 +87,10 @@ module ManagerModes =
             let decryptedJson = Encoding.UTF8.GetString(decryptedBytes)
             printfn "Enter the name for the password"
             let passwordName = Console.ReadLine().ToLower()
-            let passwordManager = JsonConvert.DeserializeObject<PasswordManager>(decryptedJson)
-            if Map.containsKey passwordName passwordManager.passwords then
-                let pwEntry = Map.find passwordName passwordManager.passwords
-                printfn "%A" (PasswordManager.decryptPassword pwEntry)
+            let vault = JsonConvert.DeserializeObject<Vault>(decryptedJson)
+            if Map.containsKey passwordName vault.passwords then
+                let pwEntry = Map.find passwordName vault.passwords
+                printfn "%A" (Vault.decryptPassword pwEntry)
                 Success <| sprintf "Successfully showed password."
             else
                 Failure "Password is not present."
