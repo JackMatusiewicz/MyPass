@@ -58,6 +58,7 @@
     <Compile Include="HkdfTests.fs" />
     <Compile Include="StringTests.fs" />
     <Compile Include="ResultTests.fs" />
+    <Compile Include="FileKeyTests.fs" />
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
