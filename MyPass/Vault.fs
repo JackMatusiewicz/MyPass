@@ -1,7 +1,6 @@
 ﻿namespace MyPass
 
 open Aes
-open Result
 open Newtonsoft.Json
 open System.Text
 

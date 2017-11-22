@@ -70,3 +70,38 @@ module VaultTests =
             match roundTripResult with
             | Failure _ -> Assert.Fail()
             | Success decStore -> Assert.That(decStore, Is.EqualTo(store))
+
+    [<Test>]
+    let ``Given a password manager with a password, when I remove it then it is removed.`` () =
+        let result = Vault.storePassword testPasswordEntry Vault.empty
+        match result with
+        | Failure _ -> Assert.Fail()
+        | Success pw ->
+            Assert.That(pw.passwords |> Map.toSeq |> Seq.length, Is.EqualTo 1)
+            let updatedResult = Vault.removePassword "www.gmail.com" pw
+            match updatedResult with
+            | Failure _ -> Assert.Fail()
+            | Success pw -> Assert.That(pw.passwords |> Map.toSeq |> Seq.length, Is.EqualTo 0)
+
+    [<Test>]
+    let ``Given a password manager when I create an entry then then password is retrieved.`` () =
+        let desc = BasicDescription ("google", "my google account")
+        let password = "123pass"
+        let entry = Vault.createEntry desc password
+        let result = Vault.storePassword entry Vault.empty
+                        >>= Vault.getPassword "google"
+                        >>= Vault.decryptPassword
+        match result with
+        | Failure _ -> Assert.Fail()
+        | Success p -> Assert.That(p, Is.EqualTo password)
+
+    [<Test>]
+    let ``Given a password manager when I create an entry then then password is retrieved and encrypted.`` () =
+        let desc = BasicDescription ("google", "my google account")
+        let password = "123pass"
+        let entry = Vault.createEntry desc password
+        let result = Vault.storePassword entry Vault.empty
+                        >>= Vault.getPassword "google"
+        match result with
+        | Failure _ -> Assert.Fail()
+        | Success p -> Assert.That(p.Password, Is.Not.EqualTo <| System.Text.Encoding.UTF8.GetBytes(password))
