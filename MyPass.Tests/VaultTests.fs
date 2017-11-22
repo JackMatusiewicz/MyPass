@@ -3,6 +3,7 @@
 open NUnit.Framework
 open MyPass
 open Result
+open System.Linq
 
 module VaultTests =
     let testPasswordEntry = {
@@ -11,7 +12,7 @@ module VaultTests =
         Description = BasicDescription ("www.gmail.com", "My gmail password")
     }
     let testPasswordEntry2 = {
-        Password = EncryptedPassword (Array.create 5 (byte 0))
+        Password = EncryptedPassword (Array.create 5 (byte 1))
         Key = Aes.newKey ()
         Description = BasicDescription ("www.bing.com", "My bing password")
     }
@@ -105,3 +106,16 @@ module VaultTests =
         match result with
         | Failure _ -> Assert.Fail()
         | Success p -> Assert.That(p.Password, Is.Not.EqualTo <| System.Text.Encoding.UTF8.GetBytes(password))
+
+    [<Test>]
+    let ``Given a password manager with a password, when I update it then it is updated.`` () =
+        let pwBytes = (Array.create 5 (byte 1))
+        let updatedEntry = {testPasswordEntry with Password = EncryptedPassword pwBytes}
+        let result = Vault.storePassword testPasswordEntry Vault.empty
+                        >>= Vault.updatePassword updatedEntry
+                        >>= Vault.getPassword "www.gmail.com"
+        match result with
+        | Failure _ -> Assert.Fail()
+        | Success pw -> 
+            let (EncryptedPassword encryptedPw) = pw.Password
+            Assert.That(encryptedPw.SequenceEqual(pwBytes), Is.True)

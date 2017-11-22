@@ -1,7 +1,6 @@
 ﻿namespace MyPass.Tests
 
 open NUnit.Framework
-open System.Security.Cryptography
 open System.Linq
 open MyPass
 
