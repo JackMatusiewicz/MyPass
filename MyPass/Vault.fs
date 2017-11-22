@@ -27,6 +27,8 @@ type Vault = {
 [<CompilationRepresentation (CompilationRepresentationFlags.ModuleSuffix)>]
 module Vault =
 
+    let empty = { passwords = Map.empty }
+
     let createEntry (desc : Description) (password : string) =
         let passwordKey = Aes.newKey ()
         let passwordBytes = Encoding.UTF8.GetBytes(password)
