@@ -60,6 +60,7 @@
     <Compile Include="ResultTests.fs" />
     <Compile Include="FileKeyTests.fs" />
     <Compile Include="VaultTests.fs" />
+    <Compile Include="PasswordTests.fs" />
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

@@ -19,6 +19,16 @@ module ManagerModes =
         let password = Console.ReadLine()
         Aes.generateFromPassPhrase (Salt username) (PassPhrase password)
 
+    let private getPath () =
+        printfn "Please enter the full path (including file extension) of the MyPass Vault:"
+        Console.ReadLine()
+
+    let private getVault (masterKey : AesKey) (fullPath : string) =
+        let encryptedBytes = File.ReadAllBytes(fullPath)
+        let decryptedBytes = Aes.decrypt masterKey encryptedBytes
+        let decryptedJson = Encoding.UTF8.GetString(decryptedBytes)
+        JsonConvert.DeserializeObject<Vault>(decryptedJson)
+
     let exportManagerToFile (key : AesKey) (path : string) (manager : Vault) =
         let storeJson = JsonConvert.SerializeObject(manager)
         let encryptedBytes = Aes.encrypt key <| Encoding.UTF8.GetBytes(storeJson)
@@ -37,15 +47,10 @@ module ManagerModes =
             ex -> Failure ex.Message
 
     let addPassword () =
-        printfn "Please enter path to the MyPass store: "
-        let path = Console.ReadLine()
         try
-            let fullPath = Path.GetFullPath path
             let masterKey = getMasterKey ()
-            let encryptedBytes = File.ReadAllBytes(fullPath)
-            let decryptedBytes = Aes.decrypt masterKey encryptedBytes
-            let decryptedJson = Encoding.UTF8.GetString(decryptedBytes)
-            let vault = JsonConvert.DeserializeObject<Vault>(decryptedJson)
+            let fullPath = (getPath ())
+            let vault = getVault masterKey fullPath
 
             printfn "Enter the name for the password"
             let passwordName = Console.ReadLine().ToLower()
@@ -60,15 +65,9 @@ module ManagerModes =
             ex -> Failure ex.Message
 
     let showAllPasswords () =
-        printfn "Please enter path to the MyPass store: "
-        let path = Console.ReadLine()
         try
-            let fullPath = Path.GetFullPath path
-            let masterKey = getMasterKey ()
-            let encryptedBytes = File.ReadAllBytes(fullPath)
-            let decryptedBytes = Aes.decrypt masterKey encryptedBytes
-            let decryptedJson = Encoding.UTF8.GetString(decryptedBytes)
-            let vault = JsonConvert.DeserializeObject<Vault>(decryptedJson)
+            let path = getPath ()
+            let vault = getVault (getMasterKey ()) path
             vault.passwords |> Map.toList |> List.map snd |> List.iter (fun entry ->
                 printfn "%A : %A" entry.Description (Vault.decryptPassword entry)
             )
@@ -77,17 +76,10 @@ module ManagerModes =
             ex -> Failure ex.Message
 
     let showPassword () =
-        printfn "Please enter path to the MyPass store: "
-        let path = Console.ReadLine()
         try
-            let fullPath = Path.GetFullPath path
-            let masterKey = getMasterKey ()
-            let encryptedBytes = File.ReadAllBytes(fullPath)
-            let decryptedBytes = Aes.decrypt masterKey encryptedBytes
-            let decryptedJson = Encoding.UTF8.GetString(decryptedBytes)
+            let vault = getVault (getMasterKey ()) (getPath ())
             printfn "Enter the name for the password"
             let passwordName = Console.ReadLine().ToLower()
-            let vault = JsonConvert.DeserializeObject<Vault>(decryptedJson)
             if Map.containsKey passwordName vault.passwords then
                 let pwEntry = Map.find passwordName vault.passwords
                 printfn "%A" (Vault.decryptPassword pwEntry)
