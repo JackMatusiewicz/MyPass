@@ -134,3 +134,15 @@ module VaultTests =
         | Success pw -> 
             let (EncryptedPassword encryptedPw) = pw.Password
             Assert.That(encryptedPw.SequenceEqual(pwBytes), Is.True)
+
+    [<Test>]
+    let ``Given a password entry that is a full description, when I get the name from it then the correct name is returned`` () =
+        let fullDesc = FullDescription ("google", "www.google.com", "My google account")
+        let password = "123pass"
+        let entry = Vault.createEntry fullDesc password
+        let result = Vault.storePassword entry Vault.empty
+                        >>= Vault.getPassword "google"
+                        >>= Vault.decryptPassword
+        match result with
+        | Failure _ -> Assert.Fail()
+        | Success p -> Assert.That(p, Is.EqualTo password)
