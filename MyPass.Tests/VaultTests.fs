@@ -73,6 +73,21 @@ module VaultTests =
             | Success decStore -> Assert.That(decStore, Is.EqualTo(store))
 
     [<Test>]
+    let ``Given a password manager with a password, encryption round-trip fails if different key is used to decrypt`` () =
+        let result = Vault.storePassword testPasswordEntry Vault.empty
+                        >>= Vault.storePassword testPasswordEntry2
+        match result with
+        | Failure _ -> Assert.Fail()
+        | Success store ->
+            let key = Aes.newKey ()
+            let decKey = Aes.newKey ()
+            let roundTripResult = Vault.encryptManager key store
+                                    >>= Vault.decryptManager decKey
+            match roundTripResult with
+            | Failure _ -> Assert.Pass()
+            | Success decStore -> Assert.Fail()
+
+    [<Test>]
     let ``Given a password manager with a password, when I remove it then it is removed.`` () =
         let result = Vault.storePassword testPasswordEntry Vault.empty
         match result with
