@@ -3,16 +3,23 @@
 open Aes
 open Password
 open Result
+open Reader
 open System
 open System.IO
-open System.Text
 open Vault
-open Newtonsoft.Json
 
-//replace this with a "user input" struct that contains all things from user we will need (all bar the vault)
-type UserData = {
-    Vault : Vault
+///These are all the specific pieces of information we require from the user.
+type UserInput = {
     VaultPath : string
+    FileKeyPath : string
+    FileKey : FileKey
+    MasterPassPhrase : string
+    UserName : string
+}
+
+///This structure contains the input data along with the vault.
+type UserData = {
+    UserInput : UserInput
     MasterKey : AesKey
 }
 
@@ -28,43 +35,51 @@ module ManagerModes =
 
     let getFileKeyPath () =
         printfn "Please enter the full path (including the file and extension) to the file key for this vault:"
-        Console.ReadLine()
+        let path = Console.ReadLine()
+        path, FileKey.read path
+
+    let getDefaultFileKeyPath () =
+        let (FileKey randomName) = FileKey.generateFileKey ()
+        randomName + ".fk", FileKey.generateFileKey ()
 
     let getMasterPassPhrase () =
         printfn "Please enter the master pass phrase for this vault:"
         Console.ReadLine()
 
+    let createUserInput vaultPath masterPassPhrase userName (fileKeyPath,fileKey) =
+        {VaultPath = vaultPath; FileKeyPath = fileKeyPath;
+            FileKey = fileKey; UserName = userName; MasterPassPhrase = masterPassPhrase}
+
+    let getUserInputForNewVault =
+        createUserInput <-| getVaultPath <~| getMasterPassPhrase <~| getUserName <~| getDefaultFileKeyPath
+
+    let getUserInputForExistingVault =
+        createUserInput <-| getVaultPath <~| getMasterPassPhrase <~| getUserName <~| getFileKeyPath
+
+    let constructComponents (userInput : UserInput) =
+        let fileKeyBytes = FileKey.toBytes userInput.FileKey
+        let masterKey = Password.createMasterPassword "Version1.0" userInput.MasterPassPhrase fileKeyBytes userInput.UserName
+        {MasterKey = {Key = masterKey}; UserInput = userInput}
+
     let createNewVault () =
         try
-            let pathToVault = getVaultPath ()
-            let userName = getUserName ()
-            let (FileKey fileKey) = FileKey.generateFileKey ()
-            let fileKeyBytes = fileKey |> System.Text.Encoding.UTF8.GetBytes
-            let passPhrase = getMasterPassPhrase ()
-            let masterKey = Password.createMasterPassword "Version1.0" passPhrase fileKeyBytes userName
-            let aes = {Key = masterKey}
-            let encryptedVault = Vault.encryptManager aes Vault.empty
+            let userData = (constructComponents <-| getUserInputForNewVault) ()
+            let encryptedVault = Vault.encryptManager userData.MasterKey Vault.empty
             match encryptedVault with
             | Failure f -> printfn "%s" f
             | Success mgr ->
-                File.WriteAllBytes (pathToVault, mgr)
-                File.WriteAllText ("FileKey.fk", fileKey)
+                File.WriteAllBytes (userData.UserInput.VaultPath, mgr)
+                File.WriteAllText ("FileKey.fk", userData.UserInput.FileKey |> FileKey.getKey)
                 printfn "Your file key has been created, it is here: %s" <| Path.GetFullPath "FileKey.fk"
                 printfn "Please keep this safe, it is required to use the vault."
         with
         | ex -> printfn "ERROR: %s" <| ex.ToString()
 
     let loadVault () =
-        let pathToVault = getVaultPath ()
-        let userName = getUserName ()
-        let fileKeyPath = getFileKeyPath ()
-        let fileKeyBytes = File.ReadAllBytes fileKeyPath
-        let passPhrase = getMasterPassPhrase ()
-        let masterKey = Password.createMasterPassword "Version1.0" passPhrase fileKeyBytes userName
-        let aes = {Key = masterKey}
-        let manager = File.ReadAllBytes pathToVault
-        let encryptedVault = Vault.decryptManager aes manager
-        (fun v -> {Vault = v; VaultPath = pathToVault; MasterKey = aes}) <!> encryptedVault
+        let userInput = (constructComponents <-| getUserInputForExistingVault) ()
+        let manager = File.ReadAllBytes userInput.UserInput.VaultPath
+        let encryptedVault = Vault.decryptManager userInput.MasterKey manager
+        (fun v -> (v,userInput)) <!> encryptedVault
 
     let getSecretPassword () =
         printfn "Do you want to write your own password (Y) or have one generated?"
@@ -83,10 +98,10 @@ module ManagerModes =
             let desc = Console.ReadLine()
             let pw = getSecretPassword ()
             let entry = Vault.createEntry (BasicDescription (name, desc)) pw
-            let result = vault >>= (fun ud ->
-                            ud.Vault |> Vault.storePassword entry
-                                     >>= Vault.encryptManager ud.MasterKey
-                                     <?> (fun d -> File.WriteAllBytes(ud.VaultPath, d)))
+            let result = vault >>= (fun (vault, ud) ->
+                            vault |> Vault.storePassword entry
+                                  >>= Vault.encryptManager ud.MasterKey
+                                  <?> (fun d -> File.WriteAllBytes(ud.UserInput.VaultPath, d)))
             match result with
             | Failure f -> printfn "ERROR: %s" f
             | Success _ -> printfn "Secret has been stored"

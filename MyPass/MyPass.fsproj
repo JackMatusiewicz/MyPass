@@ -55,6 +55,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
+    <Compile Include="Reader.fs" />
     <Compile Include="Result.fs" />
     <Compile Include="Streams.fs" />
     <Compile Include="String.fs" />
@@ -89,5 +90,5 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  <Import Project="$(FSharpTargetsPath)" Condition="Exists('$(FSharpTargetsPath)')"/>
+  <Import Project="$(FSharpTargetsPath)" Condition="Exists('$(FSharpTargetsPath)')" />
 </Project>
