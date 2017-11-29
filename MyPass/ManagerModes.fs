@@ -23,40 +23,41 @@ type UserData = {
     MasterKey : AesKey
 }
 
+///The console UI.
 module ManagerModes =
 
-    let getVaultPath () =
+    let private getVaultPath () =
         printfn "Please enter the full path (including the file and extension) to the vault:"
         Console.ReadLine()
 
-    let getUserName () =
+    let private getUserName () =
         printfn "Please enter the user name for the vault:"
         Console.ReadLine()
 
-    let getFileKeyPath () =
+    let private getFileKeyPath () =
         printfn "Please enter the full path (including the file and extension) to the file key for this vault:"
         let path = Console.ReadLine()
         path, FileKey.read path
 
-    let getDefaultFileKeyPath () =
+    let private getDefaultFileKeyPath () =
         let (FileKey randomName) = FileKey.generateFileKey ()
         randomName + ".fk", FileKey.generateFileKey ()
 
-    let getMasterPassPhrase () =
+    let private getMasterPassPhrase () =
         printfn "Please enter the master pass phrase for this vault:"
         Console.ReadLine()
 
-    let createUserInput vaultPath masterPassPhrase userName (fileKeyPath,fileKey) =
+    let private createUserInput vaultPath masterPassPhrase userName (fileKeyPath,fileKey) =
         {VaultPath = vaultPath; FileKeyPath = fileKeyPath;
             FileKey = fileKey; UserName = userName; MasterPassPhrase = masterPassPhrase}
 
-    let getUserInputForNewVault =
+    let private getUserInputForNewVault =
         createUserInput <-| getVaultPath <~| getMasterPassPhrase <~| getUserName <~| getDefaultFileKeyPath
 
-    let getUserInputForExistingVault =
+    let private getUserInputForExistingVault =
         createUserInput <-| getVaultPath <~| getMasterPassPhrase <~| getUserName <~| getFileKeyPath
 
-    let constructComponents (userInput : UserInput) =
+    let private constructComponents (userInput : UserInput) =
         let fileKeyBytes = FileKey.toBytes userInput.FileKey
         let masterKey = Password.createMasterPassword "Version1.0" userInput.MasterPassPhrase fileKeyBytes userInput.UserName
         {MasterKey = {Key = masterKey}; UserInput = userInput}
@@ -75,7 +76,7 @@ module ManagerModes =
         with
         | ex -> printfn "ERROR: %s" <| ex.ToString()
 
-    let loadVault () =
+    let private loadVault () =
         let userInput = (constructComponents <-| getUserInputForExistingVault) ()
         let manager = File.ReadAllBytes userInput.UserInput.VaultPath
         let encryptedVault = Vault.decryptManager userInput.MasterKey manager
