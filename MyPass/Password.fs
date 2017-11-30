@@ -31,7 +31,6 @@ module Password =
     let createMasterPassword (versionId : string) (masterPassphrase : string) (secretKey : byte[]) (userId : string) =
         let userIdBytes = userId |> System.Text.Encoding.UTF8.GetBytes
         let versionIdBytes = versionId |> System.Text.Encoding.UTF8.GetBytes
-        let masterKeyBytes = masterPassphrase |> System.Text.Encoding.UTF8.GetBytes
         let expandedSalt = Hkdf.expand userIdBytes versionIdBytes [||] 32
         let pbkdf2 = new Rfc2898DeriveBytes(masterPassphrase, expandedSalt, 10000)
         let masterKey = pbkdf2.GetBytes(32)

@@ -99,10 +99,13 @@ module ManagerModes =
             let desc = Console.ReadLine()
             let pw = getSecretPassword ()
             let entry = Vault.createEntry (BasicDescription (name, desc)) pw
-            let result = vault >>= (fun (vault, ud) ->
-                            vault |> Vault.storePassword entry
-                                  >>= Vault.encryptManager ud.MasterKey
-                                  <?> (fun d -> File.WriteAllBytes(ud.UserInput.VaultPath, d)))
+            let result = 
+                vault
+                >>= (fun (vault, ud) ->
+                        vault
+                        |> Vault.storePassword entry
+                        >>= Vault.encryptManager ud.MasterKey
+                        <?> (fun d -> File.WriteAllBytes(ud.UserInput.VaultPath, d)))
             match result with
             | Failure f -> printfn "ERROR: %s" f
             | Success _ -> printfn "Secret has been stored"
