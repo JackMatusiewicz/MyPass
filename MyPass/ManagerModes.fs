@@ -52,10 +52,18 @@ module ManagerModes =
             FileKey = fileKey; UserName = userName; MasterPassPhrase = masterPassPhrase}
 
     let private getUserInputForNewVault =
-        createUserInput <-| getVaultPath <~| getMasterPassPhrase <~| getUserName <~| getDefaultFileKeyPath
+        createUserInput
+        |-> getVaultPath
+        |~> getMasterPassPhrase
+        |~> getUserName
+        |~> getDefaultFileKeyPath
 
     let private getUserInputForExistingVault =
-        createUserInput <-| getVaultPath <~| getMasterPassPhrase <~| getUserName <~| getFileKeyPath
+        createUserInput
+        |-> getVaultPath
+        |~> getMasterPassPhrase
+        |~> getUserName
+        |~> getFileKeyPath
 
     let private constructComponents (userInput : UserInput) =
         let fileKeyBytes = FileKey.toBytes userInput.FileKey
@@ -64,7 +72,7 @@ module ManagerModes =
 
     let createNewVault () =
         try
-            let userData = (constructComponents <-| getUserInputForNewVault) ()
+            let userData = (constructComponents |-> getUserInputForNewVault) ()
             let encryptedVault = Vault.encryptManager userData.MasterKey Vault.empty
             match encryptedVault with
             | Failure f -> printfn "%s" f
@@ -77,7 +85,7 @@ module ManagerModes =
         | ex -> printfn "ERROR: %s" <| ex.ToString()
 
     let private loadVault () =
-        let userInput = (constructComponents <-| getUserInputForExistingVault) ()
+        let userInput = (constructComponents |-> getUserInputForExistingVault) ()
         let manager = File.ReadAllBytes userInput.UserInput.VaultPath
         let encryptedVault = Vault.decryptManager userInput.MasterKey manager
         (fun v -> (v,userInput)) <!> encryptedVault
