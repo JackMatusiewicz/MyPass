@@ -5,7 +5,8 @@ open System.Security.Cryptography
 
 module Password =
 
-    let availableCharacters = ['a'..'z'] @ ['A'..'Z'] @ ['0'..'9'] @ ['!'; '?'; '_'] |> Array.ofList
+    let availableCharacters =
+        ['a'..'z'] @ ['A'..'Z'] @ ['0'..'9'] @ ['!'; '?'; '_'] |> Array.ofList
 
     let createWithCharacters (availableCharacters : char[]) (length : uint32) =
         use rng = new RNGCryptoServiceProvider()
