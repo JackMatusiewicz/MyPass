@@ -8,8 +8,9 @@ type Url = string
 type DescriptionText = string
 type Name = string
 
-type Description = BasicDescription of Name * DescriptionText
-                 | FullDescription of Name * Url * DescriptionText
+type Description =
+    | BasicDescription of Name * DescriptionText
+    | FullDescription of Name * Url * DescriptionText
 
 type EncryptedPassword = EncryptedPassword of byte[]
 

@@ -11,6 +11,7 @@ module Result =
         | Failure f -> Failure f
         | Success s -> Success <| f s
     let (<!>) = map
+    let (<?>) (input : Result<'c, 'a>) (f : 'a -> 'b) : Result<'c, 'b> = map f input
 
     let apply (f : Result<'c, 'a -> 'b>) (input : Result<'c, 'a>) : Result<'c, 'b> =
         match f,input with

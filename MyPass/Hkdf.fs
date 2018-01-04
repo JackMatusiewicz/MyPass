@@ -6,12 +6,20 @@ open System;
 
 module Hkdf =
 
-    let expand (initialKeyData : byte[]) (salt : byte[]) (info : byte[]) (length : int) : byte[] =
+    let expand
+        (initialKeyData : byte[])
+        (salt : byte[])
+        (info : byte[])
+        (length : int) : byte[] =
         use hmac = new HMACSHA256(salt)
         let hmacKey = hmac.ComputeHash(initialKeyData)
         use hmac = new HMACSHA256(hmacKey)
 
-        let rec expandKey (result : byte[]) (previousResultBlock : byte[]) (remainingBytes : int) (i : int) =
+        let rec expandKey
+            (result : byte[])
+            (previousResultBlock : byte[])
+            (remainingBytes : int)
+            (i : int) =
             match remainingBytes with
             | _ when remainingBytes <= 0 -> result
             | _ ->
@@ -21,7 +29,12 @@ module Hkdf =
                 ci.[ci.Length - 1] <- (byte i)
 
                 let resultBlock = hmac.ComputeHash(ci);
-                Array.Copy(resultBlock, 0, result, length - remainingBytes, Math.Min(remainingBytes, resultBlock.Length))
+                Array.Copy(
+                    resultBlock,
+                    0,
+                    result,
+                    length - remainingBytes,
+                    Math.Min(remainingBytes, resultBlock.Length))
                 let newRemaining = remainingBytes - resultBlock.Length
                 expandKey result resultBlock newRemaining (i+1)
 

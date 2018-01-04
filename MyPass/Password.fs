@@ -5,7 +5,8 @@ open System.Security.Cryptography
 
 module Password =
 
-    let availableCharacters = ['a'..'z'] @ ['A'..'Z'] @ ['0'..'9'] @ ['!'; '?'; '_'] |> Array.ofList
+    let availableCharacters =
+        ['a'..'z'] @ ['A'..'Z'] @ ['0'..'9'] @ ['!'; '?'; '_'] |> Array.ofList
 
     let createWithCharacters (availableCharacters : char[]) (length : uint32) =
         use rng = new RNGCryptoServiceProvider()
@@ -28,10 +29,13 @@ module Password =
         |> Array.zip keyTwo
         |> Array.map (fun (a,b) -> a ^^^ b)
 
-    let createMasterPassword (versionId : string) (masterPassphrase : string) (secretKey : byte[]) (userId : string) =
+    let createMasterPassword
+        (versionId : string)
+        (masterPassphrase : string)
+        (secretKey : byte[])
+        (userId : string) =
         let userIdBytes = userId |> System.Text.Encoding.UTF8.GetBytes
         let versionIdBytes = versionId |> System.Text.Encoding.UTF8.GetBytes
-        let masterKeyBytes = masterPassphrase |> System.Text.Encoding.UTF8.GetBytes
         let expandedSalt = Hkdf.expand userIdBytes versionIdBytes [||] 32
         let pbkdf2 = new Rfc2898DeriveBytes(masterPassphrase, expandedSalt, 10000)
         let masterKey = pbkdf2.GetBytes(32)
