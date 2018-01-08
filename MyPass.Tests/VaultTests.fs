@@ -60,8 +60,8 @@ module VaultTests =
 
     [<Test>]
     let ``Given a password manager with a password, encryption round-trip works`` () =
-        let result = Vault.storePassword testPasswordEntry Vault.empty
-                        >>= Vault.storePassword testPasswordEntry2
+        let storePasswords = Vault.storePassword testPasswordEntry >=> Vault.storePassword testPasswordEntry2
+        let result = storePasswords Vault.empty
         match result with
         | Failure _ -> Assert.Fail()
         | Success store ->
@@ -74,15 +74,15 @@ module VaultTests =
 
     [<Test>]
     let ``Given a password manager with a password, encryption round-trip fails if different key is used to decrypt`` () =
-        let result = Vault.storePassword testPasswordEntry Vault.empty
-                        >>= Vault.storePassword testPasswordEntry2
+        let storePasswords = Vault.storePassword testPasswordEntry >=> Vault.storePassword testPasswordEntry2
+        let result = storePasswords Vault.empty      
         match result with
         | Failure _ -> Assert.Fail()
         | Success store ->
             let key = Aes.newKey ()
             let decKey = Aes.newKey ()
-            let roundTripResult = Vault.encryptManager key store
-                                    >>= Vault.decryptManager decKey
+            let roundTrip = Vault.encryptManager key >=> Vault.decryptManager decKey
+            let roundTripResult = roundTrip store
             match roundTripResult with
             | Failure _ -> Assert.Pass()
             | Success decStore -> Assert.Fail()

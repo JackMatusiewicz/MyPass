@@ -40,8 +40,7 @@ module Vault =
         | BasicDescription (name,_) -> name
         | FullDescription (name,_,_) -> name
 
-    let storePassword (entry : PasswordEntry) (manager : Vault)
-        : Result<string, Vault> =
+    let storePassword (entry : PasswordEntry) (manager : Vault) : Result<string, Vault> =
         let store = manager.passwords
         let name = getName (entry.Description)
         if Map.containsKey name store then
@@ -50,8 +49,7 @@ module Vault =
             let newStore = Map.add name entry store
             Success <| {passwords = newStore}
 
-    let updatePassword (entry : PasswordEntry) (manager : Vault)
-        : Result<string, Vault> =
+    let updatePassword (entry : PasswordEntry) (manager : Vault) : Result<string, Vault> =
         let store = manager.passwords
         let name = getName (entry.Description)
         if Map.containsKey name store = false then
@@ -60,8 +58,7 @@ module Vault =
             let newStore = Map.add name entry store
             Success <| {passwords = newStore}
 
-    let removePassword (name : Name) (manager : Vault)
-        : Result<string, Vault> =
+    let removePassword (name : Name) (manager : Vault) : Result<string, Vault> =
         let store = manager.passwords
         if Map.containsKey name store then
             let updatedStore = Map.remove name store
@@ -76,8 +73,7 @@ module Vault =
         with
          ex -> Failure ex.Message
 
-    let decryptManager (key : AesKey) (encryptedManager : byte[])
-        : Result<string, Vault> =
+    let decryptManager (key : AesKey) (encryptedManager : byte[]) : Result<string, Vault> =
         try
             let managerAsBytes = Aes.decrypt key encryptedManager
             let managerAsString = Encoding.UTF8.GetString(managerAsBytes)
@@ -85,8 +81,7 @@ module Vault =
         with
            ex -> Failure ex.Message
 
-    let getPassword (name : Name) (manager : Vault)
-        : Result<string, PasswordEntry> =
+    let getPassword (name : Name) (manager : Vault) : Result<string, PasswordEntry> =
         let store = manager.passwords
         if Map.containsKey name store then
             Success <| Map.find name store

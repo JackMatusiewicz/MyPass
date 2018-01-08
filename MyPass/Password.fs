@@ -34,6 +34,7 @@ module Password =
         (masterPassphrase : string)
         (secretKey : byte[])
         (userId : string) =
+
         let userIdBytes = userId |> System.Text.Encoding.UTF8.GetBytes
         let versionIdBytes = versionId |> System.Text.Encoding.UTF8.GetBytes
         let expandedSalt = Hkdf.expand userIdBytes versionIdBytes [||] 32

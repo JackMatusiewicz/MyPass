@@ -111,8 +111,7 @@ module ManagerModes =
                 vault
                 >>= (fun (vault, ud) ->
                         vault
-                        |> Vault.storePassword entry
-                        >>= Vault.encryptManager ud.MasterKey
+                        |> (Vault.storePassword entry >=> Vault.encryptManager ud.MasterKey)
                         <?> (fun d -> File.WriteAllBytes(ud.UserInput.VaultPath, d)))
             match result with
             | Failure f -> printfn "ERROR: %s" f

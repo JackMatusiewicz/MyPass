@@ -27,3 +27,6 @@ module Result =
         | Success s -> f s
         | Failure f -> Failure f
     let (>>=) = bind
+    
+    let (>=>) (f : 'a -> Result<'c,'b>) (g : 'b -> Result<'c,'d>) : 'a -> Result<'c,'d> =
+        fun a -> f a >>= g
