@@ -30,3 +30,8 @@ module Result =
     
     let (>=>) (f : 'a -> Result<'c,'b>) (g : 'b -> Result<'c,'d>) : 'a -> Result<'c,'d> =
         fun a -> f a >>= g
+
+    let (>>|) (a : Result<'f, 'a>) (f : 'a -> unit) : unit =
+        match a with
+        | Failure f -> ()
+        | Success s -> f s
