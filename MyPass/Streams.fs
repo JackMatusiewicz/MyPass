@@ -8,26 +8,26 @@ module Streams =
         inherit Stream()
         let underlyingStream = underlying
 
-        override this.Flush() = underlyingStream.Flush()
+        override __.Flush() = underlyingStream.Flush()
 
-        override this.Seek(offset, origin) = underlyingStream.Seek(offset, origin)
+        override __.Seek(offset, origin) = underlyingStream.Seek(offset, origin)
 
-        override this.SetLength(value) = underlyingStream.SetLength(value)
+        override __.SetLength(value) = underlyingStream.SetLength(value)
 
-        override this.Read(buffer, offset, count) = underlyingStream.Read(buffer, offset, count)
+        override __.Read(buffer, offset, count) = underlyingStream.Read(buffer, offset, count)
 
-        override this.Write(buffer, offset, count) = underlyingStream.Write(buffer, offset, count)
+        override __.Write(buffer, offset, count) = underlyingStream.Write(buffer, offset, count)
 
-        override this.Close() = ()
+        override __.Close() = ()
 
-        override this.CanRead = underlyingStream.CanRead
-        override this.CanSeek = underlyingStream.CanSeek
-        override this.CanWrite = underlyingStream.CanWrite
-        override this.Length = underlyingStream.Length
+        override __.CanRead = underlyingStream.CanRead
+        override __.CanSeek = underlyingStream.CanSeek
+        override __.CanWrite = underlyingStream.CanWrite
+        override __.Length = underlyingStream.Length
 
-        override this.Position
+        override __.Position
             with get() = underlyingStream.Position
             and set value = underlyingStream.Position <- value
     
         interface System.IDisposable with
-            member this.Dispose() = ()
+            member __.Dispose() = ()

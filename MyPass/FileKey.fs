@@ -16,8 +16,9 @@ module FileKey =
         |> FileKey
 
     let read (path : string) : FileKey =
-        path |> File.ReadAllText
-             |> FileKey
+        path
+        |> File.ReadAllText
+        |> FileKey
 
     let toBytes (FileKey fk) =
         System.Text.Encoding.UTF8.GetBytes fk

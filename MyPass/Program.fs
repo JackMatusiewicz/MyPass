@@ -13,4 +13,4 @@ module Main =
     let main argv =
         ManagerModes.createNewVault ()
         ManagerModes.addSecret ()
-        5
+        0

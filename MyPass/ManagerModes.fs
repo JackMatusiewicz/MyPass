@@ -94,9 +94,15 @@ module ManagerModes =
         printfn "Do you want to write your own password (Y) or have one generated?"
         let value = Console.ReadLine()
         if value = "Y" then
+            printfn "Please enter your password:"
             Console.ReadLine()
         else
             Password.createPassword 15u
+
+    let private addAndStore (entry : PasswordEntry) (vault : Vault, ud : UserData) =
+        vault
+        |> (Vault.storePassword entry >=> Vault.encryptManager ud.MasterKey)
+        <?> (fun d -> File.WriteAllBytes(ud.UserInput.VaultPath, d))
 
     let addSecret () =
         try
@@ -107,12 +113,7 @@ module ManagerModes =
             let desc = Console.ReadLine()
             let pw = getSecretPassword ()
             let entry = Vault.createEntry (BasicDescription (name, desc)) pw
-            let result = 
-                vault
-                >>= (fun (vault, ud) ->
-                        vault
-                        |> (Vault.storePassword entry >=> Vault.encryptManager ud.MasterKey)
-                        <?> (fun d -> File.WriteAllBytes(ud.UserInput.VaultPath, d)))
+            let result = vault >>= addAndStore entry
             match result with
             | Failure f -> printfn "ERROR: %s" f
             | Success _ -> printfn "Secret has been stored"
