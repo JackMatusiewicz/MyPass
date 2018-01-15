@@ -50,3 +50,19 @@ module ResultTests =
     let ``Running monadic function returns correct result`` (a, output) =
         let res = (cleanDivide a) >>= cleanDivide
         Assert.That(res, Is.EqualTo(output))
+
+    [<Test>]
+    let ``Given a function to run when result is successful then it runs``() =
+        let mutable set = false
+        let setFunc = fun _ -> set <- true
+        let x = Result.lift 5
+        x |> Result.run setFunc
+        Assert.That(set, Is.True)
+
+    [<Test>]
+    let ``Given a function to run when result is unsuccessful then it doesn't run``() =
+        let mutable set = false
+        let setFunc = fun _ -> set <- true
+        let x = Failure "nope"
+        x |> Result.run setFunc
+        Assert.That(set, Is.False)
