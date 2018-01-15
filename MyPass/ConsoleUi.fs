@@ -23,8 +23,7 @@ type UserData = {
     MasterKey : AesKey
 }
 
-///The console UI.
-module ManagerModes =
+module ConsoleUi =
 
     let private getVaultPath () =
         printfn "Please enter the full path (including the file and extension) to the vault:"
@@ -87,8 +86,8 @@ module ManagerModes =
     let private loadVault () =
         let userInput = (constructComponents |-> getUserInputForExistingVault) ()
         let manager = File.ReadAllBytes userInput.UserInput.VaultPath
-        let encryptedVault = Vault.decryptManager userInput.MasterKey manager
-        (fun v -> (v,userInput)) <!> encryptedVault
+        let vault = Vault.decryptManager userInput.MasterKey manager
+        (fun v -> (v,userInput)) <!> vault
 
     let getSecretPassword () =
         printfn "Do you want to write your own password (Y) or have one generated?"
@@ -117,5 +116,20 @@ module ManagerModes =
             match result with
             | Failure f -> printfn "ERROR: %s" f
             | Success _ -> printfn "Secret has been stored"
+        with
+        | ex -> printfn "ERROR: %s" <| ex.ToString()
+
+    let listSecrets () : unit =
+        let printEntries =
+            (fun vault ->
+                vault.passwords
+                |> Map.toList
+                |> List.map snd
+                |> List.iter (fun e -> printfn "%A\n---------------\n" e.Description))
+
+        try
+            loadVault ()
+            |> Result.run (fst >> printEntries)
+            |> ignore
         with
         | ex -> printfn "ERROR: %s" <| ex.ToString()
