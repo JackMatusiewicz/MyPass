@@ -31,8 +31,11 @@ module Vault =
 
     let createEntry (desc : Description) (password : string) =
         let passwordKey = Aes.newKey ()
-        let passwordBytes = Encoding.UTF8.GetBytes(password)
-        let encryptedPassword = EncryptedPassword (Aes.encrypt passwordKey passwordBytes)
+        let encryptedPassword =
+            password
+            |> Encoding.UTF8.GetBytes
+            |> Aes.encrypt passwordKey
+            |> EncryptedPassword
         {Password = encryptedPassword; Key = passwordKey; Description = desc }
 
     let private getName (description : Description) =
@@ -68,9 +71,8 @@ module Vault =
 
     let encryptManager (key : AesKey) (manager : Vault) : Result<string, byte[]> =
         try
-            let managerAsJson = JsonConvert.SerializeObject(manager)
-
-            managerAsJson
+            manager
+            |> JsonConvert.SerializeObject
             |> Encoding.UTF8.GetBytes
             |> Aes.encrypt key
             |> Success
@@ -79,9 +81,11 @@ module Vault =
 
     let decryptManager (key : AesKey) (encryptedManager : byte[]) : Result<string, Vault> =
         try
-            let managerAsBytes = Aes.decrypt key encryptedManager
-            let managerAsString = Encoding.UTF8.GetString(managerAsBytes)
-            Success <| JsonConvert.DeserializeObject<Vault>(managerAsString)
+            let decryptedManager =
+                encryptedManager
+                |> Aes.decrypt key
+                |> Encoding.UTF8.GetString
+            Success <| JsonConvert.DeserializeObject<Vault>(decryptedManager)
         with
            ex -> Failure ex.Message
 
@@ -95,7 +99,9 @@ module Vault =
     let decryptPassword (entry : PasswordEntry) : Result<string, string> =
         try
             let (EncryptedPassword encryptedBytes) = entry.Password
-            let decryptedPassword = Aes.decrypt (entry.Key) (encryptedBytes)
-            Success <| Encoding.UTF8.GetString(decryptedPassword)
+            encryptedBytes
+            |> Aes.decrypt (entry.Key)
+            |> Encoding.UTF8.GetString
+            |> Success
         with
             ex -> Failure ex.Message
