@@ -47,7 +47,7 @@ module Vault =
             Failure "Password entry already exists"
         else
             let newStore = Map.add name entry store
-            Success <| {passwords = newStore}
+            Success {passwords = newStore}
 
     let updatePassword (entry : PasswordEntry) (manager : Vault) : Result<string, Vault> =
         let store = manager.passwords
@@ -56,7 +56,7 @@ module Vault =
             Failure "Password entry does not exist"
         else
             let newStore = Map.add name entry store
-            Success <| {passwords = newStore}
+            Success {passwords = newStore}
 
     let removePassword (name : Name) (manager : Vault) : Result<string, Vault> =
         let store = manager.passwords
@@ -69,7 +69,11 @@ module Vault =
     let encryptManager (key : AesKey) (manager : Vault) : Result<string, byte[]> =
         try
             let managerAsJson = JsonConvert.SerializeObject(manager)
-            Success <| (Aes.encrypt key <| Encoding.UTF8.GetBytes(managerAsJson))
+
+            managerAsJson
+            |> Encoding.UTF8.GetBytes
+            |> Aes.encrypt key
+            |> Success
         with
          ex -> Failure ex.Message
 
