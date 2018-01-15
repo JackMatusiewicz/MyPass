@@ -64,7 +64,7 @@
     <Compile Include="Password.fs" />
     <Compile Include="FileKey.fs" />
     <Compile Include="Vault.fs" />
-    <Compile Include="ManagerModes.fs" />
+    <Compile Include="ConsoleUi.fs" />
     <Compile Include="Program.fs" />
     <None Include="App.config" />
     <Content Include="packages.config" />
