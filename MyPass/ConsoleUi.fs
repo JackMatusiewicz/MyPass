@@ -122,11 +122,12 @@ module ConsoleUi =
     let listSecrets () : unit =
         try
             loadVault ()
-            >>| (fun (vault,_) ->
-                        vault.passwords
-                        |> Map.toList
-                        |> List.map snd
-                        |> List.iter (fun e -> printfn "%A\n---------------\n" e.Description))
+            |> Result.run
+                (fun (vault,_) ->
+                    vault.passwords
+                    |> Map.toList
+                    |> List.map snd
+                    |> List.iter (fun e -> printfn "%A\n---------------\n" e.Description))
             |> ignore
         with
         | ex -> printfn "ERROR: %s" <| ex.ToString()
