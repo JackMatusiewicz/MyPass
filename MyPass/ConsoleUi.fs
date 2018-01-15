@@ -120,14 +120,16 @@ module ConsoleUi =
         | ex -> printfn "ERROR: %s" <| ex.ToString()
 
     let listSecrets () : unit =
+        let printEntries =
+            (fun vault ->
+                vault.passwords
+                |> Map.toList
+                |> List.map snd
+                |> List.iter (fun e -> printfn "%A\n---------------\n" e.Description))
+
         try
             loadVault ()
-            |> Result.run
-                (fun (vault,_) ->
-                    vault.passwords
-                    |> Map.toList
-                    |> List.map snd
-                    |> List.iter (fun e -> printfn "%A\n---------------\n" e.Description))
+            |> Result.run (fst >> printEntries)
             |> ignore
         with
         | ex -> printfn "ERROR: %s" <| ex.ToString()
