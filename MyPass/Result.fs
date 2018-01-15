@@ -1,7 +1,8 @@
 ﻿namespace MyPass
 
-type Result<'a, 'b> = Failure of 'a
-                    | Success of 'b
+type Result<'a, 'b> =
+    | Failure of 'a
+    | Success of 'b
 
 [<CompilationRepresentation (CompilationRepresentationFlags.ModuleSuffix)>]
 module Result =
