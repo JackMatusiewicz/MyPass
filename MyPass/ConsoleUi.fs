@@ -134,3 +134,18 @@ module ConsoleUi =
             |> Result.iter printEntries
         with
         | ex -> printfn "ERROR: %s" <| ex.ToString()
+
+    //TODO - replace this with a timed cut and paste.
+    let printPassword () : unit =
+        try
+            loadVault ()
+            |> Result.map fst
+            |> (=<<)
+                (fun vault ->
+                    let entryName = getInput "Please enter the name of the password you wish to see: "
+                    Vault.getPassword entryName vault)
+            |> (=<<) Vault.decryptPassword
+            |> Result.iter (printfn "%s")
+            |> ignore
+        with
+        | ex -> printfn "ERROR: %s" <| ex.ToString()

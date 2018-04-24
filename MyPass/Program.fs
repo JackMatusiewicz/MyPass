@@ -40,5 +40,6 @@ module Main =
                 | "create" -> ConsoleUi.createNewVault ()
                 | "add" -> ConsoleUi.addSecret ()
                 | "list" -> ConsoleUi.listSecrets ()
+                | "get" -> ConsoleUi.printPassword ()
                 | _ -> argsParser.PrintUsage () |> printfn "%s"
         0
