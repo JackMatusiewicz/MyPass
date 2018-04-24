@@ -29,16 +29,16 @@ module Main =
             |> fun len -> len > 0
 
         match helpSpecified with
-        | true -> argsParser.PrintUsage () |> ignore
+        | true -> argsParser.PrintUsage () |> printfn "%s"
         | false ->
             let parsedArgs : ParseResults<Arguments> = argsParser.Parse args
             match parsedArgs.Contains Mode with
-            | false -> argsParser.PrintUsage () |> ignore
+            | false -> argsParser.PrintUsage () |> printfn "%s"
             | true ->
                 let mode = (parsedArgs.GetResult Mode).ToLower()
                 match mode with
                 | "create" -> ConsoleUi.createNewVault ()
                 | "add" -> ConsoleUi.addSecret ()
                 | "list" -> ConsoleUi.listSecrets ()
-                | _ -> argsParser.PrintUsage () |> ignore
+                | _ -> argsParser.PrintUsage () |> printfn "%s"
         0
