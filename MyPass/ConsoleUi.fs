@@ -52,17 +52,17 @@ module ConsoleUi =
 
     let private getUserInputForNewVault =
         createUserInput
-        |-> getVaultPath
-        |~> getMasterPassPhrase
-        |~> getUserName
-        |~> getDefaultFileKeyPath
+        <-| getVaultPath
+        <~| getMasterPassPhrase
+        <~| getUserName
+        <~| getDefaultFileKeyPath
 
     let private getUserInputForExistingVault =
         createUserInput
-        |-> getVaultPath
-        |~> getMasterPassPhrase
-        |~> getUserName
-        |~> getFileKeyPath
+        <-| getVaultPath
+        <~| getMasterPassPhrase
+        <~| getUserName
+        <~| getFileKeyPath
 
     let private constructComponents (userInput : UserInput) =
         let fileKeyBytes = FileKey.toBytes userInput.FileKey
@@ -71,7 +71,7 @@ module ConsoleUi =
 
     let createNewVault () =
         try
-            let userData = (constructComponents |-> getUserInputForNewVault) ()
+            let userData = (constructComponents <-| getUserInputForNewVault) ()
             let encryptedVault = Vault.encryptManager userData.MasterKey Vault.empty
             match encryptedVault with
             | Failure f -> printfn "%s" f
@@ -84,7 +84,7 @@ module ConsoleUi =
         | ex -> printfn "ERROR: %s" <| ex.ToString()
 
     let private loadVault () =
-        let userInput = (constructComponents |-> getUserInputForExistingVault) ()
+        let userInput = (constructComponents <-| getUserInputForExistingVault) ()
         let manager = File.ReadAllBytes userInput.UserInput.VaultPath
         let vault = Vault.decryptManager userInput.MasterKey manager
         (fun v -> (v,userInput)) <!> vault
@@ -120,16 +120,15 @@ module ConsoleUi =
         | ex -> printfn "ERROR: %s" <| ex.ToString()
 
     let listSecrets () : unit =
-        let printEntries =
-            (fun vault ->
-                vault.passwords
-                |> Map.toList
-                |> List.map snd
-                |> List.iter (fun e -> printfn "%A\n---------------\n" e.Description))
+        let printEntries vault =
+            vault.passwords
+            |> Map.toList
+            |> List.map snd
+            |> List.iter (fun e -> printfn "%A\n---------------\n" e.Description)
 
         try
             loadVault ()
-            |> Result.run (fst >> printEntries)
-            |> ignore
+            |> Result.map fst
+            |> Result.run printEntries
         with
         | ex -> printfn "ERROR: %s" <| ex.ToString()
