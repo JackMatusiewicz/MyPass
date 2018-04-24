@@ -25,17 +25,19 @@ type UserData = {
 
 module ConsoleUi =
 
-    let private getVaultPath () =
-        printfn "Please enter the full path (including the file and extension) to the vault:"
+    let private getInput (question : string) =
+        printfn "%s" question
         Console.ReadLine()
+
+    let private getVaultPath () =
+        getInput "Please enter the full path (including the file and extension) to the vault:"
 
     let private getUserName () =
-        printfn "Please enter the user name for the vault:"
-        Console.ReadLine()
+        getInput "Please enter the user name for the vault:"
 
     let private getFileKeyPath () =
-        printfn "Please enter the full path (including the file and extension) to the file key for this vault:"
-        let path = Console.ReadLine()
+        let path =
+            getInput "Please enter the full path (including the file and extension) to the file key for this vault:"
         path, FileKey.read path
 
     let private getDefaultFileKeyPath () =
@@ -43,8 +45,7 @@ module ConsoleUi =
         randomName + ".fk", FileKey.generateFileKey ()
 
     let private getMasterPassPhrase () =
-        printfn "Please enter the master pass phrase for this vault:"
-        Console.ReadLine()
+        getInput "Please enter the master pass phrase for this vault:"
 
     let private createUserInput vaultPath masterPassPhrase userName (fileKeyPath,fileKey) =
         {VaultPath = vaultPath; FileKeyPath = fileKeyPath;
@@ -90,11 +91,9 @@ module ConsoleUi =
         (fun v -> (v,userInput)) <!> vault
 
     let getSecretPassword () =
-        printfn "Do you want to write your own password (Y) or have one generated?"
-        let value = Console.ReadLine()
+        let value = getInput "Do you want to write your own password (Y) or have one generated?"
         if value = "Y" then
-            printfn "Please enter your password:"
-            Console.ReadLine()
+            getInput "Please enter your password:"
         else
             Password.createPassword 15u
 
@@ -106,10 +105,8 @@ module ConsoleUi =
     let addSecret () =
         try
             let vault = loadVault ()
-            printfn "Enter the name for this secret:"
-            let name = Console.ReadLine()
-            printfn "Enter the description for this secret:"
-            let desc = Console.ReadLine()
+            let name = getInput "Enter the name for this secret:"
+            let desc = getInput "Enter the description for this secret:"
             let pw = getSecretPassword ()
             let entry = Vault.createEntry (BasicDescription (name, desc)) pw
             let result = vault >>= addAndStore entry
