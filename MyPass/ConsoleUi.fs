@@ -67,7 +67,12 @@ module ConsoleUi =
 
     let private constructComponents (userInput : UserInput) =
         let fileKeyBytes = FileKey.toBytes userInput.FileKey
-        let masterKey = Password.createMasterPassword "Version1.0" userInput.MasterPassPhrase fileKeyBytes userInput.UserName
+        let masterKey =
+            Password.createMasterPassword
+                "Version1.0"
+                userInput.MasterPassPhrase
+                fileKeyBytes
+                userInput.UserName
         {MasterKey = {Key = masterKey}; UserInput = userInput}
 
     let createNewVault () =
@@ -126,6 +131,6 @@ module ConsoleUi =
         try
             loadVault ()
             |> Result.map fst
-            |> Result.run printEntries
+            |> Result.iter printEntries
         with
         | ex -> printfn "ERROR: %s" <| ex.ToString()

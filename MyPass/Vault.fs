@@ -65,7 +65,7 @@ module Vault =
         let store = manager.passwords
         if Map.containsKey name store then
             let updatedStore = Map.remove name store
-            Success <| {passwords = updatedStore}
+            Success {passwords = updatedStore}
         else
             Failure "Password entry did not exist under that name."
 

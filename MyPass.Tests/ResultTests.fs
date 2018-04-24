@@ -56,7 +56,7 @@ module ResultTests =
         let mutable set = false
         let setFunc = fun _ -> set <- true
         let x = Result.lift 5
-        x |> Result.run setFunc
+        x |> Result.iter setFunc
         Assert.That(set, Is.True)
 
     [<Test>]
@@ -64,5 +64,5 @@ module ResultTests =
         let mutable set = false
         let setFunc = fun _ -> set <- true
         let x = Failure "nope"
-        x |> Result.run setFunc
+        x |> Result.iter setFunc
         Assert.That(set, Is.False)
