@@ -140,7 +140,6 @@ module ConsoleUi =
         Clipboard.timedStoreInClipboard 15000 password
         printfn "Your password has been removed from your clipboard"
 
-    //TODO - replace this with a timed cut and paste.
     let printPassword () : unit =
         try
             loadVault ()
