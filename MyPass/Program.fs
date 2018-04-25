@@ -7,6 +7,7 @@ open System.Text
 open Vault
 open ConsoleUi
 open Result
+open System
 
 type Arguments =
     | Mode of mode : string
@@ -17,7 +18,7 @@ type Arguments =
 
 module Main =
 
-    [<EntryPoint>]
+    [<EntryPoint; STAThread>]
     let main args =
         let argsParser = ArgumentParser.Create<Arguments>(programName = "MyPass")
         let helpSpecified =

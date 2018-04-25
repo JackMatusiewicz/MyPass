@@ -135,6 +135,11 @@ module ConsoleUi =
         with
         | ex -> printfn "ERROR: %s" <| ex.ToString()
 
+    let private givePasswordToUser (password : string) =
+        printfn "Your password will be in your clipboard for 15 seconds."
+        Clipboard.timedStoreInClipboard 15000 password
+        printfn "Your password has been removed from your clipboard"
+
     //TODO - replace this with a timed cut and paste.
     let printPassword () : unit =
         try
@@ -145,7 +150,7 @@ module ConsoleUi =
                     let entryName = getInput "Please enter the name of the password you wish to see: "
                     Vault.getPassword entryName vault)
             |> (=<<) Vault.decryptPassword
-            |> Result.iter (printfn "%s")
+            |> Result.iter givePasswordToUser
             |> ignore
         with
         | ex -> printfn "ERROR: %s" <| ex.ToString()
