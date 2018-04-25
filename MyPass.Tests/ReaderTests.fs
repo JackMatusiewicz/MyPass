@@ -13,3 +13,9 @@ module ReaderTests =
         let h = (+) <-| f <~| g
         let result = h 3
         Assert.That(result, Is.EqualTo(14))
+
+    [<Test>]
+    let ``Given an item, when lifted into the reader context, then the result is a partially applied const function`` () =
+        let x = 5
+        let f = Reader.lift x
+        Assert.That(f 99, Is.EqualTo(5))
