@@ -84,7 +84,7 @@ module Vault =
             encryptedManager
             |> Aes.decrypt key
             |> Encoding.UTF8.GetString
-            |> JonConvert.DeserializeObject<Vault>
+            |> JsonConvert.DeserializeObject<Vault>
             |> Success
         with
            ex -> Failure ex.Message
