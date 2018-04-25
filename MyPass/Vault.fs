@@ -81,11 +81,11 @@ module Vault =
 
     let decryptManager (key : AesKey) (encryptedManager : byte[]) : Result<string, Vault> =
         try
-            let decryptedManager =
-                encryptedManager
-                |> Aes.decrypt key
-                |> Encoding.UTF8.GetString
-            Success <| JsonConvert.DeserializeObject<Vault>(decryptedManager)
+            encryptedManager
+            |> Aes.decrypt key
+            |> Encoding.UTF8.GetString
+            |> JonConvert.DeserializeObject<Vault>
+            |> Success
         with
            ex -> Failure ex.Message
 
