@@ -57,6 +57,7 @@
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="AesTests.fs" />
     <Compile Include="HkdfTests.fs" />
+    <Compile Include="ReaderTests.fs" />
     <Compile Include="StringTests.fs" />
     <Compile Include="ResultTests.fs" />
     <Compile Include="FileKeyTests.fs" />
@@ -99,5 +100,5 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  <Import Project="$(FSharpTargetsPath)" Condition="Exists('$(FSharpTargetsPath)')"/>
+  <Import Project="$(FSharpTargetsPath)" Condition="Exists('$(FSharpTargetsPath)')" />
 </Project>
