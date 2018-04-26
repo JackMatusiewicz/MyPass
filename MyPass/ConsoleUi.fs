@@ -75,9 +75,8 @@ module ConsoleUi =
                 userInput.UserName
         {MasterKey = {Key = masterKey}; UserInput = userInput}
 
-    let createNewVault () =
+    let constructVault (userData : UserData) =
         try
-            let userData = (constructComponents <-| getUserInputForNewVault) ()
             let encryptedVault = Vault.encryptManager userData.MasterKey Vault.empty
             match encryptedVault with
             | Failure f -> printfn "%s" f
@@ -89,11 +88,13 @@ module ConsoleUi =
         with
         | ex -> printfn "ERROR: %s" <| ex.ToString()
 
-    let private loadVault () =
-        let userInput = (constructComponents <-| getUserInputForExistingVault) ()
-        let manager = File.ReadAllBytes userInput.UserInput.VaultPath
-        let vault = Vault.decryptManager userInput.MasterKey manager
-        (fun v -> (v,userInput)) <!> vault
+    let createNewVault () =
+        (constructComponents <-| getUserInputForNewVault) ()
+        |> constructVault
+
+    let private loadVault (userData : UserData) =
+        let manager = File.ReadAllBytes userData.UserInput.VaultPath
+        Vault.decryptManager userData.MasterKey manager
 
     let getSecretPassword () =
         let value = getInput "Do you want to write your own password (Y) or have one generated?"
@@ -102,26 +103,30 @@ module ConsoleUi =
         else
             Password.createPassword 15u
 
-    let private addAndStore (entry : PasswordEntry) (vault : Vault, ud : UserData) =
+    let private addAndStore (entry : PasswordEntry) (ud : UserData) (vault : Vault) =
         vault
         |> (Vault.storePassword entry >=> Vault.encryptManager ud.MasterKey)
         <?> (fun d -> File.WriteAllBytes(ud.UserInput.VaultPath, d))
 
-    let addSecret () =
+    let addSecretToVault (userData : UserData) =
         try
-            let vault = loadVault ()
+            let vault = loadVault userData
             let name = getInput "Enter the name for this secret:"
             let desc = getInput "Enter the description for this secret:"
             let pw = getSecretPassword ()
             let entry = Vault.createEntry (BasicDescription (name, desc)) pw
-            let result = vault >>= addAndStore entry
+            let result = vault >>= addAndStore entry userData
             match result with
             | Failure f -> printfn "ERROR: %s" f
             | Success _ -> printfn "Secret has been stored"
         with
         | ex -> printfn "ERROR: %s" <| ex.ToString()
 
-    let listSecrets () : unit =
+    let addSecret () =
+        (constructComponents <-| getUserInputForExistingVault) ()
+        |> addSecretToVault
+
+    let listAllSecrets (userData : UserData) : unit =
         let printEntries vault =
             vault.passwords
             |> Map.toList
@@ -129,21 +134,23 @@ module ConsoleUi =
             |> List.iter (fun e -> printfn "%A\n---------------\n" e.Description)
 
         try
-            loadVault ()
-            |> Result.map fst
+            loadVault (userData)
             |> Result.iter printEntries
         with
         | ex -> printfn "ERROR: %s" <| ex.ToString()
+
+    let listSecrets () =
+        (constructComponents <-| getUserInputForExistingVault) ()
+        |> listAllSecrets
 
     let private givePasswordToUser (password : string) =
         printfn "Your password will be in your clipboard for 15 seconds."
         Clipboard.timedStoreInClipboard 15000 password
         printfn "Your password has been removed from your clipboard"
 
-    let printPassword () : unit =
+    let showPasswordToUser (userData : UserData) : unit =
         try
-            loadVault ()
-            |> Result.map fst
+            loadVault (userData)
             |> (=<<)
                 (fun vault ->
                     let entryName = getInput "Please enter the name of the password you wish to see: "
@@ -153,3 +160,7 @@ module ConsoleUi =
             |> ignore
         with
         | ex -> printfn "ERROR: %s" <| ex.ToString()
+
+    let printPassword () =
+        (constructComponents <-| getUserInputForExistingVault) ()
+        |> showPasswordToUser

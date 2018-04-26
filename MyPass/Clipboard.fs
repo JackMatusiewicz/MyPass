@@ -7,6 +7,6 @@ module Clipboard =
 
     [<STAThread>]
     let timedStoreInClipboard (durationMs : int) (data : string) =
-        Clipboard.Clear()
-        System.Threading.Thread.Sleep(durationMs)
         Clipboard.SetText(data)
+        System.Threading.Thread.Sleep(durationMs)
+        Clipboard.Clear()
