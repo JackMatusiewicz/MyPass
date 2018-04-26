@@ -29,6 +29,12 @@ module Vault =
 
     let empty = { passwords = Map.empty }
 
+    let private exceptionToFailure (f : unit -> Result<string, 'b>) =
+        try
+            f ()
+        with
+        | ex -> ex.Message |> Failure
+
     let createEntry (desc : Description) (password : string) =
         let passwordKey = Aes.newKey ()
         let encryptedPassword =
@@ -70,24 +76,22 @@ module Vault =
             Failure "Password entry did not exist under that name."
 
     let encryptManager (key : AesKey) (manager : Vault) : Result<string, byte[]> =
-        try
+        fun () ->
             manager
             |> JsonConvert.SerializeObject
             |> Encoding.UTF8.GetBytes
             |> Aes.encrypt key
             |> Success
-        with
-         ex -> Failure ex.Message
+        |> exceptionToFailure
 
     let decryptManager (key : AesKey) (encryptedManager : byte[]) : Result<string, Vault> =
-        try
+        fun () ->
             encryptedManager
             |> Aes.decrypt key
             |> Encoding.UTF8.GetString
             |> (fun m -> JsonConvert.DeserializeObject<Vault>(m))
             |> Success
-        with
-           ex -> Failure ex.Message
+        |> exceptionToFailure
 
     let getPassword (name : Name) (manager : Vault) : Result<string, PasswordEntry> =
         let store = manager.passwords
@@ -97,11 +101,10 @@ module Vault =
             Failure "Unable to find a password matching that name."
 
     let decryptPassword (entry : PasswordEntry) : Result<string, string> =
-        try
+        fun () ->
             let (EncryptedPassword encryptedBytes) = entry.Password
             encryptedBytes
             |> Aes.decrypt (entry.Key)
             |> Encoding.UTF8.GetString
             |> Success
-        with
-            ex -> Failure ex.Message
+        |> exceptionToFailure
