@@ -53,17 +53,17 @@ module ConsoleUi =
 
     let private getUserInputForNewVault =
         createUserInput
-        <-| getVaultPath
-        <~| getMasterPassPhrase
-        <~| getUserName
-        <~| getDefaultFileKeyPath
+            <-| getVaultPath
+            <~| getMasterPassPhrase
+            <~| getUserName
+            <~| getDefaultFileKeyPath
 
     let private getUserInputForExistingVault =
         createUserInput
-        <-| getVaultPath
-        <~| getMasterPassPhrase
-        <~| getUserName
-        <~| getFileKeyPath
+            <-| getVaultPath
+            <~| getMasterPassPhrase
+            <~| getUserName
+            <~| getFileKeyPath
 
     let private constructComponents (userInput : UserInput) =
         let fileKeyBytes = FileKey.toBytes userInput.FileKey
@@ -106,7 +106,7 @@ module ConsoleUi =
     let private addAndStore (entry : PasswordEntry) (ud : UserData) (vault : Vault) =
         vault
         |> (Vault.storePassword entry >=> Vault.encryptManager ud.MasterKey)
-        <?> (fun d -> File.WriteAllBytes(ud.UserInput.VaultPath, d))
+        |> Result.map (fun d -> File.WriteAllBytes(ud.UserInput.VaultPath, d))
 
     let addSecretToVault (userData : UserData) =
         try

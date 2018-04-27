@@ -20,9 +20,7 @@ type PasswordEntry = {
     Description : Description
 }
 
-type Vault = {
-    passwords : Map<Name, PasswordEntry>
-}
+type Vault = { passwords : Map<Name, PasswordEntry> }
 
 [<CompilationRepresentation (CompilationRepresentationFlags.ModuleSuffix)>]
 module Vault =
