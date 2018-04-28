@@ -1,0 +1,4 @@
+namespace MyPass
+
+module Input =
+    ()
