@@ -9,8 +9,8 @@ module SecureInput =
         [ConsoleModifiers.Control; ConsoleModifiers.Alt]
         |> List.map (fun x -> (int x))
         |> List.map (fun a -> a &&& (int keyModifiers))
-        |> List.map (fun a -> a = 0)
-        |> List.fold (fun s a -> s && a) true
+        |> List.map (fun a -> a <> 0)
+        |> List.fold (fun s a -> s || a) false
 
     //TODO - add checks for valid character, via a regex.
     let private isValidKeyPress (key : ConsoleKeyInfo) =
@@ -22,18 +22,17 @@ module SecureInput =
 
     let get () : string =
         let rec getInput (acc : StringBuilder) =
-            let key = Console.ReadKey()
+            let key = Console.ReadKey(true)
             if key.Key = ConsoleKey.Enter then
+                printfn ""
                 acc.ToString()
             else if not (isValidKeyPress key) then
-                Console.Write("\b \b")
                 getInput acc
             else if key.Key = ConsoleKey.Backspace then
-                Console.Write("\b \b")
+                if acc.Length > 0 then printf "\b \b"
                 let accWithoutLastChar = acc.Remove(acc.Length - 1, 1)
                 getInput accWithoutLastChar
             else
-                Console.Write("\b \b")
-                Console.Write("*")
+                printf "*"
                 getInput (acc.Append(key.KeyChar))
         getInput (StringBuilder ())
