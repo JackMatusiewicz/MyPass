@@ -25,12 +25,13 @@ module SecureInput =
             let key = Console.ReadKey()
             if key.Key = ConsoleKey.Enter then
                 acc.ToString()
-                |> (fun s -> s.ToCharArray())
-                |> Array.rev
-                |> (fun cs -> new string(cs))
             else if not (isValidKeyPress key) then
                 Console.Write("\b \b")
                 getInput acc
+            else if key.Key = ConsoleKey.Backspace then
+                Console.Write("\b \b")
+                let accWithoutLastChar = acc.Remove(acc.Length - 1, 1)
+                getInput accWithoutLastChar
             else
                 Console.Write("\b \b")
                 Console.Write("*")
