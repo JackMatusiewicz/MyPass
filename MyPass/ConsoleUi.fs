@@ -45,7 +45,8 @@ module ConsoleUi =
         randomName + ".fk", FileKey.generateFileKey ()
 
     let private getMasterPassPhrase () =
-        getInput "Please enter the master pass phrase for this vault:"
+        printfn "Please enter the master pass phrase for this vault:"
+        SecureInput.get ()
 
     let private createUserInput vaultPath masterPassPhrase userName (fileKeyPath,fileKey) =
         {VaultPath = vaultPath; FileKeyPath = fileKeyPath;
