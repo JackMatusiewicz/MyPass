@@ -12,13 +12,29 @@ module Password =
         use rng = new RNGCryptoServiceProvider()
         let randomBytes = Array.create 4 (byte 0)
 
+        let findIndex (len : int) =
+            let rec findLargerPowerOfTwo len (acc : int) =
+                match acc > len with
+                | true -> acc
+                | false -> findLargerPowerOfTwo len (acc <<< 1)
+
+            let poolSize = findLargerPowerOfTwo len 1
+
+            let rec calculate () =
+                rng.GetBytes(randomBytes)
+                let randomInt = BitConverter.ToInt32(randomBytes, 0)
+                let index = (randomInt &&& (~~~(1 <<< 31))) % poolSize
+                match index < len with
+                | true -> index
+                | false -> calculate ()
+
+            calculate ()
+
         let rec create (acc : char list) (current : uint32) =
             match current with
             | _ when current = length -> acc |> String.ofList
             | _ ->
-                rng.GetBytes(randomBytes)
-                let randomInt = BitConverter.ToInt32(randomBytes, 0)
-                let index = (randomInt &&& (~~~(1 <<< 31))) % availableCharacters.Length
+                let index = findIndex (availableCharacters.Length)
                 create (availableCharacters.[index] :: acc) (current + 1u)
         create [] 0u
 
