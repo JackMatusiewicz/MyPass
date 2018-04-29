@@ -44,8 +44,9 @@ module Main =
                 let mode = (parsedArgs.GetResult Mode).ToLower()
                 match mode with
                 | "create" -> ConsoleUi.createNewVault ()
-                | "add" -> ConsoleUi.addSecret () |> printError
-                | "list" -> ConsoleUi.listSecrets () |> printError
-                | "get" -> ConsoleUi.printPassword () |> printError
-                | _ -> argsParser.PrintUsage () |> printfn "%s"
+                | "add" -> ConsoleUi.addSecret ()
+                | "list" -> ConsoleUi.listSecrets ()
+                | "get" -> ConsoleUi.printPassword ()
+                | _ -> argsParser.PrintUsage () |> sprintf "%s" |> Failure
+                |> printError
         0

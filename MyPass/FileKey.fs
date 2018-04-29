@@ -1,6 +1,7 @@
 ﻿namespace MyPass
 
 open System.IO
+open System.IO.Abstractions
 
 type FileKey = FileKey of string
 
@@ -15,10 +16,10 @@ module FileKey =
         Password.createWithCharacters availableCharacters 16u
         |> FileKey
 
-    let read (path : string) : Result<string, FileKey> =
+    let read (fs : IFileSystem) (path : string) : Result<string, FileKey> =
         try
             path
-            |> File.ReadAllText
+            |> fs.File.ReadAllText
             |> FileKey
             |> Success
         with

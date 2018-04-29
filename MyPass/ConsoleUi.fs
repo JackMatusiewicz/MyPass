@@ -7,6 +7,7 @@ open Reader
 open System
 open System.IO
 open Vault
+open System.IO.Abstractions
 
 ///These are all the specific pieces of information we require from the user.
 type UserInput = {
@@ -24,6 +25,7 @@ type UserData = {
 }
 
 module ConsoleUi =
+    open System.IO.Abstractions
 
     let private getInput (question : string) =
         printfn "%s" question
@@ -35,11 +37,12 @@ module ConsoleUi =
     let private getUserName () =
         getInput "Please enter the user name for the vault:"
 
-    let private getFileKeyPath () =
-        let path =
-            getInput "Please enter the full path (including the file and extension) to the file key for this vault:"
-        FileKey.read path
-        |> Result.map (fun key -> path,key)
+    let private getFileKeyPath (fs : IFileSystem) =
+        fun () ->
+            let path =
+                getInput "Please enter the full path (including the file and extension) to the file key for this vault:"
+            FileKey.read fs path
+            |> Result.map (fun key -> path,key)
 
     let private getDefaultFileKeyPath () =
         let (FileKey randomName) = FileKey.generateFileKey ()
@@ -65,7 +68,7 @@ module ConsoleUi =
             <-| getVaultPath
             <~| getMasterPassPhrase
             <~| getUserName
-        |> Reader.applyWithResult getFileKeyPath
+        |> Reader.applyWithResult (getFileKeyPath (new FileSystem ()))
 
     let private constructComponents (userInput : UserInput) =
         let fileKeyBytes = FileKey.toBytes userInput.FileKey
@@ -81,25 +84,26 @@ module ConsoleUi =
         getUserInputForExistingVault ()
         |> (Result.map constructComponents)
 
-    let constructVault (userData : UserData) =
+    let constructVault (fs : IFileSystem) (userData : UserData) : Result<string, unit> =
         try
             let encryptedVault = Vault.encryptManager userData.MasterKey Vault.empty
             match encryptedVault with
-            | Failure f -> printfn "%s" f
+            | Failure f -> Failure f
             | Success mgr ->
-                File.WriteAllBytes (userData.UserInput.VaultPath, mgr)
-                File.WriteAllText ("FileKey.fk", userData.UserInput.FileKey |> FileKey.getKey)
+                fs.File.WriteAllBytes (userData.UserInput.VaultPath, mgr)
+                fs.File.WriteAllText ("FileKey.fk", userData.UserInput.FileKey |> FileKey.getKey)
                 printfn "Your file key has been created, it is here: %s" <| Path.GetFullPath "FileKey.fk"
                 printfn "Please keep this safe, it is required to use the vault."
+                |> Success
         with
-        | ex -> printfn "ERROR: %s" <| ex.ToString()
+        | ex -> ex.Message |> Failure
 
     let createNewVault () =
         (constructComponents <-| getUserInputForNewVault) ()
-        |> constructVault
+        |> constructVault (new FileSystem ())
 
-    let private loadVault (userData : UserData) =
-        let manager = File.ReadAllBytes userData.UserInput.VaultPath
+    let private loadVault (fs : IFileSystem) (userData : UserData) =
+        let manager = fs.File.ReadAllBytes userData.UserInput.VaultPath
         Vault.decryptManager userData.MasterKey manager
 
     let getSecretPassword () =
@@ -109,19 +113,24 @@ module ConsoleUi =
         else
             Password.createPassword 15u
 
-    let private addAndStore (entry : PasswordEntry) (ud : UserData) (vault : Vault) =
+    let private addAndStore
+        (fs : IFileSystem)
+        (entry : PasswordEntry)
+        (ud : UserData)
+        (vault : Vault) =
+
         vault
         |> (Vault.storePassword entry >=> Vault.encryptManager ud.MasterKey)
-        |> Result.map (fun d -> File.WriteAllBytes(ud.UserInput.VaultPath, d))
+        |> Result.map (fun d -> fs.File.WriteAllBytes(ud.UserInput.VaultPath, d))
 
-    let addSecretToVault (userData : UserData) =
+    let addSecretToVault (fs : IFileSystem) (userData : UserData) =
         try
-            let vault = loadVault userData
+            let vault = loadVault fs userData
             let name = getInput "Enter the name for this secret:"
             let desc = getInput "Enter the description for this secret:"
             let pw = getSecretPassword ()
             let entry = Vault.createEntry (BasicDescription (name, desc)) pw
-            let result = vault >>= addAndStore entry userData
+            let result = vault >>= addAndStore fs entry userData
             match result with
             | Failure f -> printfn "ERROR: %s" f
             | Success _ -> printfn "Secret has been stored"
@@ -130,9 +139,9 @@ module ConsoleUi =
 
     let addSecret () =
         constructComponentsFromUserInput
-        |> Result.map addSecretToVault
+        |> Result.map (addSecretToVault (new FileSystem ()))
 
-    let listAllSecrets (userData : UserData) : unit =
+    let listAllSecrets (fs : IFileSystem) (userData : UserData) : unit =
         let printEntries vault =
             vault.passwords
             |> Map.toList
@@ -140,33 +149,33 @@ module ConsoleUi =
             |> List.iter (fun e -> printfn "%A\n---------------\n" e.Description)
 
         try
-            loadVault (userData)
+            loadVault fs userData
             |> Result.iter printEntries
         with
         | ex -> printfn "ERROR: %s" <| ex.ToString()
 
     let listSecrets () =
         constructComponentsFromUserInput
-        |> Result.map listAllSecrets
+        |> Result.map (listAllSecrets (new FileSystem ()))
 
     let private givePasswordToUser (password : string) =
         printfn "Your password will be in your clipboard for 15 seconds."
         Clipboard.timedStoreInClipboard 15000 password
         printfn "Your password has been removed from your clipboard"
 
-    let showPasswordToUser (userData : UserData) : unit =
+    let showPasswordToUser (vault : Vault) : Result<string, unit> =
         try
-            loadVault (userData)
-            |> (=<<)
-                (fun vault ->
-                    let entryName = getInput "Please enter the name of the password you wish to see: "
+            vault
+            |> (fun vault ->
+                    let entryName =
+                        getInput "Please enter the name of the password you wish to see: "
                     Vault.getPassword entryName vault)
             |> (=<<) Vault.decryptPassword
-            |> Result.iter givePasswordToUser
-            |> ignore
+            |> Result.map givePasswordToUser
         with
-        | ex -> printfn "ERROR: %s" <| ex.ToString()
+        | ex -> ex.Message |> Failure
 
     let printPassword () =
         constructComponentsFromUserInput
-        |> Result.map showPasswordToUser
+        |> (=<<) (loadVault (new FileSystem ()))
+        |> (=<<) showPasswordToUser
