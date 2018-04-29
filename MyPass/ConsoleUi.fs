@@ -125,7 +125,8 @@ module ConsoleUi =
         | ex -> printfn "ERROR: %s" <| ex.ToString()
 
     let addSecret () =
-        (Reader.mapWithResult constructComponents getUserInputForExistingVault) ()
+        getUserInputForExistingVault ()
+        |> (Result.map constructComponents)
         |> Result.map addSecretToVault
 
     let listAllSecrets (userData : UserData) : unit =
@@ -142,7 +143,8 @@ module ConsoleUi =
         | ex -> printfn "ERROR: %s" <| ex.ToString()
 
     let listSecrets () =
-        (Reader.mapWithResult constructComponents getUserInputForExistingVault) ()
+        getUserInputForExistingVault ()
+        |> Result.map constructComponents
         |> Result.map listAllSecrets
 
     let private givePasswordToUser (password : string) =
@@ -164,5 +166,6 @@ module ConsoleUi =
         | ex -> printfn "ERROR: %s" <| ex.ToString()
 
     let printPassword () =
-        (Reader.mapWithResult constructComponents getUserInputForExistingVault) ()
+        getUserInputForExistingVault ()
+        |> Result.map constructComponents
         |> Result.map showPasswordToUser

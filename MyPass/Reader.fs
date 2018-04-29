@@ -15,7 +15,4 @@ module Reader =
     let lift x = fun r -> x
 
     let applyWithResult (refa : 'r -> Result<'f, 'a>) (rab : 'r -> 'a -> 'b) =
-        fun r -> rab r <!> refa r
-
-    let mapWithResult (f : 'a -> 'b) (ra : 'r -> Result<'f, 'a>) =
-        fun r -> Result.map f (ra r)
+        apply (fun r -> r |> rab |> Result.map) refa

@@ -19,3 +19,12 @@ module ReaderTests =
         let x = 5
         let f = Reader.lift x
         Assert.That(f 99, Is.EqualTo(5))
+
+    [<Test>]
+    let ``Basic ApplyWithResult test`` () =
+        let f () = fun a -> a + 7
+        let g () = Success 5
+        let r = Reader.applyWithResult g f
+        match r () with
+        | Success n -> Assert.That(n, Is.EqualTo(12))
+        | _ -> Assert.Fail ()
