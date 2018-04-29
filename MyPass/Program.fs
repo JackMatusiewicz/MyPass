@@ -18,6 +18,11 @@ type Arguments =
 
 module Main =
 
+    let printError (result : Result<string, 'a>) =
+        match result with
+        | Failure f -> printfn "%s" f
+        | _ -> printfn "Operation completed."
+
     [<EntryPoint; STAThread>]
     let main args =
         let argsParser = ArgumentParser.Create<Arguments>(programName = "MyPass")
@@ -39,8 +44,8 @@ module Main =
                 let mode = (parsedArgs.GetResult Mode).ToLower()
                 match mode with
                 | "create" -> ConsoleUi.createNewVault ()
-                | "add" -> ConsoleUi.addSecret ()
-                | "list" -> ConsoleUi.listSecrets ()
-                | "get" -> ConsoleUi.printPassword ()
+                | "add" -> ConsoleUi.addSecret () |> printError
+                | "list" -> ConsoleUi.listSecrets () |> printError
+                | "get" -> ConsoleUi.printPassword () |> printError
                 | _ -> argsParser.PrintUsage () |> printfn "%s"
         0

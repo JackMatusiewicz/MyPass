@@ -57,8 +57,8 @@
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Clipboard.fs" />
     <Compile Include="Input.fs" />
-    <Compile Include="Reader.fs" />
     <Compile Include="Result.fs" />
+    <Compile Include="Reader.fs" />
     <Compile Include="Streams.fs" />
     <Compile Include="String.fs" />
     <Compile Include="Aes.fs" />

@@ -1,5 +1,7 @@
 ﻿namespace MyPass
 
+open Result
+
 module Reader =
 
     let map (f : 'a -> 'b) (func : 'r -> 'a) : 'r -> 'b =
@@ -11,3 +13,9 @@ module Reader =
     let (<~|) = apply
 
     let lift x = fun r -> x
+
+    let applyWithResult (refa : 'r -> Result<'f, 'a>) (rab : 'r -> 'a -> 'b) =
+        fun r -> rab r <!> refa r
+
+    let mapWithResult (f : 'a -> 'b) (ra : 'r -> Result<'f, 'a>) =
+        fun r -> Result.map f (ra r)

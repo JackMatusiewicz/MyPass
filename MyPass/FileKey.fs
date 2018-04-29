@@ -15,10 +15,15 @@ module FileKey =
         Password.createWithCharacters availableCharacters 16u
         |> FileKey
 
-    let read (path : string) : FileKey =
-        path
-        |> File.ReadAllText
-        |> FileKey
+    let read (path : string) : Result<string, FileKey> =
+        try
+            path
+            |> File.ReadAllText
+            |> FileKey
+            |> Success
+        with
+        | ex ->
+            ex.Message |> Failure
 
     let toBytes (FileKey fk) =
         System.Text.Encoding.UTF8.GetBytes fk

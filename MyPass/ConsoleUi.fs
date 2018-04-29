@@ -38,7 +38,8 @@ module ConsoleUi =
     let private getFileKeyPath () =
         let path =
             getInput "Please enter the full path (including the file and extension) to the file key for this vault:"
-        path, FileKey.read path
+        FileKey.read path
+        |> Result.map (fun key -> path,key)
 
     let private getDefaultFileKeyPath () =
         let (FileKey randomName) = FileKey.generateFileKey ()
@@ -64,7 +65,7 @@ module ConsoleUi =
             <-| getVaultPath
             <~| getMasterPassPhrase
             <~| getUserName
-            <~| getFileKeyPath
+        |> Reader.applyWithResult getFileKeyPath
 
     let private constructComponents (userInput : UserInput) =
         let fileKeyBytes = FileKey.toBytes userInput.FileKey
@@ -124,8 +125,8 @@ module ConsoleUi =
         | ex -> printfn "ERROR: %s" <| ex.ToString()
 
     let addSecret () =
-        (constructComponents <-| getUserInputForExistingVault) ()
-        |> addSecretToVault
+        (Reader.mapWithResult constructComponents getUserInputForExistingVault) ()
+        |> Result.map addSecretToVault
 
     let listAllSecrets (userData : UserData) : unit =
         let printEntries vault =
@@ -141,8 +142,8 @@ module ConsoleUi =
         | ex -> printfn "ERROR: %s" <| ex.ToString()
 
     let listSecrets () =
-        (constructComponents <-| getUserInputForExistingVault) ()
-        |> listAllSecrets
+        (Reader.mapWithResult constructComponents getUserInputForExistingVault) ()
+        |> Result.map listAllSecrets
 
     let private givePasswordToUser (password : string) =
         printfn "Your password will be in your clipboard for 15 seconds."
@@ -163,5 +164,5 @@ module ConsoleUi =
         | ex -> printfn "ERROR: %s" <| ex.ToString()
 
     let printPassword () =
-        (constructComponents <-| getUserInputForExistingVault) ()
-        |> showPasswordToUser
+        (Reader.mapWithResult constructComponents getUserInputForExistingVault) ()
+        |> Result.map showPasswordToUser
