@@ -38,7 +38,7 @@ module Password =
                 create (availableCharacters.[index] :: acc) (current + 1u)
         create [] 0u
 
-    let createPassword = createWithCharacters availableCharacters
+    let createPassword = fun len -> createWithCharacters availableCharacters len
 
     let private xor (keyOne : byte[]) (keyTwo : byte[]) =
         keyOne
