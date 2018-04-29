@@ -77,6 +77,10 @@ module ConsoleUi =
                 userInput.UserName
         {MasterKey = {Key = masterKey}; UserInput = userInput}
 
+    let private constructComponentsFromUserInput =
+        getUserInputForExistingVault ()
+        |> (Result.map constructComponents)
+
     let constructVault (userData : UserData) =
         try
             let encryptedVault = Vault.encryptManager userData.MasterKey Vault.empty
@@ -125,8 +129,7 @@ module ConsoleUi =
         | ex -> printfn "ERROR: %s" <| ex.ToString()
 
     let addSecret () =
-        getUserInputForExistingVault ()
-        |> (Result.map constructComponents)
+        constructComponentsFromUserInput
         |> Result.map addSecretToVault
 
     let listAllSecrets (userData : UserData) : unit =
@@ -143,8 +146,7 @@ module ConsoleUi =
         | ex -> printfn "ERROR: %s" <| ex.ToString()
 
     let listSecrets () =
-        getUserInputForExistingVault ()
-        |> Result.map constructComponents
+        constructComponentsFromUserInput
         |> Result.map listAllSecrets
 
     let private givePasswordToUser (password : string) =
@@ -166,6 +168,5 @@ module ConsoleUi =
         | ex -> printfn "ERROR: %s" <| ex.ToString()
 
     let printPassword () =
-        getUserInputForExistingVault ()
-        |> Result.map constructComponents
+        constructComponentsFromUserInput
         |> Result.map showPasswordToUser
