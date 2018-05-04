@@ -4,6 +4,7 @@ open NUnit.Framework
 open MyPass
 open Result
 open System.IO.Abstractions
+open System.Linq
 
 module FileKeyTests =
 
@@ -26,6 +27,13 @@ module FileKeyTests =
         let pw2 = FileKey.getKey fk
 
         Assert.That(pw, Is.EqualTo pw2)
+
+    [<Test>]
+    let ``Given a file key, when key is extracted from object and converted to bytes, then correct value returned`` () =
+        let fk = FileKey.generateFileKey ()
+        let pw2 = FileKey.getKey fk |> System.Text.Encoding.UTF8.GetBytes
+
+        Assert.That((FileKey.toBytes fk).SequenceEqual(pw2), Is.True)
 
     [<Test>]
     let ``Given an invalid directory, when try to create file key, then error is returned`` () =
