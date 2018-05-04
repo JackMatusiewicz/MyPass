@@ -52,6 +52,11 @@ module ConsoleUi =
         printfn "Please enter the master pass phrase for this vault:"
         SecureInput.get ()
 
+    let private getExtraPasswordCharacters () =
+        getInput "Please enter the extra characters to use for password generation:"
+        |> fun s -> s.ToCharArray ()
+        |> Password.createWithCharacters 15u
+
     let private createUserInput vaultPath masterPassPhrase userName (fileKeyPath,fileKey) =
         {VaultPath = vaultPath; FileKeyPath = fileKeyPath;
             FileKey = fileKey; UserName = userName; MasterPassPhrase = masterPassPhrase}
@@ -70,7 +75,7 @@ module ConsoleUi =
             <~| getUserName
         |> Reader.applyWithResult (getFileKeyPath (new FileSystem ()))
 
-    let private constructComponents (userInput : UserInput) =
+    let makeUserData (userInput : UserInput) =
         let fileKeyBytes = FileKey.toBytes userInput.FileKey
         let masterKey =
             Password.createMasterPassword
@@ -82,7 +87,7 @@ module ConsoleUi =
 
     let private constructComponentsFromUserInput =
         getUserInputForExistingVault ()
-        |> (Result.map constructComponents)
+        |> (Result.map makeUserData)
 
     let constructVault (fs : IFileSystem) (userData : UserData) : Result<string, unit> =
         try
@@ -99,7 +104,7 @@ module ConsoleUi =
         | ex -> ex.Message |> Failure
 
     let createNewVault () =
-        (constructComponents <-| getUserInputForNewVault) ()
+        (makeUserData <-| getUserInputForNewVault) ()
         |> constructVault (new FileSystem ())
 
     let private loadVault (fs : IFileSystem) (userData : UserData) =
@@ -111,7 +116,7 @@ module ConsoleUi =
         if value = "Y" then
             getInput "Please enter your password:"
         else
-            Password.createPassword 15u
+            getExtraPasswordCharacters ()
 
     let private addAndStore
         (fs : IFileSystem)

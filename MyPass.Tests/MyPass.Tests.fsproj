@@ -55,6 +55,8 @@
   </Choose>
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
+    <Compile Include="TemporaryDirectory.fs" />
+    <Compile Include="ConsoleUiTests.fs" />
     <Compile Include="AesTests.fs" />
     <Compile Include="HkdfTests.fs" />
     <Compile Include="ReaderTests.fs" />

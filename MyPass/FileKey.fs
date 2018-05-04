@@ -13,7 +13,7 @@ module FileKey =
     let availableCharacters = ['a' .. 'z'] @ ['A' .. 'Z'] @ ['0' .. '9'] |> Array.ofList
 
     let generateFileKey () : FileKey =
-        Password.createWithCharacters availableCharacters 16u
+        Password.createWithCharacters 16u availableCharacters
         |> FileKey
 
     let read (fs : IFileSystem) (path : string) : Result<string, FileKey> =

@@ -8,6 +8,17 @@ open System.Linq
 module PasswordTests =
 
     [<Test>]
+    [<Repeat(50)>]
+    let ``When constructing password with extra chars, then no unspecified chars are used `` () =
+        let extra = [|'@'; ';'; '\''; '\"'; '['|]
+        let allValidChars = Array.concat [|Password.availableCharacters; extra|]
+        let pw = Password.createWithExtraCharacters extra 15u
+        pw.ToCharArray ()
+        |> Array.map (fun c -> Array.contains c allValidChars)
+        |> Array.fold (&&) true
+        |> fun v -> Assert.IsTrue v
+
+    [<Test>]
     [<Repeat(25)>]
     let ``When recreating the password with the same parameters then the password is the same`` () =
         let userId = Password.createPassword 15u

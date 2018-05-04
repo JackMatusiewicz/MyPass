@@ -8,7 +8,7 @@ module Password =
     let availableCharacters =
         ['a'..'z'] @ ['A'..'Z'] @ ['0'..'9'] @ ['!'; '?'; '_'] |> Array.ofList
 
-    let createWithCharacters (availableCharacters : char[]) (length : uint32) =
+    let createWithCharacters (length : uint32) (availableCharacters : char[]) =
         use rng = new RNGCryptoServiceProvider()
         let randomBytes = Array.create 4 (byte 0)
 
@@ -38,7 +38,15 @@ module Password =
                 create (availableCharacters.[index] :: acc) (current + 1u)
         create [] 0u
 
-    let createPassword = fun len -> createWithCharacters availableCharacters len
+    let createPassword = fun len -> createWithCharacters len availableCharacters
+
+    ///Uses the default set, along with any extra you pass in.
+    let createWithExtraCharacters (chars : char[]) =
+        fun len ->
+            chars
+            |> fun c -> Array.concat [|chars; availableCharacters|]
+            |> Array.distinct
+            |> createWithCharacters len
 
     let private xor (keyOne : byte[]) (keyTwo : byte[]) =
         keyOne
