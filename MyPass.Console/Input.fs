@@ -1,4 +1,4 @@
-namespace MyPass
+﻿namespace MyPass.Console
 
 open System
 open System.Text
