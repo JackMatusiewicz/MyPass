@@ -10,8 +10,8 @@ module Hkdf =
         (initialKeyData : byte[])
         (salt : byte[])
         (info : byte[])
-        (length : int) : byte[] =
-
+        (length : int) : byte[]
+        =
         use hmac = new HMACSHA256(salt)
         let hmacKey = hmac.ComputeHash(initialKeyData)
         use hmac = new HMACSHA256(hmacKey)
@@ -20,8 +20,8 @@ module Hkdf =
             (result : byte[])
             (previousResultBlock : byte[])
             (remainingBytes : int)
-            (i : int) =
-
+            (i : int)
+            =
             match remainingBytes with
             | _ when remainingBytes <= 0 -> result
             | _ ->

@@ -57,9 +57,19 @@ module ConsoleUi =
         |> fun s -> s.ToCharArray ()
         |> Password.createWithCharacters 15u
 
-    let private createUserInput vaultPath masterPassPhrase userName (fileKeyPath,fileKey) =
-        {VaultPath = vaultPath; FileKeyPath = fileKeyPath;
-            FileKey = fileKey; UserName = userName; MasterPassPhrase = masterPassPhrase}
+    let private createUserInput
+        vaultPath
+        masterPassPhrase
+        userName
+        (fileKeyPath,fileKey)
+        =
+        {
+            VaultPath = vaultPath;
+            FileKeyPath = fileKeyPath;
+            FileKey = fileKey;
+            UserName = userName;
+            MasterPassPhrase = masterPassPhrase
+        }
 
     let private getUserInputForNewVault =
         createUserInput
@@ -122,8 +132,8 @@ module ConsoleUi =
         (fs : IFileSystem)
         (entry : PasswordEntry)
         (ud : UserData)
-        (vault : Vault) =
-
+        (vault : Vault)
+        =
         vault
         |> (Vault.storePassword entry >=> Vault.encryptManager ud.MasterKey)
         |> Result.map (fun d -> fs.File.WriteAllBytes(ud.UserInput.VaultPath, d))
