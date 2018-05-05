@@ -1,12 +1,10 @@
-﻿namespace MyPass
+﻿namespace MyPass.Console
 
 open Argu
-open Aes
-open Password
-open System.Text
-open Vault
-open ConsoleUi
-open Result
+open MyPass.Aes
+open MyPass.Password
+open MyPass.Vault
+open MyPass.Result
 open System
 
 type Arguments =
@@ -18,9 +16,9 @@ type Arguments =
 
 module Main =
 
-    let printError (result : Result<string, 'a>) =
+    let printError (result : MyPass.Result<string, 'a>) =
         match result with
-        | Failure f -> printfn "%s" f
+        | MyPass.Result.Failure (f : string) -> printfn "%s" f
         | _ -> printfn "Operation completed."
 
     [<EntryPoint; STAThread>]
@@ -43,10 +41,17 @@ module Main =
             | true ->
                 let mode = (parsedArgs.GetResult Mode).ToLower()
                 match mode with
-                | "create" -> ConsoleUi.createNewVault ()
-                | "add" -> ConsoleUi.addSecret ()
-                | "list" -> ConsoleUi.listSecrets ()
-                | "get" -> ConsoleUi.printPassword ()
-                | _ -> argsParser.PrintUsage () |> sprintf "%s" |> Failure
+                | "create" ->
+                    ConsoleUi.createNewVault ()
+                | "add" ->
+                    ConsoleUi.addSecret ()
+                | "list" ->
+                    ConsoleUi.listSecrets ()
+                | "get" ->
+                    ConsoleUi.printPassword ()
+                | _ ->
+                    argsParser.PrintUsage ()
+                    |> sprintf "%s"
+                    |> MyPass.Result.Failure
                 |> printError
-        0
+        0    
