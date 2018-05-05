@@ -1,6 +1,5 @@
 ﻿namespace MyPass
 
-open Streams
 open System.IO
 open System.Security.Cryptography
 open System.Text
