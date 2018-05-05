@@ -7,6 +7,7 @@ open MyPass.Result
 open MyPass.Reader
 open MyPass.Vault
 open System
+open System.IO
 open System.IO.Abstractions
 
 ///These are all the specific pieces of information we require from the user.
