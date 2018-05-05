@@ -3,7 +3,6 @@
 open Argu
 open MyPass.Aes
 open MyPass.Password
-open System.Text
 open MyPass.Vault
 open MyPass.Result
 open System
@@ -17,9 +16,9 @@ type Arguments =
 
 module Main =
 
-    let printError (result : Result<string, 'a>) =
+    let printError (result : MyPass.Result<string, 'a>) =
         match result with
-        | Failure f -> printfn "%s" f
+        | MyPass.Result.Failure (f : string) -> printfn "%s" f
         | _ -> printfn "Operation completed."
 
     [<EntryPoint; STAThread>]
@@ -51,6 +50,8 @@ module Main =
                 | "get" ->
                     ConsoleUi.printPassword ()
                 | _ ->
-                    argsParser.PrintUsage () |> sprintf "%s" |> Failure
+                    argsParser.PrintUsage ()
+                    |> sprintf "%s"
+                    |> MyPass.Result.Failure
                 |> printError
         0    
