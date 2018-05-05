@@ -55,6 +55,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
+    <Compile Include="Input.fs" />
     <Compile Include="ConsoleUi.fs" />
     <Compile Include="Program.fs" />
     <None Include="packages.config" />

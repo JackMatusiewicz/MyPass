@@ -79,13 +79,12 @@
   </Target>
   -->
   <ItemGroup>
-    <Content Include="packages.config" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <Content Include="packages.config" />
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Clipboard.fs" />
-    <Compile Include="Input.fs" />
     <Compile Include="Result.fs" />
     <Compile Include="Reader.fs" />
     <Compile Include="Streams.fs" />
