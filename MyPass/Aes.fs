@@ -44,8 +44,7 @@ module Aes =
         aes.Key <- key.Key
         let encryptor = aes.CreateEncryptor(aes.Key, aes.IV)
         let cs = new CryptoStream(data, encryptor, CryptoStreamMode.Write)
-        let los = new LeaveOpenStream(cs)
-        use bw = new BinaryWriter(los)
+        use bw = new BinaryWriter(cs, System.Text.Encoding.UTF8, true)
         bw.Write(aes.IV)
         cs
 
@@ -53,7 +52,11 @@ module Aes =
         let writeDataToStream (data : byte[]) : MemoryStream = 
             let ms = new MemoryStream()
             use encryptionStream = createEncryptionStream key ms
-            use writer = new BinaryWriter(encryptionStream)
+            use writer =
+                new BinaryWriter(
+                    encryptionStream,
+                    System.Text.Encoding.UTF8,
+                    true)
             writer.Write(data)
             ms
 
