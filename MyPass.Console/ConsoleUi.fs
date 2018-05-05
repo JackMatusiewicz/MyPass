@@ -1,12 +1,12 @@
-﻿namespace MyPass
+﻿namespace MyPass.Console
 
-open Aes
-open Password
-open Result
-open Reader
+open MyPass
+open MyPass.Aes
+open MyPass.Password
+open MyPass.Result
+open MyPass.Reader
+open MyPass.Vault
 open System
-open System.IO
-open Vault
 open System.IO.Abstractions
 
 ///These are all the specific pieces of information we require from the user.
@@ -25,7 +25,6 @@ type UserData = {
 }
 
 module ConsoleUi =
-    open System.IO.Abstractions
 
     let private getInput (question : string) =
         printfn "%s" question

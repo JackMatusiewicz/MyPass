@@ -8,8 +8,9 @@ open System.IO
 open System.IO.Abstractions
 
 module ConsoleUiTests =
-
-    [<Test>]
+    ()
+    //TODO - remove and put it in MyPass.Console.Tests
+    (*[<Test>]
     [<Explicit("Currently failing")>]
     let ``Given a valid set of user data, when asked to create vault then vault is created`` () =
         let currentDir = Directory.GetCurrentDirectory()
@@ -28,4 +29,4 @@ module ConsoleUiTests =
         Assert.That(File.Exists(fkp), Is.False)
         let createdVault = ConsoleUi.constructVault (new FileSystem()) ud
         Assert.That(File.Exists(vp), Is.True)
-        Assert.That(File.Exists(fkp), Is.True)
+        Assert.That(File.Exists(fkp), Is.True)*)

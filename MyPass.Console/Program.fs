@@ -1,12 +1,11 @@
-﻿namespace MyPass
+﻿namespace MyPass.Console
 
 open Argu
-open Aes
-open Password
+open MyPass.Aes
+open MyPass.Password
 open System.Text
-open Vault
-open ConsoleUi
-open Result
+open MyPass.Vault
+open MyPass.Result
 open System
 
 type Arguments =
@@ -43,10 +42,15 @@ module Main =
             | true ->
                 let mode = (parsedArgs.GetResult Mode).ToLower()
                 match mode with
-                | "create" -> ConsoleUi.createNewVault ()
-                | "add" -> ConsoleUi.addSecret ()
-                | "list" -> ConsoleUi.listSecrets ()
-                | "get" -> ConsoleUi.printPassword ()
-                | _ -> argsParser.PrintUsage () |> sprintf "%s" |> Failure
+                | "create" ->
+                    ConsoleUi.createNewVault ()
+                | "add" ->
+                    ConsoleUi.addSecret ()
+                | "list" ->
+                    ConsoleUi.listSecrets ()
+                | "get" ->
+                    ConsoleUi.printPassword ()
+                | _ ->
+                    argsParser.PrintUsage () |> sprintf "%s" |> Failure
                 |> printError
-        0
+        0    
