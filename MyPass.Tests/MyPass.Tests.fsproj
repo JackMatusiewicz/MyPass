@@ -94,6 +94,7 @@
       <Project>{0277b2d6-b9a2-43c2-99cf-e767e7afb46b}</Project>
       <Private>True</Private>
     </ProjectReference>
+    <Compile Include="RoundTripTests.fs" />
   </ItemGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
