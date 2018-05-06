@@ -8,6 +8,7 @@ open System.IO.Abstractions
 
 module RoundTripTests =
 
+    [<Test>]
     let ``Given vault and file key, when correct details are provided, then vault is decrypted.`` () =
         let fs = new FileSystem ()
         match FileKey.read fs "FileKey.fk" with
