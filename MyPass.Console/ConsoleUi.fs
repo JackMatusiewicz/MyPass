@@ -38,11 +38,10 @@ module ConsoleUi =
         getInput "Please enter the user name for the vault:"
 
     let private getFileKeyPath (fs : IFileSystem) =
-        fun () ->
-            let path =
-                getInput "Please enter the full path (including the file and extension) to the file key for this vault:"
-            FileKey.read fs path
-            |> Result.map (fun key -> path,key)
+        let path =
+            getInput "Please enter the full path (including the file and extension) to the file key for this vault:"
+        FileKey.read fs path
+        |> Result.map (fun key -> path,key)
 
     let private getDefaultFileKeyPath () =
         let (FileKey randomName) = FileKey.generateFileKey ()
@@ -71,19 +70,19 @@ module ConsoleUi =
             MasterPassPhrase = masterPassPhrase
         }
 
-    let private getUserInputForNewVault =
+    let private getUserInputForNewVault () =
         createUserInput
-            <-| getVaultPath
-            <~| getMasterPassPhrase
-            <~| getUserName
-            <~| getDefaultFileKeyPath
+            (getVaultPath ())
+            (getMasterPassPhrase ())
+            (getUserName ())
+            (getDefaultFileKeyPath ())
 
-    let private getUserInputForExistingVault =
+    let private getUserInputForExistingVault () =
         createUserInput
-            <-| getVaultPath
-            <~| getMasterPassPhrase
-            <~| getUserName
-        |> Reader.applyWithResult (getFileKeyPath (new FileSystem ()))
+            (getVaultPath ())
+            (getMasterPassPhrase ())
+            (getUserName ())
+        |> fun f -> Result.map f (getFileKeyPath (new FileSystem ()))
 
     let makeUserData (userInput : UserInput) =
         let fileKeyBytes = FileKey.toBytes userInput.FileKey
