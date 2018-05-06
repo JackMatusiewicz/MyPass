@@ -54,20 +54,6 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="AssemblyInfo.fs" />
-    <Compile Include="TemporaryDirectory.fs" />
-    <Compile Include="ConsoleUiTests.fs" />
-    <Compile Include="AesTests.fs" />
-    <Compile Include="HkdfTests.fs" />
-    <Compile Include="ReaderTests.fs" />
-    <Compile Include="StringTests.fs" />
-    <Compile Include="ResultTests.fs" />
-    <Compile Include="FileKeyTests.fs" />
-    <Compile Include="VaultTests.fs" />
-    <Compile Include="PasswordTests.fs" />
-    <Content Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="mscorlib" />
     <Reference Include="nunit.framework">
@@ -85,6 +71,24 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AssemblyInfo.fs" />
+    <Compile Include="TemporaryDirectory.fs" />
+    <Compile Include="ConsoleUiTests.fs" />
+    <Compile Include="AesTests.fs" />
+    <Compile Include="HkdfTests.fs" />
+    <Compile Include="ReaderTests.fs" />
+    <Compile Include="StringTests.fs" />
+    <Compile Include="ResultTests.fs" />
+    <Compile Include="FileKeyTests.fs" />
+    <Compile Include="VaultTests.fs" />
+    <Compile Include="PasswordTests.fs" />
+    <Content Include="packages.config" />
+    <None Include="FileKey.fk">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestVault.vt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <ProjectReference Include="..\MyPass\MyPass.fsproj">
       <Name>MyPass</Name>
       <Project>{0277b2d6-b9a2-43c2-99cf-e767e7afb46b}</Project>
