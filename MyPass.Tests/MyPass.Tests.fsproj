@@ -83,18 +83,18 @@
     <Compile Include="VaultTests.fs" />
     <Compile Include="PasswordTests.fs" />
     <Content Include="packages.config" />
-    <None Include="FileKey.fk">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="TestVault.vt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <ProjectReference Include="..\MyPass\MyPass.fsproj">
       <Name>MyPass</Name>
       <Project>{0277b2d6-b9a2-43c2-99cf-e767e7afb46b}</Project>
       <Private>True</Private>
     </ProjectReference>
     <Compile Include="RoundTripTests.fs" />
+    <Content Include="FileKey.fk">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestVault.vt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
