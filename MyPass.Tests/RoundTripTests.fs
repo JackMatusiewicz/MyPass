@@ -4,6 +4,7 @@ open NUnit.Framework
 open MyPass
 open Result
 open System.Linq
+open System.IO
 open System.IO.Abstractions
 
 module RoundTripTests =
@@ -11,12 +12,13 @@ module RoundTripTests =
     [<Test>]
     let ``Given vault and file key, when correct details are provided, then vault is decrypted.`` () =
         let fs = new FileSystem ()
-        match FileKey.read fs "FileKey.fk" with
+        let currentDir = Directory.GetCurrentDirectory ()
+        match FileKey.read fs (Path.Combine (currentDir, "FileKey.fk")) with
         | Result.Failure _ -> Assert.Fail ()
         | Result.Success fk ->
             let userName = "test"
             let passPhrase = "test"
-            let vaultPath = "TestVault.vt"
+            let vaultPath = Path.Combine (currentDir, "TestVault.vt"))
 
             let fileKeyBytes = FileKey.toBytes fk
             let masterKey =
