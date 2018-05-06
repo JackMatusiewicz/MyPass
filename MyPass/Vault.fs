@@ -12,6 +12,7 @@ type Description =
     | BasicDescription of Name * DescriptionText
     | FullDescription of Name * Url * DescriptionText
 
+[<Struct>]
 type EncryptedPassword = EncryptedPassword of byte[]
 
 type PasswordEntry = {
