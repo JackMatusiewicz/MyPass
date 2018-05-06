@@ -1,8 +1,9 @@
 ﻿namespace MyPass
 
+[<Struct>]
 type Result<'a, 'b> =
-    | Failure of 'a
-    | Success of 'b
+    | Failure of SuccesValue : 'a
+    | Success of ErrorValue : 'b
 
 [<CompilationRepresentation (CompilationRepresentationFlags.ModuleSuffix)>]
 module Result =
