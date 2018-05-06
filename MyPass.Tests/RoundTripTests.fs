@@ -12,9 +12,10 @@ module RoundTripTests =
     [<Test>]
     let ``Given vault and file key, when correct details are provided, then vault is decrypted.`` () =
         let fs = new FileSystem ()
-        let currentDir = Directory.GetCurrentDirectory ()
+        let currentDir = TestContext.CurrentContext.TestDirectory
         match FileKey.read fs (Path.Combine (currentDir, "FileKey.fk")) with
-        | Result.Failure _ -> Assert.Fail ()
+        | Result.Failure f ->
+            Assert.Fail ()
         | Result.Success fk ->
             let userName = "test"
             let passPhrase = "test"
