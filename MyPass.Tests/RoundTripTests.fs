@@ -18,7 +18,7 @@ module RoundTripTests =
         | Result.Success fk ->
             let userName = "test"
             let passPhrase = "test"
-            let vaultPath = Path.Combine (currentDir, "TestVault.vt"))
+            let vaultPath = Path.Combine (currentDir, "TestVault.vt")
 
             let fileKeyBytes = FileKey.toBytes fk
             let masterKey =
