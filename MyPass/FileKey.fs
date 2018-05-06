@@ -3,6 +3,7 @@
 open System.IO
 open System.IO.Abstractions
 
+[<Struct>]
 type FileKey = FileKey of string
 
 [<CompilationRepresentation (CompilationRepresentationFlags.ModuleSuffix)>]

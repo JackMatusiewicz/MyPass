@@ -4,18 +4,21 @@ open System.IO
 open System.Security.Cryptography
 open System.Text
 
+[<Struct>]
+type Salt = Salt of string
+
+[<Struct>]
+type PassPhrase = PassPhrase of string
+
+//Todo - look at making this private
+type AesKey = {
+    Key : byte[]
+}
+
 module Aes =
 
     let private keySizeBits = 256
     let private keySizeBytes = 32
-
-    type Salt = Salt of string
-    type PassPhrase = PassPhrase of string
-
-    //Todo - look at making this private
-    type AesKey = {
-        Key : byte[]
-    }
 
     let private hash (data : string) =
         use sha256 = new SHA256Managed()
