@@ -8,6 +8,17 @@ type Url = string
 type DescriptionText = string
 type Name = string
 
+//TODO - replace the above with these:
+[<Struct>]
+type Url2 = Url2 of string
+
+[<Struct>]
+type Description2 = Description2 of string
+
+[<Struct>]
+type Name2 = Name2 of string
+//END TODO
+
 type Description =
     | BasicDescription of Name * DescriptionText
     | FullDescription of Name * Url * DescriptionText
@@ -18,6 +29,15 @@ type EncryptedData = EncryptedData of byte[]
 type SecuredSecret = {
     Data : EncryptedData
     Key : AesKey }
+
+type WebLogin = {
+    SecuredData : SecuredSecret
+    Url : Url2
+    UserName : Name2 }
+
+type Secret =
+    | Secret of Name2 * Description2 * SecuredSecret
+    | WebLogin of Name2 * Description2 * WebLogin
 
 type PasswordEntry = {
     Secret : SecuredSecret
