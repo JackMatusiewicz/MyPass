@@ -13,11 +13,14 @@ type Description =
     | FullDescription of Name * Url * DescriptionText
 
 [<Struct>]
-type EncryptedPassword = EncryptedPassword of byte[]
+type EncryptedData = EncryptedData of byte[]
+
+type SecuredSecret = {
+    Data : EncryptedData
+    Key : AesKey }
 
 type PasswordEntry = {
-    Password : EncryptedPassword
-    Key : AesKey
+    Secret : SecuredSecret
     Description : Description
 }
 
@@ -40,8 +43,8 @@ module Vault =
             password
             |> Encoding.UTF8.GetBytes
             |> Aes.encrypt passwordKey
-            |> EncryptedPassword
-        {Password = encryptedPassword; Key = passwordKey; Description = desc }
+            |> EncryptedData
+        {Secret = {Data = encryptedPassword; Key = passwordKey}; Description = desc }
 
     let private getName (description : Description) =
         match description with
@@ -101,9 +104,9 @@ module Vault =
 
     let decryptPassword (entry : PasswordEntry) : Result<string, string> =
         fun () ->
-            let (EncryptedPassword encryptedBytes) = entry.Password
+            let (EncryptedData encryptedBytes) = entry.Secret.Data
             encryptedBytes
-            |> Aes.decrypt (entry.Key)
+            |> Aes.decrypt (entry.Secret.Key)
             |> Encoding.UTF8.GetString
             |> Success
         |> exceptionToFailure

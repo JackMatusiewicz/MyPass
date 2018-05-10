@@ -8,14 +8,20 @@ open System.Linq
 module VaultTests =
 
     let testPasswordEntry = {
-        Password = EncryptedPassword (Array.create 5 (byte 0))
-        Key = Aes.newKey ()
+        Secret =
+            {
+                Data = EncryptedData (Array.create 5 (byte 0))
+                Key = Aes.newKey ()
+            }
         Description = BasicDescription ("www.gmail.com", "My gmail password")
     }
 
     let testPasswordEntry2 = {
-        Password = EncryptedPassword (Array.create 5 (byte 1))
-        Key = Aes.newKey ()
+        Secret =
+            {
+                Data = EncryptedData (Array.create 5 (byte 1))
+                Key = Aes.newKey ()
+            }
         Description = BasicDescription ("www.bing.com", "My bing password")
     }
 
@@ -55,8 +61,8 @@ module VaultTests =
     let ``Given a password manager with a password, when I retrieve it then the result is the correct password`` () =
         let result =
             Vault.storePassword testPasswordEntry Vault.empty
-                >>= Vault.storePassword testPasswordEntry2
-                >>= Vault.getPassword "www.gmail.com"
+            >>= Vault.storePassword testPasswordEntry2
+            >>= Vault.getPassword "www.gmail.com"
         match result with
         | Failure _ -> Assert.Fail()
         | Success pw -> Assert.That(pw, Is.EqualTo testPasswordEntry)
@@ -110,8 +116,8 @@ module VaultTests =
         let entry = Vault.createEntry desc password
         let result =
             Vault.storePassword entry Vault.empty
-                >>= Vault.getPassword "google"
-                >>= Vault.decryptPassword
+            >>= Vault.getPassword "google"
+            >>= Vault.decryptPassword
         match result with
         | Failure _ -> Assert.Fail()
         | Success p -> Assert.That(p, Is.EqualTo password)
@@ -123,23 +129,25 @@ module VaultTests =
         let entry = Vault.createEntry desc password
         let result =
             Vault.storePassword entry Vault.empty
-                >>= Vault.getPassword "google"
+            >>= Vault.getPassword "google"
         match result with
         | Failure _ -> Assert.Fail()
-        | Success p -> Assert.That(p.Password, Is.Not.EqualTo <| System.Text.Encoding.UTF8.GetBytes(password))
+        | Success p -> Assert.That(p.Secret.Data, Is.Not.EqualTo <| System.Text.Encoding.UTF8.GetBytes(password))
 
     [<Test>]
     let ``Given a password manager with a password, when I update it then it is updated.`` () =
         let pwBytes = (Array.create 5 (byte 1))
-        let updatedEntry = {testPasswordEntry with Password = EncryptedPassword pwBytes}
+        let updatedEntry =
+            {testPasswordEntry with
+                Secret = {testPasswordEntry.Secret with Data = EncryptedData pwBytes}}
         let result =
             Vault.storePassword testPasswordEntry Vault.empty
-                >>= Vault.updatePassword updatedEntry
-                >>= Vault.getPassword "www.gmail.com"
+            >>= Vault.updatePassword updatedEntry
+            >>= Vault.getPassword "www.gmail.com"
         match result with
         | Failure _ -> Assert.Fail()
         | Success pw -> 
-            let (EncryptedPassword encryptedPw) = pw.Password
+            let (EncryptedData encryptedPw) = pw.Secret.Data
             Assert.That(encryptedPw.SequenceEqual(pwBytes), Is.True)
 
     [<Test>]
@@ -149,8 +157,8 @@ module VaultTests =
         let entry = Vault.createEntry fullDesc password
         let result =
             Vault.storePassword entry Vault.empty
-                >>= Vault.getPassword "google"
-                >>= Vault.decryptPassword
+            >>= Vault.getPassword "google"
+            >>= Vault.decryptPassword
         match result with
         | Failure _ -> Assert.Fail()
         | Success p -> Assert.That(p, Is.EqualTo password)
