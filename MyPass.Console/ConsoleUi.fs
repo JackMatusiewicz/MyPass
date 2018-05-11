@@ -140,10 +140,12 @@ module ConsoleUi =
     let addSecretToVault (fs : IFileSystem) (userData : UserData) =
         try
             let vault = loadVault fs userData
-            let name = getInput "Enter the name for this secret:"
-            let desc = getInput "Enter the description for this secret:"
+            let name = getInput "Enter the name for this secret:" |> Name
+            let desc = getInput "Enter the description for this secret:" |> Description
             let pw = getSecretPassword ()
-            let entry = Vault.createEntry (BasicDescription (name, desc)) pw
+            let entry =
+                Vault.createSecret pw
+                |> Vault.createEntry name desc
             let result = vault >>= addAndStore fs entry userData
             match result with
             | Failure f -> printfn "ERROR: %s" f
@@ -183,6 +185,7 @@ module ConsoleUi =
             |> (fun vault ->
                     let entryName =
                         getInput "Please enter the name of the password you wish to see: "
+                        |> Name
                     Vault.getPassword entryName vault)
             |> (=<<) Vault.decryptPassword
             |> Result.map givePasswordToUser

@@ -4,24 +4,14 @@ open Aes
 open Newtonsoft.Json
 open System.Text
 
-type Url = string
-type DescriptionText = string
-type Name = string
-
-//TODO - replace the above with these:
 [<Struct>]
 type Url2 = Url2 of string
 
 [<Struct>]
-type Description2 = Description2 of string
+type Description = Description of string
 
 [<Struct>]
-type Name2 = Name2 of string
-//END TODO
-
-type Description =
-    | BasicDescription of Name * DescriptionText
-    | FullDescription of Name * Url * DescriptionText
+type Name = Name of string
 
 [<Struct>]
 type EncryptedData = EncryptedData of byte[]
@@ -33,15 +23,17 @@ type SecuredSecret = {
 type WebLogin = {
     SecuredData : SecuredSecret
     Url : Url2
-    UserName : Name2 }
+    UserName : Name }
 
+[<Struct>]
 type Secret =
-    | Secret of Name2 * Description2 * SecuredSecret
-    | WebLogin of Name2 * Description2 * WebLogin
+    | Secret of Secret : SecuredSecret
+    | WebLogin of Login : WebLogin
 
 type PasswordEntry = {
-    Secret : SecuredSecret
+    Secret : Secret
     Description : Description
+    Name : Name
 }
 
 type Vault = { passwords : Map<Name, PasswordEntry> }
@@ -57,23 +49,35 @@ module Vault =
         with
         | ex -> ex.Message |> Failure
 
-    let createEntry (desc : Description) (password : string) =
+    let createSecret (password : string) =
         let passwordKey = Aes.newKey ()
         let encryptedPassword =
             password
             |> Encoding.UTF8.GetBytes
             |> Aes.encrypt passwordKey
             |> EncryptedData
-        {Secret = {Data = encryptedPassword; Key = passwordKey}; Description = desc }
+        {Data = encryptedPassword; Key = passwordKey}
+        |> Secret
 
-    let private getName (description : Description) =
-        match description with
-        | BasicDescription (name,_) -> name
-        | FullDescription (name,_,_) -> name
+    let createEntry (name : Name) (desc : Description) (secret : Secret) =
+        {
+            Name = name
+            Description = desc
+            Secret = secret
+        }
+
+    let private getName (entry : PasswordEntry) =
+        let (Name name) = entry.Name
+        name
+
+    let getSecureData (entry : PasswordEntry) : SecuredSecret =
+        match entry.Secret with
+        | WebLogin wl -> wl.SecuredData
+        | Secret s -> s
 
     let storePassword (entry : PasswordEntry) (manager : Vault) : Result<string, Vault> =
         let store = manager.passwords
-        let name = getName (entry.Description)
+        let name = entry.Name
         if Map.containsKey name store then
             Failure "Password entry already exists"
         else
@@ -82,7 +86,7 @@ module Vault =
 
     let updatePassword (entry : PasswordEntry) (manager : Vault) : Result<string, Vault> =
         let store = manager.passwords
-        let name = getName (entry.Description)
+        let name = entry.Name
         if Map.containsKey name store = false then
             Failure "Password entry does not exist"
         else
@@ -124,9 +128,11 @@ module Vault =
 
     let decryptPassword (entry : PasswordEntry) : Result<string, string> =
         fun () ->
-            let (EncryptedData encryptedBytes) = entry.Secret.Data
+            let secureData = getSecureData entry
+            let (EncryptedData encryptedBytes) = secureData.Data
+
             encryptedBytes
-            |> Aes.decrypt (entry.Secret.Key)
+            |> Aes.decrypt (secureData.Key)
             |> Encoding.UTF8.GetString
             |> Success
         |> exceptionToFailure
