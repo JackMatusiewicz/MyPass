@@ -84,6 +84,7 @@
   <ItemGroup>
     <Content Include="packages.config" />
     <Compile Include="AssemblyInfo.fs" />
+    <Compile Include="FailReason.fs" />
     <Compile Include="Clipboard.fs" />
     <Compile Include="Result.fs" />
     <Compile Include="Reader.fs" />

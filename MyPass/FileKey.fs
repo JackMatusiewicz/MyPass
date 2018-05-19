@@ -17,7 +17,10 @@ module FileKey =
         Password.createWithCharacters 16u availableCharacters
         |> FileKey
 
-    let read (fs : IFileSystem) (path : string) : Result<string, FileKey> =
+    let read
+        (fs : IFileSystem)
+        (path : string)
+        : Result<FailReason, FileKey> =
         try
             path
             |> fs.File.ReadAllText
@@ -25,7 +28,9 @@ module FileKey =
             |> Success
         with
         | ex ->
-            ex.Message |> Failure
+            ex
+            |> FailReason.makeException
+            |> Failure
 
     let toBytes (FileKey fk) =
         System.Text.Encoding.UTF8.GetBytes fk

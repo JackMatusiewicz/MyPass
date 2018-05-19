@@ -40,11 +40,14 @@ module Vault =
 
     let empty = { passwords = Map.empty }
 
-    let private exceptionToFailure (f : unit -> Result<string, 'b>) =
+    let private exceptionToFailure (f : unit -> Result<FailReason, 'b>) =
         try
             f ()
         with
-        | ex -> ex.Message |> Failure
+        | ex ->
+            ex
+            |> FailReason.makeException
+            |> Failure
 
     let createSecret (password : string) =
         let passwordKey = Aes.newKey ()
@@ -56,7 +59,11 @@ module Vault =
         {Data = encryptedPassword; Key = passwordKey}
         |> Secret
 
-    let createEntry (name : Name) (desc : Description) (secret : Secret) =
+    let createEntry
+        (name : Name)
+        (desc : Description)
+        (secret : Secret)
+        =
         {
             Name = name
             Description = desc
@@ -72,33 +79,52 @@ module Vault =
         | WebLogin wl -> wl.SecuredData
         | Secret s -> s
 
-    let storePassword (entry : PasswordEntry) (manager : Vault) : Result<string, Vault> =
+    let storePassword
+        (entry : PasswordEntry)
+        (manager : Vault)
+        : Result<FailReason, Vault>
+        =
         let store = manager.passwords
         let name = entry.Name
         if Map.containsKey name store then
-            Failure "Password entry already exists"
+            DuplicateEntry "Password entry already exists"
+            |> Failure
         else
             let newStore = Map.add name entry store
             Success {passwords = newStore}
 
-    let updatePassword (entry : PasswordEntry) (manager : Vault) : Result<string, Vault> =
+    let updatePassword
+        (entry : PasswordEntry)
+        (manager : Vault)
+        : Result<FailReason, Vault>
+        =
         let store = manager.passwords
         let name = entry.Name
         if Map.containsKey name store = false then
-            Failure "Password entry does not exist"
+            EntryNotFound "Password entry not found"
+            |> Failure
         else
             let newStore = Map.add name entry store
             Success {passwords = newStore}
 
-    let removePassword (name : Name) (manager : Vault) : Result<string, Vault> =
+    let removePassword
+        (name : Name)
+        (manager : Vault)
+        : Result<FailReason, Vault>
+        =
         let store = manager.passwords
         if Map.containsKey name store then
             let updatedStore = Map.remove name store
             Success {passwords = updatedStore}
         else
-            Failure "Password entry did not exist under that name."
+            EntryNotFound "Password entry not found"
+            |> Failure
 
-    let encryptManager (key : AesKey) (manager : Vault) : Result<string, byte[]> =
+    let encryptManager
+        (key : AesKey)
+        (manager : Vault)
+        : Result<FailReason, byte[]>
+        =
         fun () ->
             manager
             |> JsonConvert.SerializeObject
@@ -107,7 +133,11 @@ module Vault =
             |> Success
         |> exceptionToFailure
 
-    let decryptManager (key : AesKey) (encryptedManager : byte[]) : Result<string, Vault> =
+    let decryptManager
+        (key : AesKey)
+        (encryptedManager : byte[])
+        : Result<FailReason, Vault>
+        =
         fun () ->
             encryptedManager
             |> Aes.decrypt key
@@ -116,14 +146,19 @@ module Vault =
             |> Success
         |> exceptionToFailure
 
-    let getPassword (name : Name) (manager : Vault) : Result<string, PasswordEntry> =
+    let getPassword
+        (name : Name)
+        (manager : Vault)
+        : Result<FailReason, PasswordEntry>
+        =
         let store = manager.passwords
         if Map.containsKey name store then
             Success <| Map.find name store
         else
-            Failure "Unable to find a password matching that name."
+            EntryNotFound "Unable to find a password matching that name."
+            |> Failure
 
-    let decryptPassword (entry : PasswordEntry) : Result<string, string> =
+    let decryptPassword (entry : PasswordEntry) : Result<FailReason, string> =
         fun () ->
             let secureData = getSecureData entry
             let (EncryptedData encryptedBytes) = secureData.Data

@@ -1,6 +1,7 @@
 ﻿namespace MyPass.Console
 
 open Argu
+open MyPass
 open MyPass.Aes
 open MyPass.Password
 open MyPass.Vault
@@ -16,9 +17,11 @@ type Arguments =
 
 module Main =
 
-    let printError (result : MyPass.Result<string, 'a>) =
+    let private printError (result : MyPass.Result<FailReason, 'a>) =
         match result with
-        | MyPass.Result.Failure (f : string) -> printfn "%s" f
+        | MyPass.Result.Failure f ->
+            FailReason.toString f
+            |> printfn "%s"
         | _ -> printfn "Operation completed."
 
     [<EntryPoint; STAThread>]
@@ -52,6 +55,7 @@ module Main =
                 | _ ->
                     argsParser.PrintUsage ()
                     |> sprintf "%s"
+                    |> InvalidCommand
                     |> MyPass.Result.Failure
                 |> printError
         0    

@@ -98,7 +98,10 @@ module ConsoleUi =
         getUserInputForExistingVault ()
         |> (Result.map makeUserData)
 
-    let constructVault (fs : IFileSystem) (userData : UserData) : Result<string, unit> =
+    let constructVault
+        (fs : IFileSystem)
+        (userData : UserData)
+        : Result<FailReason, unit> =
         try
             let encryptedVault = Vault.encryptManager userData.MasterKey Vault.empty
             match encryptedVault with
@@ -110,7 +113,10 @@ module ConsoleUi =
                 printfn "Please keep this safe, it is required to use the vault."
                 |> Success
         with
-        | ex -> ex.Message |> Failure
+        | ex ->
+            ex
+            |> FailReason.makeException
+            |> Failure
 
     let createNewVault () =
         (makeUserData <-| getUserInputForNewVault) ()
@@ -148,7 +154,7 @@ module ConsoleUi =
                 |> Vault.createEntry name desc
             let result = vault >>= addAndStore fs entry userData
             match result with
-            | Failure f -> printfn "ERROR: %s" f
+            | Failure f -> printfn "ERROR: %s" <| FailReason.toString f
             | Success _ -> printfn "Secret has been stored"
         with
         | ex -> printfn "ERROR: %s" <| ex.ToString()
@@ -179,7 +185,7 @@ module ConsoleUi =
         Clipboard.timedStoreInClipboard 15000 password
         printfn "Your password has been removed from your clipboard"
 
-    let showPasswordToUser (vault : Vault) : Result<string, unit> =
+    let showPasswordToUser (vault : Vault) : Result<FailReason, unit> =
         try
             vault
             |> (fun vault ->
@@ -190,7 +196,10 @@ module ConsoleUi =
             |> (=<<) Vault.decryptPassword
             |> Result.map givePasswordToUser
         with
-        | ex -> ex.Message |> Failure
+        | ex ->
+            ex
+            |> FailReason.makeException
+            |> Failure
 
     let printPassword () =
         constructComponentsFromUserInput
