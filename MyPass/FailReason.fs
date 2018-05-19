@@ -24,3 +24,4 @@ module FailReason =
             sprintf "ERROR: %s" (exInfo.SourceException.StackTrace)
         | DuplicateEntry k -> sprintf "%s already exists" k
         | EntryNotFound k -> sprintf "%s was not found" k
+        | InvalidCommand c -> sprintf "%s is not a valid MyPass command" c
