@@ -5,9 +5,6 @@ open Newtonsoft.Json
 open System.Text
 
 [<Struct>]
-type Url2 = Url2 of string
-
-[<Struct>]
 type Description = Description of string
 
 [<Struct>]
@@ -22,7 +19,7 @@ type SecuredSecret = {
 
 type WebLogin = {
     SecuredData : SecuredSecret
-    Url : Url2
+    Url : Url
     UserName : Name }
 
 [<Struct>]
