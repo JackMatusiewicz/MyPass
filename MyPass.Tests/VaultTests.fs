@@ -14,7 +14,7 @@ module VaultTests =
                 Key = Aes.newKey ()
             } |> Secret
         Description = Description "My gmail password"
-        Name = Name "www.gmail.om"
+        Name = Name "www.gmail.com"
     }
 
     let testPasswordEntry2 = {

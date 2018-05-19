@@ -2,8 +2,8 @@
 
 [<Struct>]
 type Result<'a, 'b> =
-    | Failure of SuccesValue : 'a
-    | Success of ErrorValue : 'b
+    | Failure of ErrorValue : 'a
+    | Success of SuccessValue : 'b
 
 [<CompilationRepresentation (CompilationRepresentationFlags.ModuleSuffix)>]
 module Result =
