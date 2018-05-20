@@ -13,7 +13,7 @@ type FailReason =
 
 module FailReason =
 
-    let makeException (ex : Exception) : FailReason =
+    let fromException (ex : Exception) : FailReason =
         ExceptionDispatchInfo.Capture ex
         |> ExceptionThrown
 

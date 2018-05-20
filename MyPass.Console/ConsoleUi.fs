@@ -115,7 +115,7 @@ module ConsoleUi =
         with
         | ex ->
             ex
-            |> FailReason.makeException
+            |> FailReason.fromException
             |> Failure
 
     let createNewVault () =
@@ -198,7 +198,7 @@ module ConsoleUi =
         with
         | ex ->
             ex
-            |> FailReason.makeException
+            |> FailReason.fromException
             |> Failure
 
     let printPassword () =

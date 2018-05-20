@@ -29,7 +29,7 @@ module FileKey =
         with
         | ex ->
             ex
-            |> FailReason.makeException
+            |> FailReason.fromException
             |> Failure
 
     let toBytes (FileKey fk) =
