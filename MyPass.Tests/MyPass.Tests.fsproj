@@ -83,6 +83,7 @@
     <Compile Include="VaultTests.fs" />
     <Compile Include="TupleTests.fs" />
     <Compile Include="PasswordTests.fs" />
+    <Compile Include="UrlTests.fs" />
     <Compile Include="RoundTripTests.fs" />
     <Content Include="packages.config" />
     <ProjectReference Include="..\MyPass\MyPass.fsproj">

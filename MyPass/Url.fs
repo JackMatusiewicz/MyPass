@@ -8,7 +8,7 @@ type Url = private Url of string
 module Url =
 
     let make (s : string) : Result<FailReason, Url> =
-        match Uri.IsWellFormedUriString (s, UriKind.RelativeOrAbsolute) with
+        match Uri.IsWellFormedUriString (s, UriKind.Absolute) with
         | true ->
             s |> Url |> Success
         | false ->
