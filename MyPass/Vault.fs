@@ -33,6 +33,7 @@ type PasswordEntry = {
     Name : Name
 }
 
+//TODO - introduce a VaultDto that is serialised out, then converted back
 type Vault = { passwords : Map<Name, PasswordEntry> }
 
 [<CompilationRepresentation (CompilationRepresentationFlags.ModuleSuffix)>]
