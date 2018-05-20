@@ -195,10 +195,16 @@ module ConsoleUi =
         |> Result.map (addSecretToVault (new FileSystem ()))
 
     let listAllSecrets (fs : IFileSystem) (userData : UserData) : unit =
+        let printSecretData (s : Secret) =
+            match s with
+            | Secret _ -> ""
+            | WebLogin wl -> sprintf "\n%A - %A" wl.Url wl.UserName
+
         let printEntries vault =
             vault.passwords
             |> Map.toList
-            |> List.iter (fun (n,e) -> printfn "%A\n%A\n---------------\n" n e.Description)
+            |> List.iter
+                (fun (n,e) -> printfn "%A\n%A%A\n---------------\n" n e.Description (printSecretData e.Secret))
 
         try
             loadVault fs userData

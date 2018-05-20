@@ -26,7 +26,7 @@ module VaultTests =
                 Description = Description "admin"
                 Name = Name "admin"
             }
-        Result.map f (Url.make "www.google.com")
+        Result.map f (Url.make "https://www.google.com")
 
     [<Test>]
     let ``When trying to delete non-existant password entry then failure is recorded`` () =
