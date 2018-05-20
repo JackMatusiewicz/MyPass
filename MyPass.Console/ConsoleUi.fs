@@ -114,8 +114,7 @@ module ConsoleUi =
                 |> Success
         with
         | ex ->
-            ex
-            |> FailReason.fromException
+            FailReason.fromException ex
             |> Failure
 
     let createNewVault () =
@@ -197,8 +196,7 @@ module ConsoleUi =
             |> Result.map givePasswordToUser
         with
         | ex ->
-            ex
-            |> FailReason.fromException
+            FailReason.fromException ex
             |> Failure
 
     let printPassword () =

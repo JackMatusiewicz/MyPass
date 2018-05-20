@@ -56,8 +56,7 @@ module Vault =
             f ()
         with
         | ex ->
-            ex
-            |> FailReason.fromException
+            FailReason.fromException ex
             |> Failure
 
     let createSecret (password : string) =
