@@ -19,6 +19,15 @@ module VaultTests =
         Name = Name "www.bing.com"
     }
 
+    let testPasswordEntry3 =
+        let f = fun url ->
+            {
+                Secret = VaultDomain.makeWebLogin url (Name "jackma") (Vault.createSecuredSecret "55")
+                Description = Description "admin"
+                Name = Name "admin"
+            }
+        Result.map f (Url.make "www.google.com")
+
     [<Test>]
     let ``When trying to delete non-existant password entry then failure is recorded`` () =
         let vault = Vault.empty
@@ -63,7 +72,10 @@ module VaultTests =
 
     [<Test>]
     let ``Given a password manager with a password, encryption round-trip works`` () =
-        let storePasswords = Vault.storePassword testPasswordEntry >=> Vault.storePassword testPasswordEntry2
+        let storePasswords =
+            Vault.storePassword testPasswordEntry
+            >=> Vault.storePassword testPasswordEntry2
+            >=> (fun v -> Result.bind testPasswordEntry3 (fun pw -> Vault.storePassword pw v))
         let result = storePasswords Vault.empty
         match result with
         | Failure _ -> Assert.Fail()

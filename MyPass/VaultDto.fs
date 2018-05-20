@@ -8,7 +8,7 @@ module VaultDto =
 
     type SecretDto =
         | SecretDto of SecuredSecretDto
-        | WebLoginDto of (Url * Name * SecuredSecretDto)
+        | WebLoginDto of (string * Name * SecuredSecretDto)
 
     type PasswordEntryDto = {
         SecretDto : SecretDto
@@ -24,7 +24,7 @@ module VaultDto =
         | WebLoginDto (url, name, (data, key)) ->
             {
                 UserName = name
-                Url = url
+                Url = Url.ensure url
                 SecuredData = { Data = data; Key = key }
             } |> WebLogin
 
@@ -32,7 +32,7 @@ module VaultDto =
         match s with
         | Secret s -> (s.Data, s.Key) |> SecretDto
         | WebLogin w ->
-            (w.Url, w.UserName, (w.SecuredData.Data, w.SecuredData.Key))
+            (Url.toString w.Url, w.UserName, (w.SecuredData.Data, w.SecuredData.Key))
             |> WebLoginDto
 
     let private toEntryDto (pe : PasswordEntry) : PasswordEntryDto =
