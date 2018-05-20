@@ -2,10 +2,6 @@
 
 open Argu
 open MyPass
-open MyPass.Aes
-open MyPass.Password
-open MyPass.Vault
-open MyPass.Result
 open System
 
 type Arguments =

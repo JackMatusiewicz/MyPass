@@ -1,6 +1,5 @@
 ﻿namespace MyPass
 
-open Aes
 open Newtonsoft.Json
 open System.Text
 
@@ -33,13 +32,24 @@ type PasswordEntry = {
     Name : Name
 }
 
-//TODO - introduce a VaultDto that is serialised out, then converted back
 type Vault = { passwords : Map<Name, PasswordEntry> }
+
+type VaultDto = { passwordList : (Name * PasswordEntry) list }
 
 [<CompilationRepresentation (CompilationRepresentationFlags.ModuleSuffix)>]
 module Vault =
 
     let empty = { passwords = Map.empty }
+
+    let private fromDto (vDto : VaultDto) =
+        vDto.passwordList
+        |> Map.ofList
+        |> fun ps -> {passwords = ps}
+
+    let private toDto (v : Vault) =
+        v.passwords
+        |> Map.toList
+        |> fun ps -> {passwordList = ps}
 
     let private exceptionToFailure (f : unit -> Result<FailReason, 'b>) =
         try
@@ -128,6 +138,7 @@ module Vault =
         =
         fun () ->
             manager
+            |> toDto
             |> JsonConvert.SerializeObject
             |> Encoding.UTF8.GetBytes
             |> Aes.encrypt key
@@ -143,7 +154,8 @@ module Vault =
             encryptedManager
             |> Aes.decrypt key
             |> Encoding.UTF8.GetString
-            |> (fun m -> JsonConvert.DeserializeObject<Vault>(m))
+            |> (fun m -> JsonConvert.DeserializeObject<VaultDto>(m))
+            |> fromDto
             |> Success
         |> exceptionToFailure
 
