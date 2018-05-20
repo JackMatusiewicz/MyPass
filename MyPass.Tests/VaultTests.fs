@@ -8,21 +8,13 @@ open System.Linq
 module VaultTests =
 
     let testPasswordEntry = {
-        Secret =
-            {
-                Data = EncryptedData (Array.create 5 (byte 0))
-                Key = Aes.newKey ()
-            } |> Secret
+        Secret = Vault.createSecret "gmailSecret"
         Description = Description "My gmail password"
         Name = Name "www.gmail.com"
     }
 
     let testPasswordEntry2 = {
-        Secret =
-            {
-                Data = EncryptedData (Array.create 5 (byte 1))
-                Key = Aes.newKey ()
-            } |> Secret
+        Secret = Vault.createSecret "bingSecret"
         Description = Description "My bing password"
         Name = Name "www.bing.com"
     }
@@ -137,22 +129,26 @@ module VaultTests =
         match result with
         | Failure _ -> Assert.Fail()
         | Success p ->
+            let (EncryptedData bytes) = (Vault.getSecureData >> Vault.getEncryptedData) p
             Assert.That(
-                (Vault.getSecureData p).Data,
-                Is.Not.EqualTo <| System.Text.Encoding.UTF8.GetBytes(password))
+                bytes.SequenceEqual(System.Text.Encoding.UTF8.GetBytes(password)),
+                Is.False)
 
     [<Test>]
     let ``Given a password manager with a password, when I update it then it is updated.`` () =
-        let pwBytes = (Array.create 5 (byte 1))
         let updatedEntry =
-            {testPasswordEntry with
-                Secret = {Data = EncryptedData pwBytes; Key = Aes.newKey ()} |> Secret}
+            { testPasswordEntry with
+                Secret = Vault.createSecret "newPassword" }
         let result =
             Vault.storePassword testPasswordEntry Vault.empty
             >>= Vault.updatePassword updatedEntry
             >>= Vault.getPassword (Name "www.gmail.com")
         match result with
-        | Failure _ -> Assert.Fail()
-        | Success pw -> 
-            let (EncryptedData encryptedPw) = (Vault.getSecureData pw).Data
-            Assert.That(encryptedPw.SequenceEqual(pwBytes), Is.True)
+        | Failure _ -> Assert.Fail ()
+        | Success pw ->
+            let pwOne = Vault.decryptPassword updatedEntry
+            let pwTwo = Vault.decryptPassword pw
+            match pwOne,pwTwo with
+            | Success a, Success b ->
+                Assert.That (a, Is.EqualTo(b))
+            | _ -> Assert.Fail ()

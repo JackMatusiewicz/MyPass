@@ -3,53 +3,10 @@
 open Newtonsoft.Json
 open System.Text
 
-[<Struct>]
-type Description = Description of string
-
-[<Struct>]
-type Name = Name of string
-
-[<Struct>]
-type EncryptedData = EncryptedData of byte[]
-
-type SecuredSecret = {
-    Data : EncryptedData
-    Key : AesKey }
-
-type WebLogin = {
-    SecuredData : SecuredSecret
-    Url : Url
-    UserName : Name }
-
-[<Struct>]
-type Secret =
-    | Secret of Secret : SecuredSecret
-    | WebLogin of Login : WebLogin
-
-type PasswordEntry = {
-    Secret : Secret
-    Description : Description
-    Name : Name
-}
-
-type Vault = { passwords : Map<Name, PasswordEntry> }
-
-type VaultDto = { passwordList : (Name * PasswordEntry) list }
-
 [<CompilationRepresentation (CompilationRepresentationFlags.ModuleSuffix)>]
 module Vault =
 
     let empty = { passwords = Map.empty }
-
-    let private fromDto (vDto : VaultDto) =
-        vDto.passwordList
-        |> Map.ofList
-        |> fun ps -> {passwords = ps}
-
-    let private toDto (v : Vault) =
-        v.passwords
-        |> Map.toList
-        |> fun ps -> {passwordList = ps}
 
     let private exceptionToFailure (f : unit -> Result<FailReason, 'b>) =
         try
@@ -59,6 +16,14 @@ module Vault =
             FailReason.fromException ex
             |> Failure
 
+    let getSecureData (entry : PasswordEntry) : SecuredSecret =
+        match entry.Secret with
+        | WebLogin wl -> wl.SecuredData
+        | Secret s -> s
+
+    let getEncryptedData (sd : SecuredSecret) : EncryptedData =
+        sd.Data
+
     let createSecret (password : string) =
         let passwordKey = Aes.newKey ()
         let encryptedPassword =
@@ -66,7 +31,7 @@ module Vault =
             |> Encoding.UTF8.GetBytes
             |> Aes.encrypt passwordKey
             |> EncryptedData
-        {Data = encryptedPassword; Key = passwordKey}
+        { Data = encryptedPassword; Key = passwordKey }
         |> Secret
 
     let createEntry
@@ -80,15 +45,6 @@ module Vault =
             Secret = secret
         }
 
-    let private getName (entry : PasswordEntry) =
-        let (Name name) = entry.Name
-        name
-
-    let getSecureData (entry : PasswordEntry) : SecuredSecret =
-        match entry.Secret with
-        | WebLogin wl -> wl.SecuredData
-        | Secret s -> s
-
     let storePassword
         (entry : PasswordEntry)
         (manager : Vault)
@@ -101,7 +57,7 @@ module Vault =
             |> Failure
         else
             let newStore = Map.add name entry store
-            Success {passwords = newStore}
+            Success { passwords = newStore }
 
     let updatePassword
         (entry : PasswordEntry)
@@ -115,7 +71,7 @@ module Vault =
             |> Failure
         else
             let newStore = Map.add name entry store
-            Success {passwords = newStore}
+            Success { passwords = newStore }
 
     let removePassword
         (name : Name)
@@ -125,7 +81,7 @@ module Vault =
         let store = manager.passwords
         if Map.containsKey name store then
             let updatedStore = Map.remove name store
-            Success {passwords = updatedStore}
+            Success { passwords = updatedStore }
         else
             EntryNotFound "Password entry not found"
             |> Failure
@@ -137,7 +93,7 @@ module Vault =
         =
         fun () ->
             manager
-            |> toDto
+            |> VaultDto.toDto
             |> JsonConvert.SerializeObject
             |> Encoding.UTF8.GetBytes
             |> Aes.encrypt key
@@ -153,8 +109,7 @@ module Vault =
             encryptedManager
             |> Aes.decrypt key
             |> Encoding.UTF8.GetString
-            |> (fun m -> JsonConvert.DeserializeObject<VaultDto>(m))
-            |> fromDto
+            |> VaultDto.fromDto
             |> Success
         |> exceptionToFailure
 
