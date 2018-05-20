@@ -16,11 +16,4 @@ module Url =
             |> InvalidUrl
             |> Failure
 
-    ///This should only be used when we know it is a url.
-    let internal ensure (s : string) : Url =
-        match Uri.IsWellFormedUriString (s, UriKind.RelativeOrAbsolute) with
-        | true ->
-            s |> Url
-        | false -> failwith "Invalid URL - this should never happen!"
-
     let toString ((Url v) : Url) = v

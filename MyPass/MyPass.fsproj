@@ -64,10 +64,11 @@
     <None Include="packages.config" />
     <Content Include="packages.config" />
     <Compile Include="AssemblyInfo.fs" />
-    <Compile Include="Tuple.fs" />
     <Compile Include="FailReason.fs" />
     <Compile Include="Clipboard.fs" />
     <Compile Include="Result.fs" />
+    <Compile Include="Tuple.fs" />
+    <Compile Include="ListExt.fs" />
     <Compile Include="Reader.fs" />
     <Compile Include="String.fs" />
     <Compile Include="Url.fs" />

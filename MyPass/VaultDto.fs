@@ -17,16 +17,20 @@ module VaultDto =
 
     type VaultDto = { passwordList : (Name * PasswordEntryDto) list }
 
-    let private fromSecretDto (s : SecretDto) : Secret =
+    let private fromSecretDto (s : SecretDto) : Result<FailReason, Secret> =
         match s with
         | SecretDto (data, key) ->
-            { Data = data; Key = key } |> Secret
+            { Data = data; Key = key } |> Secret |> Success
         | WebLoginDto (url, name, (data, key)) ->
-            {
-                UserName = name
-                Url = Url.ensure url
-                SecuredData = { Data = data; Key = key }
-            } |> WebLogin
+            let url = Url.make url
+            Result.map
+                (fun url ->
+                    {
+                        UserName = name
+                        Url = url
+                        SecuredData = { Data = data; Key = key }
+                    } |> WebLogin)
+                url
 
     let private toSecretDto (s : Secret) : SecretDto =
         match s with
@@ -42,19 +46,21 @@ module VaultDto =
             SecretDto = toSecretDto pe.Secret
         }
 
-    let private fromEntryDto (pe : PasswordEntryDto) : PasswordEntry =
-        {
-            Name = pe.Name
-            Description = pe.Description
-            Secret = fromSecretDto pe.SecretDto
-        }
+    let private fromEntryDto (pe : PasswordEntryDto) : Result<FailReason, PasswordEntry> =
+        Result.map
+            (fun secretDto ->
+                {
+                    Name = pe.Name
+                    Description = pe.Description
+                    Secret = secretDto })
+            (fromSecretDto pe.SecretDto)
 
-    let fromDto (vaultDtoString : string) =
+    let fromDto (vaultDtoString : string) : Result<FailReason, Vault> =
         JsonConvert.DeserializeObject<VaultDto> (vaultDtoString)
         |> (fun v -> v.passwordList)
-        |> List.map (Tuple.map fromEntryDto)
-        |> Map.ofList
-        |> fun ps -> {passwords = ps}
+        |> ListExt.traverse (Tuple.traverse fromEntryDto)
+        |> Result.map Map.ofList
+        |> Result.map (fun ps -> {passwords = ps})
 
     let toDto (v : Vault) =
         v.passwords

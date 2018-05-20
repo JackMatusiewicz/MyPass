@@ -113,7 +113,6 @@ module Vault =
             |> Aes.decrypt key
             |> Encoding.UTF8.GetString
             |> VaultDto.fromDto
-            |> Success
         |> exceptionToFailure
 
     let getPassword
