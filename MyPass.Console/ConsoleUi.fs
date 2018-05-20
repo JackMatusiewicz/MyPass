@@ -198,8 +198,7 @@ module ConsoleUi =
         let printEntries vault =
             vault.passwords
             |> Map.toList
-            |> List.map snd
-            |> List.iter (fun e -> printfn "%A\n---------------\n" e.Description)
+            |> List.iter (fun (n,e) -> printfn "%A\n%A\n---------------\n" n e.Description)
 
         try
             loadVault fs userData
