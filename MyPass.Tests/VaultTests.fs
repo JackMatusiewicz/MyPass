@@ -8,24 +8,33 @@ open System.Linq
 module VaultTests =
 
     let testPasswordEntry = {
-        Password = EncryptedPassword (Array.create 5 (byte 0))
-        Key = Aes.newKey ()
-        Description = BasicDescription ("www.gmail.com", "My gmail password")
+        Secret = Vault.createSecret "gmailSecret"
+        Description = Description "My gmail password"
+        Name = Name "www.gmail.com"
     }
 
     let testPasswordEntry2 = {
-        Password = EncryptedPassword (Array.create 5 (byte 1))
-        Key = Aes.newKey ()
-        Description = BasicDescription ("www.bing.com", "My bing password")
+        Secret = Vault.createSecret "bingSecret"
+        Description = Description "My bing password"
+        Name = Name "www.bing.com"
     }
+
+    let testPasswordEntry3 =
+        let f = fun url ->
+            {
+                Secret = VaultDomain.makeWebLogin url (Name "jackma") (Vault.createSecuredSecret "55")
+                Description = Description "admin"
+                Name = Name "admin"
+            }
+        Result.map f (Url.make "www.google.com")
 
     [<Test>]
     let ``When trying to delete non-existant password entry then failure is recorded`` () =
         let vault = Vault.empty
-        let result = Vault.removePassword "www.gmail.com" vault
+        let result = Vault.removePassword (Name "www.gmail.com") vault
         match result with
         | Success _ -> Assert.Fail()
-        | Failure s -> Assert.That(s, Is.EqualTo("Password entry did not exist under that name."))
+        | Failure s -> Assert.Pass ()
 
     [<Test>]
     let ``When trying to update non-existant password entry then failure is recorded`` () =
@@ -33,7 +42,7 @@ module VaultTests =
         let result = Vault.updatePassword testPasswordEntry vault
         match result with
         | Success _ -> Assert.Fail()
-        | Failure s -> Assert.That(s, Is.EqualTo("Password entry does not exist"))
+        | Failure s -> Assert.Pass ()
 
     [<Test>]
     let ``When trying to add existing password entry then failure is recorded`` () =
@@ -41,29 +50,32 @@ module VaultTests =
         let result = Vault.storePassword testPasswordEntry vault >>= Vault.storePassword testPasswordEntry
         match result with
         | Success _ -> Assert.Fail()
-        | Failure s -> Assert.That(s, Is.EqualTo("Password entry already exists"))
+        | Failure s -> Assert.Pass ()
 
     [<Test>]
     let ``When to retrieve a non-existant password entry then a failure is returned`` () =
         let vault = Vault.empty
-        let result = Vault.getPassword "www.gmail.com" vault
+        let result = Vault.getPassword (Name "www.gmail.com") vault
         match result with
         | Success _ -> Assert.Fail()
-        | Failure s -> Assert.That(s, Is.EqualTo("Unable to find a password matching that name."))
+        | Failure s -> Assert.Pass ()
 
     [<Test>]
     let ``Given a password manager with a password, when I retrieve it then the result is the correct password`` () =
         let result =
             Vault.storePassword testPasswordEntry Vault.empty
-                >>= Vault.storePassword testPasswordEntry2
-                >>= Vault.getPassword "www.gmail.com"
+            >>= Vault.storePassword testPasswordEntry2
+            >>= Vault.getPassword (Name "www.gmail.com")
         match result with
         | Failure _ -> Assert.Fail()
         | Success pw -> Assert.That(pw, Is.EqualTo testPasswordEntry)
 
     [<Test>]
     let ``Given a password manager with a password, encryption round-trip works`` () =
-        let storePasswords = Vault.storePassword testPasswordEntry >=> Vault.storePassword testPasswordEntry2
+        let storePasswords =
+            Vault.storePassword testPasswordEntry
+            >=> Vault.storePassword testPasswordEntry2
+            >=> (fun v -> Result.bind testPasswordEntry3 (fun pw -> Vault.storePassword pw v))
         let result = storePasswords Vault.empty
         match result with
         | Failure _ -> Assert.Fail()
@@ -98,59 +110,57 @@ module VaultTests =
         | Failure _ -> Assert.Fail()
         | Success pw ->
             Assert.That(pw.passwords |> Map.toSeq |> Seq.length, Is.EqualTo 1)
-            let updatedResult = Vault.removePassword "www.gmail.com" pw
+            let updatedResult = Vault.removePassword (Name "www.gmail.com") pw
             match updatedResult with
             | Failure _ -> Assert.Fail()
             | Success pw -> Assert.That(pw.passwords |> Map.toSeq |> Seq.length, Is.EqualTo 0)
 
     [<Test>]
     let ``Given a password manager when I create an entry then then password is retrieved.`` () =
-        let desc = BasicDescription ("google", "my google account")
         let password = "123pass"
-        let entry = Vault.createEntry desc password
+        let entry =
+            Vault.createSecret password
+            |> Vault.createEntry (Name "google") (Description "my google account")
         let result =
             Vault.storePassword entry Vault.empty
-                >>= Vault.getPassword "google"
-                >>= Vault.decryptPassword
+            >>= Vault.getPassword (Name "google")
+            >>= Vault.decryptPassword
         match result with
         | Failure _ -> Assert.Fail()
         | Success p -> Assert.That(p, Is.EqualTo password)
 
     [<Test>]
     let ``Given a password manager when I create an entry then then password is retrieved and encrypted.`` () =
-        let desc = BasicDescription ("google", "my google account")
         let password = "123pass"
-        let entry = Vault.createEntry desc password
+        let entry =
+            Vault.createSecret password
+            |> Vault.createEntry (Name "google") (Description "my google account")
         let result =
             Vault.storePassword entry Vault.empty
-                >>= Vault.getPassword "google"
+            >>= Vault.getPassword (Name "google")
         match result with
         | Failure _ -> Assert.Fail()
-        | Success p -> Assert.That(p.Password, Is.Not.EqualTo <| System.Text.Encoding.UTF8.GetBytes(password))
+        | Success p ->
+            let (EncryptedData bytes) = (Vault.getSecureData >> Vault.getEncryptedData) p
+            Assert.That(
+                bytes.SequenceEqual(System.Text.Encoding.UTF8.GetBytes(password)),
+                Is.False)
 
     [<Test>]
     let ``Given a password manager with a password, when I update it then it is updated.`` () =
-        let pwBytes = (Array.create 5 (byte 1))
-        let updatedEntry = {testPasswordEntry with Password = EncryptedPassword pwBytes}
+        let updatedEntry =
+            { testPasswordEntry with
+                Secret = Vault.createSecret "newPassword" }
         let result =
             Vault.storePassword testPasswordEntry Vault.empty
-                >>= Vault.updatePassword updatedEntry
-                >>= Vault.getPassword "www.gmail.com"
+            >>= Vault.updatePassword updatedEntry
+            >>= Vault.getPassword (Name "www.gmail.com")
         match result with
-        | Failure _ -> Assert.Fail()
-        | Success pw -> 
-            let (EncryptedPassword encryptedPw) = pw.Password
-            Assert.That(encryptedPw.SequenceEqual(pwBytes), Is.True)
-
-    [<Test>]
-    let ``Given a password entry that is a full description, when I get the name from it then the correct name is returned`` () =
-        let fullDesc = FullDescription ("google", "www.google.com", "My google account")
-        let password = "123pass"
-        let entry = Vault.createEntry fullDesc password
-        let result =
-            Vault.storePassword entry Vault.empty
-                >>= Vault.getPassword "google"
-                >>= Vault.decryptPassword
-        match result with
-        | Failure _ -> Assert.Fail()
-        | Success p -> Assert.That(p, Is.EqualTo password)
+        | Failure _ -> Assert.Fail ()
+        | Success pw ->
+            let pwOne = Vault.decryptPassword updatedEntry
+            let pwTwo = Vault.decryptPassword pw
+            match pwOne,pwTwo with
+            | Success a, Success b ->
+                Assert.That (a, Is.EqualTo(b))
+            | _ -> Assert.Fail ()

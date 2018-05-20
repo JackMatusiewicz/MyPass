@@ -1,5 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -53,11 +52,39 @@
       </PropertyGroup>
     </Otherwise>
   </Choose>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <Import Project="$(FSharpTargetsPath)" Condition="Exists('$(FSharpTargetsPath)')" />
+  <ItemGroup>
+    <None Include="packages.config" />
+    <Content Include="packages.config" />
+    <Compile Include="AssemblyInfo.fs" />
+    <Compile Include="FailReason.fs" />
+    <Compile Include="Clipboard.fs" />
+    <Compile Include="Result.fs" />
+    <Compile Include="Tuple.fs" />
+    <Compile Include="ListExt.fs" />
+    <Compile Include="Reader.fs" />
+    <Compile Include="String.fs" />
+    <Compile Include="Url.fs" />
+    <Compile Include="Aes.fs" />
+    <Compile Include="Hkdf.fs" />
+    <Compile Include="Password.fs" />
+    <Compile Include="FileKey.fs" />
+    <Compile Include="VaultDomain.fs" />
+    <Compile Include="VaultDto.fs" />
+    <Compile Include="Vault.fs" />
+    <None Include="App.config" />
+  </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
     <Reference Include="Newtonsoft.Json">
-      <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>..\packages\Newtonsoft.Json.11.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -70,30 +97,6 @@
     <Reference Include="FSharp.Core">
       <HintPath>..\packages\FSharp.Core.4.3.4\lib\net45\FSharp.Core.dll</HintPath>
     </Reference>
+    <Reference Include="System.Net.Http" />
   </ItemGroup>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
-  <ItemGroup>
-    <Content Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
-    <Compile Include="AssemblyInfo.fs" />
-    <Compile Include="Clipboard.fs" />
-    <Compile Include="Result.fs" />
-    <Compile Include="Reader.fs" />
-    <Compile Include="String.fs" />
-    <Compile Include="Aes.fs" />
-    <Compile Include="Hkdf.fs" />
-    <Compile Include="Password.fs" />
-    <Compile Include="FileKey.fs" />
-    <Compile Include="Vault.fs" />
-    <None Include="App.config" />
-  </ItemGroup>
-  <Import Project="$(FSharpTargetsPath)" Condition="Exists('$(FSharpTargetsPath)')" />
 </Project>

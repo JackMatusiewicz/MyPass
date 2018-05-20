@@ -42,4 +42,4 @@ module FileKeyTests =
         let key = FileKey.read (FileSystem ()) file
         match key with
         | Success _ -> Assert.Fail ()
-        | Failure msg -> Assert.That (msg.Contains ("Could not find file"), Is.True)
+        | Failure msg -> Assert.Pass ()

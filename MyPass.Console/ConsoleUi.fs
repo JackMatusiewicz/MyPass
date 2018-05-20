@@ -54,7 +54,48 @@ module ConsoleUi =
     let private getExtraPasswordCharacters () =
         getInput "Please enter the extra characters to use for password generation:"
         |> fun s -> s.ToCharArray ()
+        |> (fun cs -> Array.append availableCharacters cs)
         |> Password.createWithCharacters 15u
+
+    let getSecretPassword () =
+        let value = getInput "Do you want to write your own password (Y) or have one generated?"
+        if value = "Y" then
+            getInput "Please enter your password:"
+        else
+            getExtraPasswordCharacters ()
+
+    let private getWebsiteUrl () =
+        getInput "Please enter the URL of the site"
+        |> Url.make
+
+    let private getWebsiteUserName () =
+        getInput "Please enter your user name for the site"
+        |> Name
+
+    let private makeWebLogin () =
+        let url = getWebsiteUrl ()
+        let userName = getWebsiteUserName ()
+        let pw = getSecretPassword ()
+        let secret = Vault.createSecuredSecret pw
+        Result.map (fun url -> VaultDomain.makeWebLogin url userName secret) url
+
+    let private makeSecret () =
+        getSecretPassword ()
+        |> Vault.createSecuredSecret
+        |> Secret
+
+    let private makePasswordEntry () =
+        let r = getInput "What do you want to store?\n1. Web login.\n2. Secret"
+        match r with
+        | "1" ->
+            makeWebLogin ()
+        | "2" ->
+            makeSecret ()
+            |> Success
+        | _ ->
+            sprintf "You chose %s, you can only choose 1 or 2" r
+            |> InvalidChoice
+            |> Failure
 
     let private createUserInput
         vaultPath
@@ -98,7 +139,10 @@ module ConsoleUi =
         getUserInputForExistingVault ()
         |> (Result.map makeUserData)
 
-    let constructVault (fs : IFileSystem) (userData : UserData) : Result<string, unit> =
+    let constructVault
+        (fs : IFileSystem)
+        (userData : UserData)
+        : Result<FailReason, unit> =
         try
             let encryptedVault = Vault.encryptManager userData.MasterKey Vault.empty
             match encryptedVault with
@@ -110,7 +154,9 @@ module ConsoleUi =
                 printfn "Please keep this safe, it is required to use the vault."
                 |> Success
         with
-        | ex -> ex.Message |> Failure
+        | ex ->
+            FailReason.fromException ex
+            |> Failure
 
     let createNewVault () =
         (makeUserData <-| getUserInputForNewVault) ()
@@ -119,13 +165,6 @@ module ConsoleUi =
     let private loadVault (fs : IFileSystem) (userData : UserData) =
         let manager = fs.File.ReadAllBytes userData.UserInput.VaultPath
         Vault.decryptManager userData.MasterKey manager
-
-    let getSecretPassword () =
-        let value = getInput "Do you want to write your own password (Y) or have one generated?"
-        if value = "Y" then
-            getInput "Please enter your password:"
-        else
-            getExtraPasswordCharacters ()
 
     let private addAndStore
         (fs : IFileSystem)
@@ -140,13 +179,13 @@ module ConsoleUi =
     let addSecretToVault (fs : IFileSystem) (userData : UserData) =
         try
             let vault = loadVault fs userData
-            let name = getInput "Enter the name for this secret:"
-            let desc = getInput "Enter the description for this secret:"
-            let pw = getSecretPassword ()
-            let entry = Vault.createEntry (BasicDescription (name, desc)) pw
-            let result = vault >>= addAndStore fs entry userData
+            let name = getInput "Enter the name for this secret:" |> Name
+            let desc = getInput "Enter the description for this secret:" |> Description
+            let result =
+                Result.map (Vault.createEntry name desc) (makePasswordEntry ())
+                >>= (fun entry -> vault >>= addAndStore fs entry userData)
             match result with
-            | Failure f -> printfn "ERROR: %s" f
+            | Failure f -> printfn "ERROR: %s" <| FailReason.toString f
             | Success _ -> printfn "Secret has been stored"
         with
         | ex -> printfn "ERROR: %s" <| ex.ToString()
@@ -159,8 +198,7 @@ module ConsoleUi =
         let printEntries vault =
             vault.passwords
             |> Map.toList
-            |> List.map snd
-            |> List.iter (fun e -> printfn "%A\n---------------\n" e.Description)
+            |> List.iter (fun (n,e) -> printfn "%A\n%A\n---------------\n" n e.Description)
 
         try
             loadVault fs userData
@@ -177,17 +215,20 @@ module ConsoleUi =
         Clipboard.timedStoreInClipboard 15000 password
         printfn "Your password has been removed from your clipboard"
 
-    let showPasswordToUser (vault : Vault) : Result<string, unit> =
+    let showPasswordToUser (vault : Vault) : Result<FailReason, unit> =
         try
             vault
             |> (fun vault ->
                     let entryName =
                         getInput "Please enter the name of the password you wish to see: "
+                        |> Name
                     Vault.getPassword entryName vault)
             |> (=<<) Vault.decryptPassword
             |> Result.map givePasswordToUser
         with
-        | ex -> ex.Message |> Failure
+        | ex ->
+            FailReason.fromException ex
+            |> Failure
 
     let printPassword () =
         constructComponentsFromUserInput
