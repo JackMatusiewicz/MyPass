@@ -54,7 +54,48 @@ module ConsoleUi =
     let private getExtraPasswordCharacters () =
         getInput "Please enter the extra characters to use for password generation:"
         |> fun s -> s.ToCharArray ()
+        |> (fun cs -> Array.append availableCharacters cs)
         |> Password.createWithCharacters 15u
+
+    let getSecretPassword () =
+        let value = getInput "Do you want to write your own password (Y) or have one generated?"
+        if value = "Y" then
+            getInput "Please enter your password:"
+        else
+            getExtraPasswordCharacters ()
+
+    let private getWebsiteUrl () =
+        getInput "Please enter the URL of the site"
+        |> Url.make
+
+    let private getWebsiteUserName () =
+        getInput "Please enter your user name for the site"
+        |> Name
+
+    let private makeWebLogin () =
+        let url = getWebsiteUrl ()
+        let userName = getWebsiteUserName ()
+        let pw = getSecretPassword ()
+        let secret = Vault.createSecuredSecret pw
+        Result.map (fun url -> VaultDomain.makeWebLogin url userName secret) url
+
+    let private makeSecret () =
+        getSecretPassword ()
+        |> Vault.createSecuredSecret
+        |> Secret
+
+    let private makePasswordEntry () =
+        let r = getInput "What do you want to store?\n1. Web login.\n2. Secret"
+        match r with
+        | "1" ->
+            makeWebLogin ()
+        | "2" ->
+            makeSecret ()
+            |> Success
+        | _ ->
+            sprintf "You chose %s, you can only choose 1 or 2" r
+            |> InvalidChoice
+            |> Failure
 
     let private createUserInput
         vaultPath
@@ -125,13 +166,6 @@ module ConsoleUi =
         let manager = fs.File.ReadAllBytes userData.UserInput.VaultPath
         Vault.decryptManager userData.MasterKey manager
 
-    let getSecretPassword () =
-        let value = getInput "Do you want to write your own password (Y) or have one generated?"
-        if value = "Y" then
-            getInput "Please enter your password:"
-        else
-            getExtraPasswordCharacters ()
-
     let private addAndStore
         (fs : IFileSystem)
         (entry : PasswordEntry)
@@ -147,11 +181,9 @@ module ConsoleUi =
             let vault = loadVault fs userData
             let name = getInput "Enter the name for this secret:" |> Name
             let desc = getInput "Enter the description for this secret:" |> Description
-            let pw = getSecretPassword ()
-            let entry =
-                Vault.createSecret pw
-                |> Vault.createEntry name desc
-            let result = vault >>= addAndStore fs entry userData
+            let result =
+                Result.map (Vault.createEntry name desc) (makePasswordEntry ())
+                >>= (fun entry -> vault >>= addAndStore fs entry userData)
             match result with
             | Failure f -> printfn "ERROR: %s" <| FailReason.toString f
             | Success _ -> printfn "Secret has been stored"

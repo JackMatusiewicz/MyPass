@@ -24,7 +24,8 @@ module Vault =
     let getEncryptedData (sd : SecuredSecret) : EncryptedData =
         sd.Data
 
-    let createSecret (password : string) =
+    //TODO - move this out
+    let createSecuredSecret (password : string) : SecuredSecret =
         let passwordKey = Aes.newKey ()
         let encryptedPassword =
             password
@@ -32,7 +33,9 @@ module Vault =
             |> Aes.encrypt passwordKey
             |> EncryptedData
         { Data = encryptedPassword; Key = passwordKey }
-        |> Secret
+
+    //TODO - move this out
+    let createSecret = createSecuredSecret >> Secret
 
     let createEntry
         (name : Name)

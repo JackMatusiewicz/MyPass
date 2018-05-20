@@ -34,3 +34,14 @@ type PasswordEntry = {
 }
 
 type Vault = { passwords : Map<Name, PasswordEntry> }
+
+module VaultDomain =
+
+    let makeWebLogin (url : Url) (name : Name) (secret : SecuredSecret) =
+        {
+            Url = url
+            UserName = name
+            SecuredData = secret
+        } |> WebLogin
+
+    let makeSecret = Secret

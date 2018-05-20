@@ -10,6 +10,7 @@ type FailReason =
     | DuplicateEntry of Key : string
     | EntryNotFound of Entry : string
     | InvalidCommand of Command : string
+    | InvalidChoice of Choice : string
 
 module FailReason =
 
@@ -25,3 +26,4 @@ module FailReason =
         | DuplicateEntry k -> sprintf "%s already exists" k
         | EntryNotFound k -> sprintf "%s was not found" k
         | InvalidCommand c -> sprintf "%s is not a valid MyPass command" c
+        | InvalidChoice c -> sprintf "Invalid choice: %s" c
