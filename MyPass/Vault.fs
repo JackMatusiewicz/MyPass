@@ -96,8 +96,7 @@ module Vault =
         =
         fun () ->
             manager
-            |> VaultDto.toDto
-            |> JsonConvert.SerializeObject
+            |> VaultSerialisation.serialise
             |> Encoding.UTF8.GetBytes
             |> Aes.encrypt key
             |> Success
@@ -112,7 +111,7 @@ module Vault =
             encryptedManager
             |> Aes.decrypt key
             |> Encoding.UTF8.GetString
-            |> VaultDto.fromDto
+            |> VaultSerialisation.deserialise
         |> exceptionToFailure
 
     let getPassword

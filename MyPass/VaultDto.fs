@@ -2,7 +2,7 @@
 
 open Newtonsoft.Json
 
-module VaultDto =
+module VaultSerialisation =
 
     type SecuredSecretDto = (EncryptedData * AesKey)
 
@@ -55,15 +55,16 @@ module VaultDto =
                     Secret = secretDto })
             (fromSecretDto pe.SecretDto)
 
-    let fromDto (vaultDtoString : string) : Result<FailReason, Vault> =
+    let deserialise (vaultDtoString : string) : Result<FailReason, Vault> =
         JsonConvert.DeserializeObject<VaultDto> (vaultDtoString)
         |> (fun v -> v.passwordList)
         |> ListExt.traverse (Tuple.traverse fromEntryDto)
         |> Result.map Map.ofList
         |> Result.map (fun ps -> {passwords = ps})
 
-    let toDto (v : Vault) =
+    let serialise (v : Vault) : string =
         v.passwords
         |> Map.toList
         |> List.map (Tuple.map toEntryDto)
         |> fun ps -> { passwordList = ps }
+        |> JsonConvert.SerializeObject
