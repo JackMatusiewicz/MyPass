@@ -32,6 +32,7 @@ module Result =
         | Success s -> f s
 
     module Operators =
+
         let (<!>) = map
 
         let (<*>) = apply
