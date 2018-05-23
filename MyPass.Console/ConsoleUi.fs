@@ -100,8 +100,8 @@ module ConsoleUi =
 
     let private createUserInput
         vaultPath
-        masterPassPhrase
         userName
+        masterPassPhrase
         (fileKeyPath,fileKey)
         =
         {
@@ -115,15 +115,15 @@ module ConsoleUi =
     let private getUserInputForNewVault () =
         createUserInput
             (getVaultPath ())
-            (getMasterPassPhrase ())
             (getUserName ())
+            (getMasterPassPhrase ())
             (getDefaultFileKeyPath ())
 
     let private getUserInputForExistingVault () =
         createUserInput
             (getVaultPath ())
-            (getMasterPassPhrase ())
             (getUserName ())
+            (getMasterPassPhrase ())
         |> fun f -> Result.map f (getFileKeyPath (new FileSystem ()))
 
     let makeUserData (userInput : UserInput) =
