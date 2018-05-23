@@ -3,8 +3,9 @@
 open MyPass
 open MyPass.Aes
 open MyPass.Password
-open MyPass.Result
+open MyPass.Result.Operators
 open MyPass.Reader
+open MyPass.Reader.Operators
 open MyPass.Vault
 open System
 open System.IO
