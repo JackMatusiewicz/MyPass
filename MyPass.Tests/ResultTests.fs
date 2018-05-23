@@ -2,6 +2,7 @@
 
 open NUnit.Framework
 open MyPass
+open MyPass.Result.Operators
 open Result
 
 module ResultTests =

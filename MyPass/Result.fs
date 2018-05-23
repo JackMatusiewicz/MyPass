@@ -12,14 +12,12 @@ module Result =
         match input with
         | Failure f -> Failure f
         | Success s -> Success <| f s
-    let (<!>) = map
 
     let apply (f : Result<'c, 'a -> 'b>) (input : Result<'c, 'a>) : Result<'c, 'b> =
         match f,input with
         | (Success func), (Success d) -> Success <| func d
         | Failure f, _ -> Failure f
         | _, Failure f -> Failure f
-    let (<*>) = apply
 
     let lift (x : 'a) : Result<'c, 'a> = Success x
 
@@ -27,15 +25,21 @@ module Result =
         match data with
         | Success s -> f s
         | Failure f -> Failure f
-    let (>>=) = bind
-
-    let (=<<) (f : 'a -> Result<'c, 'b>) (data : Result<'c, 'a>) =
-        bind data f
-
-    let (>=>) (f : 'a -> Result<'c,'b>) (g : 'b -> Result<'c,'d>) : 'a -> Result<'c,'d> =
-        fun a -> f a >>= g
 
     let iter (f : 'a -> unit) (a : Result<'f, 'a>) : unit =
         match a with
         | Failure f -> ()
         | Success s -> f s
+
+    module Operators =
+        let (<!>) = map
+
+        let (<*>) = apply
+
+        let (>>=) = bind
+
+        let (=<<) (f : 'a -> Result<'c, 'b>) (data : Result<'c, 'a>) =
+            bind data f
+
+        let (>=>) (f : 'a -> Result<'c,'b>) (g : 'b -> Result<'c,'d>) : 'a -> Result<'c,'d> =
+            fun a -> f a >>= g

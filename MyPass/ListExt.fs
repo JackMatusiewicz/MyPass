@@ -1,6 +1,6 @@
 namespace MyPass
 
-open MyPass.Result
+open MyPass.Result.Operators
 
 module ListExt =
 
