@@ -16,11 +16,6 @@ module Vault =
             FailReason.fromException ex
             |> Failure
 
-    let getSecureData (entry : PasswordEntry) : SecuredSecret =
-        match entry.Secret with
-        | WebLogin wl -> wl.SecuredData
-        | Secret s -> s
-
     let getEncryptedData (sd : SecuredSecret) : EncryptedData =
         sd.Data
 
@@ -89,7 +84,7 @@ module Vault =
             EntryNotFound "Password entry not found"
             |> Failure
 
-    let encryptManager
+    let encrypt
         (key : AesKey)
         (manager : Vault)
         : Result<FailReason, byte[]>
@@ -102,7 +97,7 @@ module Vault =
             |> Success
         |> exceptionToFailure
 
-    let decryptManager
+    let decrypt
         (key : AesKey)
         (encryptedManager : byte[])
         : Result<FailReason, Vault>
@@ -125,14 +120,3 @@ module Vault =
         else
             EntryNotFound "Unable to find a password matching that name."
             |> Failure
-
-    let decryptPassword (entry : PasswordEntry) : Result<FailReason, string> =
-        fun () ->
-            let secureData = getSecureData entry
-            let (EncryptedData encryptedBytes) = secureData.Data
-
-            encryptedBytes
-            |> Aes.decrypt (secureData.Key)
-            |> Encoding.UTF8.GetString
-            |> Success
-        |> exceptionToFailure

@@ -31,6 +31,6 @@ module RoundTripTests =
             let key = {Key = masterKey}
 
             let manager = fs.File.ReadAllBytes vaultPath
-            match Vault.decryptManager key manager with
+            match Vault.decrypt key manager with
             | Result.Failure a -> Assert.Fail ()
             | Result.Success _ -> Assert.Pass ()

@@ -77,7 +77,8 @@
     <Compile Include="Password.fs" />
     <Compile Include="FileKey.fs" />
     <Compile Include="VaultDomain.fs" />
-    <Compile Include="VaultDto.fs" />
+    <Compile Include="PasswordEntry.fs" />
+    <Compile Include="VaultSerialisation.fs" />
     <Compile Include="Vault.fs" />
     <None Include="App.config" />
   </ItemGroup>

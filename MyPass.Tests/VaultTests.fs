@@ -83,8 +83,8 @@ module VaultTests =
         | Success store ->
             let key = Aes.newKey ()
             let roundTripResult =
-                Vault.encryptManager key store
-                >>= Vault.decryptManager key
+                Vault.encrypt key store
+                >>= Vault.decrypt key
             match roundTripResult with
             | Failure _ -> Assert.Fail()
             | Success decStore -> Assert.That(decStore, Is.EqualTo(store))
@@ -98,7 +98,7 @@ module VaultTests =
         | Success store ->
             let key = Aes.newKey ()
             let decKey = Aes.newKey ()
-            let roundTrip = Vault.encryptManager key >=> Vault.decryptManager decKey
+            let roundTrip = Vault.encrypt key >=> Vault.decrypt decKey
             let roundTripResult = roundTrip store
             match roundTripResult with
             | Failure _ -> Assert.Pass()
@@ -125,7 +125,7 @@ module VaultTests =
         let result =
             Vault.storePassword entry Vault.empty
             >>= Vault.getPassword (Name "google")
-            >>= Vault.decryptPassword
+            >>= PasswordEntry.decrypt
         match result with
         | Failure _ -> Assert.Fail()
         | Success p -> Assert.That(p, Is.EqualTo password)
@@ -142,7 +142,7 @@ module VaultTests =
         match result with
         | Failure _ -> Assert.Fail()
         | Success p ->
-            let (EncryptedData bytes) = (Vault.getSecureData >> Vault.getEncryptedData) p
+            let (EncryptedData bytes) = (PasswordEntry.getSecureData >> Vault.getEncryptedData) p
             Assert.That(
                 bytes.SequenceEqual(System.Text.Encoding.UTF8.GetBytes(password)),
                 Is.False)
@@ -159,8 +159,8 @@ module VaultTests =
         match result with
         | Failure _ -> Assert.Fail ()
         | Success pw ->
-            let pwOne = Vault.decryptPassword updatedEntry
-            let pwTwo = Vault.decryptPassword pw
+            let pwOne = PasswordEntry.decrypt updatedEntry
+            let pwTwo = PasswordEntry.decrypt pw
             match pwOne,pwTwo with
             | Success a, Success b ->
                 Assert.That (a, Is.EqualTo(b))

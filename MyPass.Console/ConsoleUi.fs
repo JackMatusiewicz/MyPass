@@ -145,7 +145,7 @@ module ConsoleUi =
         (userData : UserData)
         : Result<FailReason, unit> =
         try
-            let encryptedVault = Vault.encryptManager userData.MasterKey Vault.empty
+            let encryptedVault = Vault.encrypt userData.MasterKey Vault.empty
             match encryptedVault with
             | Failure f -> Failure f
             | Success mgr ->
@@ -165,7 +165,7 @@ module ConsoleUi =
 
     let private loadVault (fs : IFileSystem) (userData : UserData) =
         let manager = fs.File.ReadAllBytes userData.UserInput.VaultPath
-        Vault.decryptManager userData.MasterKey manager
+        Vault.decrypt userData.MasterKey manager
 
     let private addAndStore
         (fs : IFileSystem)
@@ -174,7 +174,7 @@ module ConsoleUi =
         (vault : Vault)
         =
         vault
-        |> (Vault.storePassword entry >=> Vault.encryptManager ud.MasterKey)
+        |> (Vault.storePassword entry >=> Vault.encrypt ud.MasterKey)
         |> Result.map (fun d -> fs.File.WriteAllBytes(ud.UserInput.VaultPath, d))
 
     let addSecretToVault (fs : IFileSystem) (userData : UserData) =
@@ -230,7 +230,7 @@ module ConsoleUi =
                         getInput "Please enter the name of the password you wish to see: "
                         |> Name
                     Vault.getPassword entryName vault)
-            |> (=<<) Vault.decryptPassword
+            |> (=<<) PasswordEntry.decrypt
             |> Result.map givePasswordToUser
         with
         | ex ->
