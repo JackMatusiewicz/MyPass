@@ -3,6 +3,7 @@
 open System
 open System.Security.Cryptography
 
+[<RequireQualifiedAccess>]
 module Password =
 
     let availableCharacters =

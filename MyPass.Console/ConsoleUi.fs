@@ -2,7 +2,6 @@
 
 open MyPass
 open MyPass.Aes
-open MyPass.Password
 open MyPass.Result.Operators
 open MyPass.Reader
 open MyPass.Reader.Operators
@@ -55,7 +54,7 @@ module ConsoleUi =
     let private getExtraPasswordCharacters () =
         getInput "Please enter the extra characters to use for password generation:"
         |> fun s -> s.ToCharArray ()
-        |> (fun cs -> Array.append availableCharacters cs)
+        |> (fun cs -> Array.append Password.availableCharacters cs)
         |> Password.createWithCharacters 15u
 
     let getSecretPassword () =
