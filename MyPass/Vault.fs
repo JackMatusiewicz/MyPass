@@ -16,22 +16,6 @@ module Vault =
             FailReason.fromException ex
             |> Failure
 
-    let getEncryptedData (sd : SecuredSecret) : EncryptedData =
-        sd.Data
-
-    //TODO - move this out
-    let createSecuredSecret (password : string) : SecuredSecret =
-        let passwordKey = Aes.newKey ()
-        let encryptedPassword =
-            password
-            |> Encoding.UTF8.GetBytes
-            |> Aes.encrypt passwordKey
-            |> EncryptedData
-        { Data = encryptedPassword; Key = passwordKey }
-
-    //TODO - move this out
-    let createSecret = createSecuredSecret >> Secret
-
     let storePassword
         (entry : PasswordEntry)
         (manager : Vault)

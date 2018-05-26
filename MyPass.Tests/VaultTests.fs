@@ -9,13 +9,13 @@ open System.Linq
 module VaultTests =
 
     let testPasswordEntry = {
-        Secret = Vault.createSecret "gmailSecret"
+        Secret = SecuredSecret.createSecret "gmailSecret"
         Description = Description "My gmail password"
         Name = Name "www.gmail.com"
     }
 
     let testPasswordEntry2 = {
-        Secret = Vault.createSecret "bingSecret"
+        Secret = SecuredSecret.createSecret "bingSecret"
         Description = Description "My bing password"
         Name = Name "www.bing.com"
     }
@@ -23,7 +23,7 @@ module VaultTests =
     let testPasswordEntry3 =
         let f = fun url ->
             {
-                Secret = VaultDomain.makeWebLogin url (Name "jackma") (Vault.createSecuredSecret "55")
+                Secret = VaultDomain.makeWebLogin url (Name "jackma") (SecuredSecret.create "55")
                 Description = Description "admin"
                 Name = Name "admin"
             }
@@ -120,7 +120,7 @@ module VaultTests =
     let ``Given a password manager when I create an entry then then password is retrieved.`` () =
         let password = "123pass"
         let entry =
-            Vault.createSecret password
+            SecuredSecret.createSecret password
             |> PasswordEntry.create (Name "google") (Description "my google account")
         let result =
             Vault.storePassword entry Vault.empty
@@ -134,7 +134,7 @@ module VaultTests =
     let ``Given a password manager when I create an entry then then password is retrieved and encrypted.`` () =
         let password = "123pass"
         let entry =
-            Vault.createSecret password
+            SecuredSecret.createSecret password
             |> PasswordEntry.create (Name "google") (Description "my google account")
         let result =
             Vault.storePassword entry Vault.empty
@@ -142,7 +142,7 @@ module VaultTests =
         match result with
         | Failure _ -> Assert.Fail()
         | Success p ->
-            let (EncryptedData bytes) = (PasswordEntry.getSecureData >> Vault.getEncryptedData) p
+            let (EncryptedData bytes) = (PasswordEntry.getSecureData >> SecuredSecret.getEncryptedData) p
             Assert.That(
                 bytes.SequenceEqual(System.Text.Encoding.UTF8.GetBytes(password)),
                 Is.False)
@@ -151,7 +151,7 @@ module VaultTests =
     let ``Given a password manager with a password, when I update it then it is updated.`` () =
         let updatedEntry =
             { testPasswordEntry with
-                Secret = Vault.createSecret "newPassword" }
+                Secret = SecuredSecret.createSecret "newPassword" }
         let result =
             Vault.storePassword testPasswordEntry Vault.empty
             >>= Vault.updatePassword updatedEntry

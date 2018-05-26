@@ -76,12 +76,12 @@ module ConsoleUi =
         let url = getWebsiteUrl ()
         let userName = getWebsiteUserName ()
         let pw = getSecretPassword ()
-        let secret = Vault.createSecuredSecret pw
+        let secret = SecuredSecret.create pw
         Result.map (fun url -> VaultDomain.makeWebLogin url userName secret) url
 
     let private makeSecret () =
         getSecretPassword ()
-        |> Vault.createSecuredSecret
+        |> SecuredSecret.create
         |> Secret
 
     let private makePasswordEntry () =
