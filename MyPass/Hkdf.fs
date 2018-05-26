@@ -25,9 +25,20 @@ module Hkdf =
             match remainingBytes with
             | _ when remainingBytes <= 0 -> result
             | _ ->
-                let ci = Array.create (previousResultBlock.Length + info.Length + 1) (byte 0)
-                System.Array.Copy(previousResultBlock, 0, ci, 0, previousResultBlock.Length)
-                System.Array.Copy(info, 0, ci, previousResultBlock.Length, info.Length)
+                let newLength = (previousResultBlock.Length + info.Length + 1)
+                let ci = Array.create newLength (byte 0)
+                System.Array.Copy(
+                    previousResultBlock,
+                    0,
+                    ci,
+                    0,
+                    previousResultBlock.Length)
+                System.Array.Copy(
+                    info,
+                    0,
+                    ci,
+                    previousResultBlock.Length,
+                    info.Length)
                 ci.[ci.Length - 1] <- (byte i)
 
                 let resultBlock = hmac.ComputeHash(ci);
