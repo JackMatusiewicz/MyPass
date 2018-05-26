@@ -21,3 +21,14 @@ module PasswordEntry =
             |> Success
         with
         | ex -> FailReason.fromException ex |> Failure
+
+    let create
+        (name : Name)
+        (desc : Description)
+        (secret : Secret)
+        =
+        {
+            Name = name
+            Description = desc
+            Secret = secret
+        }

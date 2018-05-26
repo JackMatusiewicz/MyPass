@@ -32,17 +32,6 @@ module Vault =
     //TODO - move this out
     let createSecret = createSecuredSecret >> Secret
 
-    let createEntry
-        (name : Name)
-        (desc : Description)
-        (secret : Secret)
-        =
-        {
-            Name = name
-            Description = desc
-            Secret = secret
-        }
-
     let storePassword
         (entry : PasswordEntry)
         (manager : Vault)

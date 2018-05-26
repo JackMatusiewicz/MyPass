@@ -182,7 +182,7 @@ module ConsoleUi =
             let name = getInput "Enter the name for this secret:" |> Name
             let desc = getInput "Enter the description for this secret:" |> Description
             let result =
-                Result.map (Vault.createEntry name desc) (makePasswordEntry ())
+                Result.map (PasswordEntry.create name desc) (makePasswordEntry ())
                 >>= (fun entry -> vault >>= addAndStore fs entry userData)
             match result with
             | Failure f -> printfn "ERROR: %s" <| FailReason.toString f

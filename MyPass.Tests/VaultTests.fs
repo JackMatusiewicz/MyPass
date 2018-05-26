@@ -121,7 +121,7 @@ module VaultTests =
         let password = "123pass"
         let entry =
             Vault.createSecret password
-            |> Vault.createEntry (Name "google") (Description "my google account")
+            |> PasswordEntry.create (Name "google") (Description "my google account")
         let result =
             Vault.storePassword entry Vault.empty
             >>= Vault.getPassword (Name "google")
@@ -135,7 +135,7 @@ module VaultTests =
         let password = "123pass"
         let entry =
             Vault.createSecret password
-            |> Vault.createEntry (Name "google") (Description "my google account")
+            |> PasswordEntry.create (Name "google") (Description "my google account")
         let result =
             Vault.storePassword entry Vault.empty
             >>= Vault.getPassword (Name "google")
