@@ -2,7 +2,8 @@ namespace MyPass
 
 open MyPass.Result.Operators
 
-module ListExt =
+[<RequireQualifiedAccess>]
+module List =
 
     let private append x xs = x :: xs
 

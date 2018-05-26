@@ -58,7 +58,7 @@ module VaultSerialisation =
     let deserialise (vaultDtoString : string) : Result<FailReason, Vault> =
         JsonConvert.DeserializeObject<VaultDto> (vaultDtoString)
         |> (fun v -> v.passwordList)
-        |> ListExt.traverse (Tuple.traverse fromEntryDto)
+        |> List.traverse (Tuple.traverse fromEntryDto)
         |> Result.map Map.ofList
         |> Result.map (fun ps -> {passwords = ps})
 
