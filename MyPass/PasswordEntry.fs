@@ -32,3 +32,10 @@ module PasswordEntry =
             Description = desc
             Secret = secret
         }
+
+    let updateSecret
+        (newSecret : SecuredSecret)
+        (entry : PasswordEntry)
+        =
+        let newSecret = VaultDomain.updateSecret newSecret entry.Secret
+        { entry with Secret = newSecret }
