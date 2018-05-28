@@ -9,7 +9,7 @@ module AesTests =
     [<Test>]
     [<Repeat(10000)>]
     let ``Aes Roundtrip``() =
-        let aes = Aes.newKey ()
+        let aes = Aes.make ()
         let dataToEncrypt = "HelloWorld" |> System.Text.Encoding.UTF8.GetBytes
         let encrypted = Aes.encrypt aes dataToEncrypt
         let decrypted = Aes.decrypt aes encrypted

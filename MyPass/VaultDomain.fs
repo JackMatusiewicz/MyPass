@@ -44,4 +44,8 @@ module VaultDomain =
             SecuredData = secret
         } |> WebLogin
 
-    let makeSecret = Secret
+    let internal updateSecret (newSecret : SecuredSecret) (secret : Secret) =
+        match secret with
+        | Secret s -> Secret newSecret
+        | WebLogin l ->
+            WebLogin { l with SecuredData = newSecret }

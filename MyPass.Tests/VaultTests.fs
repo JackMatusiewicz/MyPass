@@ -9,13 +9,13 @@ open System.Linq
 module VaultTests =
 
     let testPasswordEntry = {
-        Secret = SecuredSecret.createSecret "gmailSecret"
+        Secret = SecuredSecret.create "gmailSecret" |> Secret
         Description = Description "My gmail password"
         Name = Name "www.gmail.com"
     }
 
     let testPasswordEntry2 = {
-        Secret = SecuredSecret.createSecret "bingSecret"
+        Secret = SecuredSecret.create "bingSecret" |> Secret
         Description = Description "My bing password"
         Name = Name "www.bing.com"
     }
@@ -48,7 +48,9 @@ module VaultTests =
     [<Test>]
     let ``When trying to add existing password entry then failure is recorded`` () =
         let vault = Vault.empty
-        let result = Vault.storePassword testPasswordEntry vault >>= Vault.storePassword testPasswordEntry
+        let result =
+            Vault.storePassword testPasswordEntry vault
+            >>= Vault.storePassword testPasswordEntry
         match result with
         | Success _ -> Assert.Fail()
         | Failure s -> Assert.Pass ()
@@ -81,7 +83,7 @@ module VaultTests =
         match result with
         | Failure _ -> Assert.Fail()
         | Success store ->
-            let key = Aes.newKey ()
+            let key = Aes.make ()
             let roundTripResult =
                 Vault.encrypt key store
                 >>= Vault.decrypt key
@@ -91,13 +93,15 @@ module VaultTests =
 
     [<Test>]
     let ``Given a password manager with a password, encryption round-trip fails if different key is used to decrypt`` () =
-        let storePasswords = Vault.storePassword testPasswordEntry >=> Vault.storePassword testPasswordEntry2
+        let storePasswords =
+            Vault.storePassword testPasswordEntry
+            >=> Vault.storePassword testPasswordEntry2
         let result = storePasswords Vault.empty      
         match result with
         | Failure _ -> Assert.Fail()
         | Success store ->
-            let key = Aes.newKey ()
-            let decKey = Aes.newKey ()
+            let key = Aes.make ()
+            let decKey = Aes.make ()
             let roundTrip = Vault.encrypt key >=> Vault.decrypt decKey
             let roundTripResult = roundTrip store
             match roundTripResult with
@@ -120,7 +124,7 @@ module VaultTests =
     let ``Given a password manager when I create an entry then then password is retrieved.`` () =
         let password = "123pass"
         let entry =
-            SecuredSecret.createSecret password
+            SecuredSecret.create password |> Secret
             |> PasswordEntry.create (Name "google") (Description "my google account")
         let result =
             Vault.storePassword entry Vault.empty
@@ -134,7 +138,7 @@ module VaultTests =
     let ``Given a password manager when I create an entry then then password is retrieved and encrypted.`` () =
         let password = "123pass"
         let entry =
-            SecuredSecret.createSecret password
+            SecuredSecret.create password |> Secret
             |> PasswordEntry.create (Name "google") (Description "my google account")
         let result =
             Vault.storePassword entry Vault.empty
@@ -151,7 +155,7 @@ module VaultTests =
     let ``Given a password manager with a password, when I update it then it is updated.`` () =
         let updatedEntry =
             { testPasswordEntry with
-                Secret = SecuredSecret.createSecret "newPassword" }
+                Secret = SecuredSecret.create "newPassword" |> Secret }
         let result =
             Vault.storePassword testPasswordEntry Vault.empty
             >>= Vault.updatePassword updatedEntry

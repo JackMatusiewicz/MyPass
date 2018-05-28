@@ -24,13 +24,13 @@ module Aes =
         use sha256 = new SHA256Managed()
         sha256.ComputeHash(Encoding.UTF8.GetBytes(data))
 
-    let private createAes () =
-        let aes = new AesManaged()
+    let private makeKey () =
+        let aes = new AesManaged ()
         aes.KeySize <- keySizeBits
         aes
 
-    let newKey () =
-        use aes = createAes ()
+    let make () =
+        use aes = makeKey ()
         {Key = aes.Key}
 
     let generateFromPassPhrase (salt : Salt) (phrase : PassPhrase) =
@@ -41,7 +41,7 @@ module Aes =
         {Key = keyBytes}
 
     let private createEncryptionStream (key : AesKey) (data : Stream) : CryptoStream =
-        use aes = createAes ()
+        use aes = makeKey ()
         aes.GenerateIV()
         aes.Key <- key.Key
         let encryptor = aes.CreateEncryptor(aes.Key, aes.IV)
@@ -68,7 +68,7 @@ module Aes =
         cipherText
 
     let private createDecryptionStream (key : AesKey) (data : Stream) : CryptoStream =
-        use aes = createAes ()
+        use aes = makeKey ()
         aes.GenerateIV()
         aes.Key <- key.Key
         let ivBytes = Array.create (aes.IV.Length) (byte 0)
