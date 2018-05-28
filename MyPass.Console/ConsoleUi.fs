@@ -166,15 +166,9 @@ module ConsoleUi =
         let manager = fs.File.ReadAllBytes userData.UserInput.VaultPath
         Vault.decrypt userData.MasterKey manager
 
-    let private addAndStore
-        (fs : IFileSystem)
-        (entry : PasswordEntry)
-        (ud : UserData)
-        (vault : Vault)
-        =
-        vault
-        |> (Vault.storePassword entry >=> Vault.encrypt ud.MasterKey)
-        |> Result.map (fun d -> fs.File.WriteAllBytes(ud.UserInput.VaultPath, d))
+    let private storeVault (fs : IFileSystem) (ud : UserData) (vault : Vault) =
+        Vault.encrypt ud.MasterKey vault
+        |> Result.map (fun data -> fs.File.WriteAllBytes (ud.UserInput.VaultPath, data))
 
     let addSecretToVault (fs : IFileSystem) (userData : UserData) =
         try
@@ -184,7 +178,8 @@ module ConsoleUi =
             let entry = makePasswordEntry ()
             let result =
                 Result.map (PasswordEntry.create name desc) entry
-                >>= (fun entry -> vault >>= addAndStore fs entry userData)
+                >>= (fun entry -> Result.bind vault (Vault.storePassword entry))
+                |> Result.map (storeVault fs userData)
             match result with
             | Failure f -> printfn "ERROR: %s" <| FailReason.toString f
             | Success _ -> printfn "Secret has been stored"
@@ -259,11 +254,16 @@ module ConsoleUi =
                     |> SecuredSecret.create
                 Vault.getPassword name vault
                 |> Result.map (PasswordEntry.updateSecret pw)
-                |> Result.bind (fun e -> vault.updatePassword e vault))
+                |> (=<<) (fun e -> Vault.updatePassword e vault))
         |> (=<<)
             (fun v ->
                 showSpecificPassword name v
                 |> Result.map (fun _ -> v))
 
-    let changePw (fs : IFileSystem) (userData : UserData) =
-        failwith "todo"
+    let updatePassword () =
+        let ud = constructComponentsFromUserInput
+        let fs = new FileSystem ()
+        ud
+        |> (=<<) (loadVault fs)
+        |> (=<<) changePassword
+        |> (=<<) (fun d -> Result.bind ud (fun ud -> storeVault fs ud d))
