@@ -181,8 +181,9 @@ module ConsoleUi =
             let vault = loadVault fs userData
             let name = getInput "Enter the name for this secret:" |> Name
             let desc = getInput "Enter the description for this secret:" |> Description
+            let entry = makePasswordEntry ()
             let result =
-                Result.map (PasswordEntry.create name desc) (makePasswordEntry ())
+                Result.map (PasswordEntry.create name desc) entry
                 >>= (fun entry -> vault >>= addAndStore fs entry userData)
             match result with
             | Failure f -> printfn "ERROR: %s" <| FailReason.toString f
@@ -225,14 +226,13 @@ module ConsoleUi =
         Clipboard.timedStoreInClipboard 15000 password
         printfn "Your password has been removed from your clipboard"
 
-    let showPasswordToUser (vault : Vault) : Result<FailReason, unit> =
+    let getEntryName () =
+        getInput "Please enter the name of the password"
+        |> Name
+
+    let private showSpecificPassword (name : Name) (vault : Vault) =
         try
-            vault
-            |> (fun vault ->
-                    let entryName =
-                        getInput "Please enter the name of the password you wish to see: "
-                        |> Name
-                    Vault.getPassword entryName vault)
+            Vault.getPassword name vault
             |> (=<<) PasswordEntry.decrypt
             |> Result.map givePasswordToUser
         with
@@ -240,7 +240,28 @@ module ConsoleUi =
             FailReason.fromException ex
             |> Failure
 
+    let private showPasswordToUser (vault : Vault) : Result<FailReason, unit> =
+        let name = getEntryName ()
+        showSpecificPassword name vault
+
     let printPassword () =
         constructComponentsFromUserInput
         |> (=<<) (loadVault (new FileSystem ()))
         |> (=<<) showPasswordToUser
+
+    let private changePassword (vault : Vault) : Result<FailReason, unit> =
+        let name = getEntryName ()
+        showSpecificPassword name vault
+        |> (=<<)
+            (fun () ->
+                let pw =
+                    getSecretPassword ()
+                    |> SecuredSecret.create
+                Vault.updatePassword name pw vault)
+        |> (=<<)
+            (fun v ->
+                showSpecificPassword name v
+                |> Result.map (fun _ -> v))
+
+    let changePw (fs : IFileSystem) (userData : UserData) =
+        failwith "todo"
