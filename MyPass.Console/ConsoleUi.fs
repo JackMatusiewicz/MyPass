@@ -249,7 +249,7 @@ module ConsoleUi =
         |> (=<<) (loadVault (new FileSystem ()))
         |> (=<<) showPasswordToUser
 
-    let private changePassword (vault : Vault) : Result<FailReason, unit> =
+    let private changePassword (vault : Vault) : Result<FailReason, Vault> =
         let name = getEntryName ()
         showSpecificPassword name vault
         |> (=<<)
@@ -257,7 +257,9 @@ module ConsoleUi =
                 let pw =
                     getSecretPassword ()
                     |> SecuredSecret.create
-                Vault.updatePassword name pw vault)
+                Vault.getPassword name vault
+                |> Result.map (PasswordEntry.updateSecret pw)
+                |> Result.bind (fun e -> vault.updatePassword e vault))
         |> (=<<)
             (fun v ->
                 showSpecificPassword name v
