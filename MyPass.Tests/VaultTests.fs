@@ -154,8 +154,9 @@ module VaultTests =
     [<Test>]
     let ``Given a password manager with a password, when I update it then it is updated.`` () =
         let updatedEntry =
-            { testPasswordEntry with
-                Secret = SecuredSecret.create "newPassword" |> Secret }
+            PasswordEntry.updateSecret
+                (SecuredSecret.create "newPassword")
+                testPasswordEntry
         let result =
             Vault.storePassword testPasswordEntry Vault.empty
             >>= Vault.updatePassword updatedEntry
