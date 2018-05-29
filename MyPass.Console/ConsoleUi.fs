@@ -59,7 +59,7 @@ module ConsoleUi =
 
     let getSecretPassword () =
         let value = getInput "Do you want to write your own password (Y) or have one generated?"
-        if value = "Y" then
+        if value = "Y" || value = "y" then
             getInput "Please enter your password:"
         else
             getExtraPasswordCharacters ()
