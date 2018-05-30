@@ -11,16 +11,8 @@ module PasswordEntry =
         | Secret s -> s
 
     let decrypt (entry : PasswordEntry) : Result<FailReason, string> =
-        try
-            let secureData = getSecureData entry
-            let (EncryptedData encryptedBytes) = secureData.Data
-
-            encryptedBytes
-            |> Aes.decrypt (secureData.Key)
-            |> Encoding.UTF8.GetString
-            |> Success
-        with
-        | ex -> FailReason.fromException ex |> Failure
+        getSecureData entry
+        |> SecuredSecret.decrypt
 
     let create
         (name : Name)

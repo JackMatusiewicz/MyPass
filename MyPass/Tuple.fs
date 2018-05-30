@@ -9,3 +9,8 @@ module Tuple =
         match f a with
         | Failure f -> Failure f
         | Success s -> Success (x,s)
+
+    let sequence ((a,b) as x : 'a * Result<'c,'b>) : Result<'c, 'a * 'b> =
+        match b with
+        | Failure f -> Failure f
+        | Success b -> Success (a,b)

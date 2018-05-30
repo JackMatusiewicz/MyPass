@@ -11,8 +11,8 @@ module AesTests =
     let ``Aes Roundtrip``() =
         let aes = Aes.make ()
         let dataToEncrypt = "HelloWorld" |> System.Text.Encoding.UTF8.GetBytes
-        let encrypted = Aes.encrypt aes dataToEncrypt
-        let decrypted = Aes.decrypt aes encrypted
+        let encrypted = Aes.encrypt dataToEncrypt aes
+        let decrypted = Aes.decrypt encrypted aes
         Assert.That(dataToEncrypt.SequenceEqual(encrypted), Is.False)
         Assert.That(dataToEncrypt.SequenceEqual(decrypted), Is.True)
 

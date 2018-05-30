@@ -66,7 +66,7 @@ module Vault =
             manager
             |> VaultSerialisation.serialise
             |> Encoding.UTF8.GetBytes
-            |> Aes.encrypt key
+            |> fun data -> Aes.encrypt data key
             |> Success
         |> exceptionToFailure
 
@@ -77,7 +77,7 @@ module Vault =
         =
         fun () ->
             encryptedManager
-            |> Aes.decrypt key
+            |> fun data -> Aes.decrypt data key
             |> Encoding.UTF8.GetString
             |> VaultSerialisation.deserialise
         |> exceptionToFailure
@@ -93,3 +93,17 @@ module Vault =
         else
             EntryNotFound "Unable to find a password matching that name."
             |> Failure
+
+    let getCompromisedPasswords
+        (isCompromised : SecuredSecret -> Result<FailReason, CompromisedStatus>)
+        (vault : Vault)
+        : Result<FailReason, Name list>
+        =
+        vault.passwords
+        |> Map.toArray
+        |> Array.map (Tuple.map PasswordEntry.getSecureData)
+        |> Array.Parallel.map (Tuple.map isCompromised)
+        |> Array.toList
+        |> List.traverse (Tuple.sequence)
+        |> Result.map (List.filter (fun (a,b) -> b = Compromised))
+        |> Result.map (List.map fst)

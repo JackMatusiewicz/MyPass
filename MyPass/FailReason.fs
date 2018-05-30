@@ -11,6 +11,8 @@ type FailReason =
     | EntryNotFound of Entry : string
     | InvalidCommand of Command : string
     | InvalidChoice of Choice : string
+    | InvalidResponseFormat
+    | HttpRequestFailed of StatusCode : int
 
 module FailReason =
 
@@ -27,3 +29,5 @@ module FailReason =
         | EntryNotFound k -> sprintf "%s was not found" k
         | InvalidCommand c -> sprintf "%s is not a valid MyPass command" c
         | InvalidChoice c -> sprintf "Invalid choice: %s" c
+        | InvalidResponseFormat -> "Data was in the wrong format"
+        | HttpRequestFailed sc -> sprintf "Received a failure error code: %d" sc
