@@ -8,23 +8,14 @@ open System.Security.Cryptography
 
 open Result.Operators
 
-/// Represents the JSON string that is returned from the query.
+/// Represents the JSON string that is returned from the HIBP password query.
 type HibpResponse = Response of string
 
 module Hibp =
+    open System.Security
+    open System
 
     let private client = new HttpClient ()
-
-    let private getHash (secret : SecuredSecret) : Result<FailReason, string> =
-        SecuredSecret.decrypt secret
-        |> Result.map (fun pw ->
-            let pwBytes = Encoding.UTF8.GetBytes(pw : string)
-            use sha1 = new SHA1Managed ()
-
-            sha1.ComputeHash (pwBytes)
-            |> Array.map (fun (b : byte) -> b.ToString("X2"))
-            |> Array.fold (fun (s : StringBuilder) a -> s.Append(a)) (new StringBuilder ())
-            |> fun sb -> sb.ToString ())
 
     let internal findMatchingHashes (hashPrefix : string) : Result<FailReason, HibpResponse> =
         let response =
@@ -40,14 +31,25 @@ module Hibp =
 
     let toHashes (hashPrefix : string) (response : HibpResponse) : Set<string> =
         let (Response data) = response
-        JsonConvert.DeserializeObject<string[]>(data)
+        data.Split ([|"\r\n"|], StringSplitOptions.RemoveEmptyEntries)
         |> Array.map (fun (d : string) -> (d.Split([|':'|])).[0])
         |> Array.map (fun d -> hashPrefix + d)
         |> Set.ofArray
 
-    let isCompromised (secret : SecuredSecret) : Result<FailReason, bool> =
-        let hash = getHash secret
-        Result.map (fun (hash : string) -> hash.[0..4]) hash
-        |> (=<<) findMatchingHashes
-        |> (fun s -> toHashes <!> hash <*> s)
+    /// This only exists to aid testing the non-web features.
+    /// TODO - make this internal
+    let checkForCompromise
+        (finder : string -> Result<FailReason, HibpResponse>)
+        (secret : SecuredSecret)
+        : Result<FailReason, bool>
+        =
+        let hash = SecuredSecret.hash secret
+        let hashPrefix = Result.map (fun (hash : string) -> hash.[0..4]) hash
+
+        hashPrefix
+        |> (=<<) finder
+        |> (fun s -> toHashes <!> hashPrefix <*> s)
         |> (=<<) (fun hashes -> hash >>= fun hash -> Success <| Set.contains hash hashes)
+
+    let isCompromised (secret : SecuredSecret) : Result<FailReason, bool> =
+        checkForCompromise findMatchingHashes secret

@@ -50,7 +50,7 @@ module Aes =
         bw.Write(aes.IV)
         cs
 
-    let encrypt (key : AesKey) (data : byte[]) : byte[] =
+    let encrypt (data : byte[]) (key : AesKey) : byte[] =
         let writeDataToStream (data : byte[]) : MemoryStream = 
             let ms = new MemoryStream()
             use encryptionStream = createEncryptionStream key ms
@@ -76,7 +76,7 @@ module Aes =
         let decryptor = aes.CreateDecryptor(aes.Key, ivBytes)
         new CryptoStream(data, decryptor, CryptoStreamMode.Read)
 
-    let decrypt (key : AesKey) (data : byte[]) : byte[] =
+    let decrypt (data : byte[]) (key : AesKey) : byte[] =
         let ms = new MemoryStream(data)
         use decryptionStream = createDecryptionStream key ms
         use sr = new StreamReader(decryptionStream)

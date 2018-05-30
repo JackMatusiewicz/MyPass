@@ -66,7 +66,7 @@ module Vault =
             manager
             |> VaultSerialisation.serialise
             |> Encoding.UTF8.GetBytes
-            |> Aes.encrypt key
+            |> fun data -> Aes.encrypt data key
             |> Success
         |> exceptionToFailure
 
@@ -77,7 +77,7 @@ module Vault =
         =
         fun () ->
             encryptedManager
-            |> Aes.decrypt key
+            |> fun data -> Aes.decrypt data key
             |> Encoding.UTF8.GetString
             |> VaultSerialisation.deserialise
         |> exceptionToFailure
