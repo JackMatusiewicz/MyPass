@@ -9,7 +9,7 @@ type Arguments =
     interface IArgParserTemplate with
         member x.Usage =
             match x with
-            | Mode _ -> "Specify the mode you wish to run, choose from: CREATE|ADD|LIST|GET|UPDATE"
+            | Mode _ -> "Specify the mode you wish to run, choose from: CREATE|ADD|LIST|GET|UPDATE|PWNED"
 
 module Main =
 
@@ -50,6 +50,8 @@ module Main =
                     ConsoleUi.printPassword ()
                 | "update" ->
                     ConsoleUi.updatePassword ()
+                | "pwned" ->
+                    ConsoleUi.checkForCompromisedPasswords ()
                 | _ ->
                     argsParser.PrintUsage ()
                     |> sprintf "%s"

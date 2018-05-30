@@ -267,3 +267,11 @@ module ConsoleUi =
         |> (=<<) (loadVault fs)
         |> (=<<) changePassword
         |> (=<<) (fun d -> Result.bind ud (fun ud -> storeVault fs ud d))
+
+    let checkForCompromisedPasswords () =
+        let ud = constructComponentsFromUserInput
+        let fs = new FileSystem ()
+        ud
+        |> (=<<) (loadVault fs)
+        |> (=<<) (Vault.getCompromisedPasswords (Hibp.isCompromised Hibp.checkHashPrefix))
+        |> Result.map (List.iter (fun (Name n) -> printfn "%s" n))
