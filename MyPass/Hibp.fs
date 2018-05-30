@@ -46,8 +46,8 @@ module Hibp =
 
         let contains hash hashes =
             match Set.contains hash hashes with
-            | true -> NotCompromised
-            | false -> Compromised
+            | true -> Compromised
+            | false -> NotCompromised
 
         let hash = SecuredSecret.hash secret
         let hashPrefix = Result.map (fun (hash : string) -> hash.[0..4]) hash
