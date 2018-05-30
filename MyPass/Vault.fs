@@ -93,3 +93,13 @@ module Vault =
         else
             EntryNotFound "Unable to find a password matching that name."
             |> Failure
+
+    let getCompromisedPasswords (vault : Vault) : Result<FailReason, Name list> =
+        vault.passwords
+        |> Map.toArray
+        |> Array.map (Tuple.map PasswordEntry.getSecureData)
+        |> Array.Parallel.map (Tuple.map Hibp.isCompromised)
+        |> Array.toList
+        |> List.traverse (Tuple.sequence)
+        |> Result.map (List.filter (fun (a,b) -> b = true))
+        |> Result.map (List.map fst)
