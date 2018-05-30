@@ -271,6 +271,7 @@ module ConsoleUi =
     let checkForCompromisedPasswords () =
         let ud = constructComponentsFromUserInput
         let fs = new FileSystem ()
+        printfn "Here are a list of compromised passwords:"
         ud
         |> (=<<) (loadVault fs)
         |> (=<<) (Vault.getCompromisedPasswords (Hibp.isCompromised Hibp.checkHashPrefix))
