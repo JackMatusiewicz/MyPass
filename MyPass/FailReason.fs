@@ -13,6 +13,7 @@ type FailReason =
     | InvalidChoice of Choice : string
     | InvalidResponseFormat
     | HttpRequestFailed of StatusCode : int
+    | InvalidHashPrefix
 
 module FailReason =
 
@@ -31,3 +32,4 @@ module FailReason =
         | InvalidChoice c -> sprintf "Invalid choice: %s" c
         | InvalidResponseFormat -> "Data was in the wrong format"
         | HttpRequestFailed sc -> sprintf "Received a failure error code: %d" sc
+        | InvalidHashPrefix -> "Hash prefix was not valid for the HaveIBeenPwned web service"

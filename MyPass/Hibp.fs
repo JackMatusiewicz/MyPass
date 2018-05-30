@@ -13,13 +13,26 @@ type HibpResponse = Response of string
 
 type CompromisedStatus = Compromised | NotCompromised
 
+type HashPrefix = private Prefix of string
+
+//TODO - move this to its own file.
+module HashPrefix =
+
+    let make (s : string) : Result<FailReason, HashPrefix> =
+        match s.Length with
+        | 5 -> Prefix s |> Success
+        | _ -> Failure InvalidHashPrefix
+
+    let prefix (Prefix s) = s
+
 module Hibp =
     open System.Security
     open System
 
     let private client = new HttpClient ()
 
-    let checkHashPrefix (hashPrefix : string) : Result<FailReason, HibpResponse> =
+    let checkHashPrefix (hashPrefix : HashPrefix) : Result<FailReason, HibpResponse> =
+        let (Prefix hashPrefix) = hashPrefix
         let response =
             async {
                 return Http.Request (sprintf "https://api.pwnedpasswords.com/range/%s" hashPrefix)
@@ -31,7 +44,8 @@ module Hibp =
             | _ -> Failure InvalidResponseFormat
         | sc -> Failure (HttpRequestFailed sc)
 
-    let toHashes (hashPrefix : string) (response : HibpResponse) : Set<string> =
+    let toHashes (hashPrefix : HashPrefix) (response : HibpResponse) : Set<string> =
+        let (Prefix hashPrefix) = hashPrefix
         let (Response data) = response
         data.Split ([|"\r\n"|], StringSplitOptions.RemoveEmptyEntries)
         |> Array.map (fun (d : string) -> (d.Split([|':'|])).[0])
@@ -39,7 +53,7 @@ module Hibp =
         |> Set.ofArray
 
     let isCompromised
-        (finder : string -> Result<FailReason, HibpResponse>)
+        (finder : HashPrefix -> Result<FailReason, HibpResponse>)
         (secret : SecuredSecret)
         : Result<FailReason, CompromisedStatus>
         =
@@ -50,7 +64,9 @@ module Hibp =
             | false -> NotCompromised
 
         let hash = SecuredSecret.hash secret
-        let hashPrefix = Result.map (fun (hash : string) -> hash.[0..4]) hash
+        let hashPrefix =
+            Result.map (fun (hash : string) -> hash.[0..4]) hash
+            |> (=<<) HashPrefix.make
 
         hashPrefix
         |> (=<<) finder

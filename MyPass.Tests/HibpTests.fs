@@ -7,19 +7,14 @@ open System.Linq
 
 module HibpTests =
 
+    //TODO - move test
     [<Test>]
-    let ``Given a response, when deserialised, then results are correct`` () =
-        let data = "0043E8CC80EA715B31A294CFB2B1959A8FC:2\r\n0119D4F6971D604B3242DA123FECC0C549B:8\r\n03D6F047380D19641538F981DEDF2EBF810:2"
-        let hashes = Hibp.toHashes "21BD1" (Response data)
-
-        let expected =
-            [
-                "21BD10043E8CC80EA715B31A294CFB2B1959A8FC"
-                "21BD10119D4F6971D604B3242DA123FECC0C549B"
-                "21BD103D6F047380D19641538F981DEDF2EBF810"
-            ] |> Set.ofList
-
-        Assert.That (hashes, Is.EqualTo expected)
+    let ``Given a prefix that is too long, when HashPrefix is made then error is thrown`` () =
+        let prefix = "123456"
+        let hashPrefix = HashPrefix.make prefix
+        match hashPrefix with
+        | Success _ -> Assert.Fail ()
+        | Failure f -> Assert.That (f, Is.EqualTo (InvalidHashPrefix))
 
     [<Test>]
     let ``Given a dummy finder, when I check if my password is on the list, then the correct outcome occurs`` () =
