@@ -19,7 +19,7 @@ module Hibp =
 
     let private client = new HttpClient ()
 
-    let findMatchingHashes (hashPrefix : string) : Result<FailReason, HibpResponse> =
+    let checkHashPrefix (hashPrefix : string) : Result<FailReason, HibpResponse> =
         let response =
             async {
                 return Http.Request (sprintf "https://api.pwnedpasswords.com/range/%s" hashPrefix)
