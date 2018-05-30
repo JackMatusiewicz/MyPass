@@ -8,6 +8,9 @@ open System.Security.Cryptography
 
 open Result.Operators
 
+/// Represents the JSON string that is returned from the query.
+type HibpResponse = Response of string
+
 module Hibp =
 
     let private client = new HttpClient ()
@@ -23,7 +26,7 @@ module Hibp =
             |> Array.fold (fun (s : StringBuilder) a -> s.Append(a)) (new StringBuilder ())
             |> fun sb -> sb.ToString ())
 
-    let findMatchingHashes (hashPrefix : string) : Result<FailReason, Set<string>> =
+    let internal findMatchingHashes (hashPrefix : string) : Result<FailReason, HibpResponse> =
         let response =
             async {
                 return Http.Request (sprintf "https://api.pwnedpasswords.com/range/%s" hashPrefix)
@@ -31,17 +34,20 @@ module Hibp =
         match response.StatusCode with
         | 200 ->
             match response.Body with
-            | Text data ->
-                JsonConvert.DeserializeObject<string[]>(data)
-                |> Array.map (fun (d : string) -> (d.Split([|':'|])).[0])
-                |> Array.map (fun d -> hashPrefix + d)
-                |> Set.ofArray
-                |> Success
+            | Text data -> data |> Response |> Success
             | _ -> Failure InvalidResponseFormat
         | sc -> Failure (HttpRequestFailed sc)
+
+    let toHashes (hashPrefix : string) (response : HibpResponse) : Set<string> =
+        let (Response data) = response
+        JsonConvert.DeserializeObject<string[]>(data)
+        |> Array.map (fun (d : string) -> (d.Split([|':'|])).[0])
+        |> Array.map (fun d -> hashPrefix + d)
+        |> Set.ofArray
 
     let isCompromised (secret : SecuredSecret) : Result<FailReason, bool> =
         let hash = getHash secret
         Result.map (fun (hash : string) -> hash.[0..4]) hash
         |> (=<<) findMatchingHashes
+        |> (fun s -> toHashes <!> hash <*> s)
         |> (=<<) (fun hashes -> hash >>= fun hash -> Success <| Set.contains hash hashes)
