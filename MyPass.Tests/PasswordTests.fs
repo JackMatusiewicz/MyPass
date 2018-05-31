@@ -32,9 +32,9 @@ module PasswordTests =
         let versionId = Password.createPassword 7u
         let masterPassPhrase = Password.createPassword 10u
         let secretKey = Array.create 10 (byte 0)
-        let pwOne = Password.createMasterPassword versionId masterPassPhrase secretKey userId
-        let pwTwo = Password.createMasterPassword versionId masterPassPhrase secretKey userId
-        Assert.That(pwOne.SequenceEqual(pwTwo), Is.True)
+        let pwOne = Password.createMasterKey versionId masterPassPhrase secretKey userId
+        let pwTwo = Password.createMasterKey versionId masterPassPhrase secretKey userId
+        Assert.That(pwOne.Key.SequenceEqual(pwTwo.Key), Is.True)
 
     [<Test>]
     [<Repeat(5)>]
@@ -44,9 +44,9 @@ module PasswordTests =
         let masterPassPhrase = Password.createPassword 10u
         let secretKey = Array.create 10 (byte 0)
         let secretKey2 = Array.create 10 (byte 1)
-        let pwOne = Password.createMasterPassword versionId masterPassPhrase secretKey userId
-        let pwTwo = Password.createMasterPassword versionId masterPassPhrase secretKey2 userId
-        Assert.That(pwOne.SequenceEqual(pwTwo), Is.False)
+        let pwOne = Password.createMasterKey versionId masterPassPhrase secretKey userId
+        let pwTwo = Password.createMasterKey versionId masterPassPhrase secretKey2 userId
+        Assert.That(pwOne.Key.SequenceEqual(pwTwo.Key), Is.False)
 
     [<Test>]
     [<Repeat(5)>]
@@ -56,9 +56,9 @@ module PasswordTests =
         let versionId = Password.createPassword 7u
         let masterPassPhrase = Password.createPassword 10u
         let secretKey = Array.create 10 (byte 0)
-        let pwOne = Password.createMasterPassword versionId masterPassPhrase secretKey userId
-        let pwTwo = Password.createMasterPassword versionId masterPassPhrase secretKey userId2
-        Assert.That(pwOne.SequenceEqual(pwTwo), Is.False)
+        let pwOne = Password.createMasterKey versionId masterPassPhrase secretKey userId
+        let pwTwo = Password.createMasterKey versionId masterPassPhrase secretKey userId2
+        Assert.That(pwOne.Key.SequenceEqual(pwTwo.Key), Is.False)
 
     [<Test>]
     [<Repeat(5)>]
@@ -68,9 +68,9 @@ module PasswordTests =
         let versionId2 = generateDifferentPassword versionId (fun () -> Password.createPassword 7u)
         let masterPassPhrase = Password.createPassword 10u
         let secretKey = Array.create 10 (byte 0)
-        let pwOne = Password.createMasterPassword versionId masterPassPhrase secretKey userId
-        let pwTwo = Password.createMasterPassword versionId2 masterPassPhrase secretKey userId
-        Assert.That(pwOne.SequenceEqual(pwTwo), Is.False)
+        let pwOne = Password.createMasterKey versionId masterPassPhrase secretKey userId
+        let pwTwo = Password.createMasterKey versionId2 masterPassPhrase secretKey userId
+        Assert.That(pwOne.Key.SequenceEqual(pwTwo.Key), Is.False)
 
     [<Test>]
     [<Repeat(5)>]
@@ -80,6 +80,6 @@ module PasswordTests =
         let masterPassPhrase = Password.createPassword 10u
         let masterPassPhrase2 = generateDifferentPassword versionId (fun () -> Password.createPassword 10u)
         let secretKey = Array.create 10 (byte 0)
-        let pwOne = Password.createMasterPassword versionId masterPassPhrase secretKey userId
-        let pwTwo = Password.createMasterPassword versionId masterPassPhrase2 secretKey userId
-        Assert.That(pwOne.SequenceEqual(pwTwo), Is.False)
+        let pwOne = Password.createMasterKey versionId masterPassPhrase secretKey userId
+        let pwTwo = Password.createMasterKey versionId masterPassPhrase2 secretKey userId
+        Assert.That(pwOne.Key.SequenceEqual(pwTwo.Key), Is.False)

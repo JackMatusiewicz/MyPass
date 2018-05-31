@@ -18,7 +18,7 @@ type AesKey = {
 module Aes =
 
     let private keySizeBits = 256
-    let private keySizeBytes = keySizeBits / 8
+    let keySizeBytes = keySizeBits / 8
 
     let private hash (data : string) =
         use sha256 = new SHA256Managed()

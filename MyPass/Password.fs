@@ -54,17 +54,21 @@ module Password =
         |> Array.zip keyTwo
         |> Array.map (fun (a,b) -> a ^^^ b)
 
-    let createMasterPassword
+    // TODO - look at moving elsewhere.
+    // TODO - look at making the AesKey constructor validate the bytes.
+    let createMasterKey
         (versionId : string)
         (masterPassphrase : string)
         (secretKey : byte[])
         (userId : string)
+        : AesKey
         =
         let userIdBytes = userId |> System.Text.Encoding.UTF8.GetBytes
         let versionIdBytes = versionId |> System.Text.Encoding.UTF8.GetBytes
         let expandedSalt = Hkdf.expand userIdBytes versionIdBytes [||] 32
         let pbkdf2 = new Rfc2898DeriveBytes(masterPassphrase, expandedSalt, 10000)
-        let masterKey = pbkdf2.GetBytes(32)
+        let masterKey = pbkdf2.GetBytes(Aes.keySizeBytes)
     
         Hkdf.expand secretKey userIdBytes [||] (masterKey.Length)
         |> xor masterKey
+        |> fun k -> { Key = k }

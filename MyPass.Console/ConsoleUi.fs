@@ -128,12 +128,12 @@ module ConsoleUi =
     let makeUserData (userInput : UserInput) =
         let fileKeyBytes = FileKey.toBytes userInput.FileKey
         let masterKey =
-            Password.createMasterPassword
+            Password.createMasterKey
                 "Version1.0"
                 userInput.MasterPassPhrase
                 fileKeyBytes
                 userInput.UserName
-        {MasterKey = {Key = masterKey}; UserInput = userInput}
+        {MasterKey = masterKey; UserInput = userInput}
 
     let private constructComponentsFromUserInput =
         getUserInputForExistingVault ()

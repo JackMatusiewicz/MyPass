@@ -22,13 +22,12 @@ module RoundTripTests =
             let vaultPath = Path.Combine (currentDir, "TestVault.vt")
 
             let fileKeyBytes = FileKey.toBytes fk
-            let masterKey =
-                Password.createMasterPassword
+            let key =
+                Password.createMasterKey
                     "Version1.0"
                     passPhrase
                     fileKeyBytes
                     userName
-            let key = {Key = masterKey}
 
             let manager = fs.File.ReadAllBytes vaultPath
             match Vault.decrypt key manager with
