@@ -14,3 +14,8 @@ module Tuple =
         match b with
         | Failure f -> Failure f
         | Success b -> Success (a,b)
+
+    let leftSequence ((a,b) as x : Result<'c,'a> * 'b) : Result<'c, 'a * 'b> =
+        match a with
+        | Failure f -> Failure f
+        | Success a -> Success (a,b)

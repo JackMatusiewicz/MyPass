@@ -3,6 +3,27 @@
 open System.Text
 open System.Security.Cryptography
 
+//TODO - move to a new file
+/// Stores the hexadecimal representation of the SHA1 hash of some data.
+type Sha1Hash = private Hash of string
+
+module Sha1Hash =
+
+    let make (s : string) : Sha1Hash =
+        let pwBytes = Encoding.UTF8.GetBytes(s : string)
+        use sha1 = new SHA1Managed ()
+
+        sha1.ComputeHash (pwBytes)
+        |> Array.map (fun (b : byte) -> b.ToString("X2"))
+        |> Array.fold (fun (s : StringBuilder) a -> s.Append(a)) (new StringBuilder ())
+        |> fun sb -> sb.ToString ()
+        |> Hash
+
+    // TODO - replace with something that checks if a string is a valid SHA1 hash.
+    let internal fromString (data : string) = Hash data
+
+    let get ((Hash h) : Sha1Hash) : string = h
+
 [<RequireQualifiedAccess>]
 [<CompilationRepresentation (CompilationRepresentationFlags.ModuleSuffix)>]
 module SecuredSecret =
@@ -24,17 +45,9 @@ module SecuredSecret =
             FailReason.fromException ex
             |> Failure
 
-    /// Gets the hash of the secret inside the SecuredSecret
-    let hash (secret : SecuredSecret) : Result<FailReason, string> =
-        decrypt secret
-        |> Result.map (fun pw ->
-            let pwBytes = Encoding.UTF8.GetBytes(pw : string)
-            use sha1 = new SHA1Managed ()
-
-            sha1.ComputeHash (pwBytes)
-            |> Array.map (fun (b : byte) -> b.ToString("X2"))
-            |> Array.fold (fun (s : StringBuilder) a -> s.Append(a)) (new StringBuilder ())
-            |> fun sb -> sb.ToString ())
+    /// Gets the Sha1Hash of the secret inside the SecuredSecret
+    let hash (secret : SecuredSecret) : Result<FailReason, Sha1Hash> =
+        decrypt secret |> Result.map (Sha1Hash.make)
 
     let create (password : string) : SecuredSecret =
         let passwordKey = Aes.make ()
