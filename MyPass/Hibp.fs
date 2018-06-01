@@ -4,6 +4,8 @@ open FSharp.Data
 open Newtonsoft.Json
 open System.Text
 open System.Net.Http
+open System.Security
+open System
 open System.Security.Cryptography
 
 open Result.Operators
@@ -14,8 +16,6 @@ type CompromisedStatus = Compromised | NotCompromised
 type HibpResponse = Response of (HashPrefix * string)
 
 module Hibp =
-    open System.Security
-    open System
 
     let private client = new HttpClient ()
 
