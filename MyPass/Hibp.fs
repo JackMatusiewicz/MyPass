@@ -10,19 +10,6 @@ open Result.Operators
 
 type CompromisedStatus = Compromised | NotCompromised
 
-type HashPrefix = private Prefix of string
-
-//TODO - move this to its own file.
-module HashPrefix =
-
-    let make (s : string) : Result<FailReason, HashPrefix> =
-        match s.Length with
-        | 5 -> Prefix s |> Success
-        | _ -> Failure InvalidHashPrefix
-
-    let prefix (Prefix s) = s
-
-
 /// Represents the JSON string that is returned from the HIBP password query.
 type HibpResponse = Response of (HashPrefix * string)
 

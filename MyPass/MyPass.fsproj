@@ -98,6 +98,7 @@
     <Compile Include="String.fs" />
     <Compile Include="Url.fs" />
     <Compile Include="Aes.fs" />
+    <Compile Include="HashPrefix.fs" />
     <Compile Include="Sha1Hash.fs" />
     <Compile Include="Hkdf.fs" />
     <Compile Include="Password.fs" />

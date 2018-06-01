@@ -9,10 +9,10 @@ type Name = Name of string
 [<Struct>]
 type EncryptedData = EncryptedData of byte[]
 
-//The rationale behind this being private is that we can expose the data inside without the key.
-//However, if we have a public function that gives the data and the key, we have no control
-//over when it is decrypted.
-//It also means we can guarantee that a user hasn't created a securedSecret with a bad key.
+// The rationale behind this being private is that we can expose the data inside without the key.
+// However, if we have a public function that gives the data and the key, we have no control
+// over when it is decrypted.
+// It also means we can guarantee that a user hasn't created a securedSecret with a bad key.
 type SecuredSecret = private {
     Data : EncryptedData
     Key : AesKey }
