@@ -23,3 +23,5 @@ module FailReasonTests =
         Assert.That (FailReason.toString d, Is.EqualTo ("test is not a valid MyPass command"))
         Assert.That (FailReason.toString f, Is.EqualTo ("Data was in the wrong format"))
         Assert.That (FailReason.toString g, Is.EqualTo ("Received a failure error code: 404"))
+        Assert.That (FailReason.toString InvalidHashPrefix, Is.EqualTo ("Hash prefix was not valid for the HaveIBeenPwned web service"))
+        Assert.That (FailReason.toString InvalidSha1Hash, Is.EqualTo ("The value was an invalid sha1 hash"))

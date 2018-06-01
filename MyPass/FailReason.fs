@@ -14,6 +14,7 @@ type FailReason =
     | InvalidResponseFormat
     | HttpRequestFailed of StatusCode : int
     | InvalidHashPrefix
+    | InvalidSha1Hash
 
 module FailReason =
 
@@ -33,3 +34,4 @@ module FailReason =
         | InvalidResponseFormat -> "Data was in the wrong format"
         | HttpRequestFailed sc -> sprintf "Received a failure error code: %d" sc
         | InvalidHashPrefix -> "Hash prefix was not valid for the HaveIBeenPwned web service"
+        | InvalidSha1Hash -> "The value was an invalid sha1 hash"

@@ -45,13 +45,14 @@ module Hibp =
             | _ -> Failure InvalidResponseFormat
         | sc -> Failure (HttpRequestFailed sc)
 
-    let toHashes (response : HibpResponse) : Set<Sha1Hash> =
+    let toHashes (response : HibpResponse) : Result<FailReason, Set<Sha1Hash>> =
         let (Response ((Prefix hashPrefix), suffixData)) = response
         suffixData.Split ([|"\r\n"|], StringSplitOptions.RemoveEmptyEntries)
-        |> Array.map (fun (d : string) -> (d.Split([|':'|])).[0])
-        |> Array.map (fun d -> hashPrefix + d)
-        |> Array.map Sha1Hash.fromString
-        |> Set.ofArray
+        |> Array.toList
+        |> List.map (fun (d : string) -> (d.Split([|':'|])).[0])
+        |> List.map (fun d -> hashPrefix + d)
+        |> List.traverse Sha1Hash.fromString
+        |> Result.map (Set.ofList)
 
     let isCompromised
         (finder : HashPrefix -> Result<FailReason, HibpResponse>)
@@ -71,5 +72,5 @@ module Hibp =
 
         hashPrefix
         |> (=<<) finder
-        |> (fun response -> toHashes <!> response)
+        |> (=<<) toHashes
         |> (=<<) (fun hashes -> hash >>= fun hash -> Success <| contains hash hashes)
