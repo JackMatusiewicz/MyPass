@@ -72,6 +72,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
+    <Compile Include="SecureString.fs" />
     <Compile Include="TemporaryDirectory.fs" />
     <Compile Include="ConsoleUiTests.fs" />
     <Compile Include="AesTests.fs" />

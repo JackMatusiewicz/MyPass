@@ -7,6 +7,7 @@ open MyPass.Reader
 open MyPass.Reader.Operators
 open MyPass.Vault
 open System
+open System.Security
 open System.IO
 open System.IO.Abstractions
 
@@ -15,7 +16,7 @@ type UserInput = {
     VaultPath : string
     FileKeyPath : string
     FileKey : FileKey
-    MasterPassPhrase : string
+    MasterPassPhrase : SecureString
     UserName : string
 }
 
@@ -130,9 +131,9 @@ module ConsoleUi =
         let masterKey =
             Password.createMasterKey
                 "Version1.0"
-                userInput.MasterPassPhrase
                 fileKeyBytes
                 userInput.UserName
+                userInput.MasterPassPhrase
         {MasterKey = masterKey; UserInput = userInput}
 
     let private constructComponentsFromUserInput =

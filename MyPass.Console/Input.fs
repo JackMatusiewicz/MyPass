@@ -2,6 +2,7 @@
 
 open System
 open System.Text
+open System.Security
 
 module SecureInput =
 
@@ -30,22 +31,23 @@ module SecureInput =
         else
             true
 
-    let get () : string =
-        let rec getInput (acc : StringBuilder) =
+    let get () : SecureString =
+        let rec getInput (acc : SecureString) =
             let key = Console.ReadKey(true)
             if key.Key = ConsoleKey.Enter then
                 printfn ""
-                acc.ToString()
+                acc
             else if key.Key = ConsoleKey.Backspace then
                 match acc.Length with
                 | l when l > 0 ->
                     printf "\b \b"
-                    let accWithoutLastChar = acc.Remove(acc.Length - 1, 1)
-                    getInput accWithoutLastChar
+                    acc.RemoveAt(acc.Length - 1)
+                    getInput acc
                 | _ -> getInput acc
             else if not (isValidKeyPress key) then
                 getInput acc
             else
                 printf "*"
-                getInput (acc.Append(key.KeyChar))
-        getInput (StringBuilder ())
+                acc.AppendChar(key.KeyChar)
+                getInput (acc)
+        getInput (new SecureString ())

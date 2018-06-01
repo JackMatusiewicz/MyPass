@@ -18,16 +18,16 @@ module RoundTripTests =
             Assert.Fail ()
         | Result.Success fk ->
             let userName = "test"
-            let passPhrase = "test"
+            let passPhrase = SecureString.fromString "test"
             let vaultPath = Path.Combine (currentDir, "TestVault.vt")
 
             let fileKeyBytes = FileKey.toBytes fk
             let key =
                 Password.createMasterKey
                     "Version1.0"
-                    passPhrase
                     fileKeyBytes
                     userName
+                    passPhrase
 
             let manager = fs.File.ReadAllBytes vaultPath
             match Vault.decrypt key manager with

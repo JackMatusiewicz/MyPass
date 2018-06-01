@@ -111,4 +111,10 @@
     <Compile Include="Vault.fs" />
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MyPass.Password\MyPass.Password.csproj">
+      <Project>{60d9b559-111d-406e-9ea5-520db5881142}</Project>
+      <Name>MyPass.Password</Name>
+    </ProjectReference>
+  </ItemGroup>
 </Project>

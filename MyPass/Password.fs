@@ -2,9 +2,13 @@
 
 open System
 open System.Security.Cryptography
+open System.Runtime.InteropServices
+
+open MyPass.SecurePassword
 
 [<RequireQualifiedAccess>]
 module Password =
+    open System.Security
 
     let availableCharacters =
         ['a'..'z'] @ ['A'..'Z'] @ ['0'..'9'] @ ['!'; '?'; '_'] |> Array.ofList
@@ -58,16 +62,20 @@ module Password =
     // TODO - look at making the AesKey constructor validate the bytes.
     let createMasterKey
         (versionId : string)
-        (masterPassphrase : string)
         (secretKey : byte[])
         (userId : string)
+        (masterPassphrase : SecureString)
         : AesKey
         =
+        let getKey (salt : byte[]) (passwordBytes : byte[]) =
+            use pbkdf2 = new Rfc2898DeriveBytes(passwordBytes, salt, 10000)
+            pbkdf2.GetBytes(Aes.keySizeBytes)
+
         let userIdBytes = userId |> System.Text.Encoding.UTF8.GetBytes
         let versionIdBytes = versionId |> System.Text.Encoding.UTF8.GetBytes
         let expandedSalt = Hkdf.expand userIdBytes versionIdBytes [||] 32
-        let pbkdf2 = new Rfc2898DeriveBytes(masterPassphrase, expandedSalt, 10000)
-        let masterKey = pbkdf2.GetBytes(Aes.keySizeBytes)
+        let masterKey =
+            SecurePasswordHandler.Use(masterPassphrase, System.Func<byte[], byte[]> (getKey expandedSalt))
     
         Hkdf.expand secretKey userIdBytes [||] (masterKey.Length)
         |> xor masterKey
