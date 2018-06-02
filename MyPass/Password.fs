@@ -3,12 +3,12 @@
 open System
 open System.Security.Cryptography
 open System.Runtime.InteropServices
+open System.Security
 
-open MyPass.SecurePassword
+open MyPass.SecureString
 
 [<RequireQualifiedAccess>]
 module Password =
-    open System.Security
 
     let availableCharacters =
         ['a'..'z'] @ ['A'..'Z'] @ ['0'..'9'] @ ['!'; '?'; '_'] |> Array.ofList

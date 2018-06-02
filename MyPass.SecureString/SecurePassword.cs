@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Text;
 using System.Runtime.InteropServices;
-using System.Security;
 
-namespace MyPass.SecurePassword
+namespace MyPass.SecureString
 {
     public static class SecurePasswordHandler
     {
@@ -11,7 +10,7 @@ namespace MyPass.SecurePassword
         /// Takes a SecureString, converts it into a byte array and calls the provided function on it.
         /// Before it returns, it zeroes out the byte array that stores the secure string data.
         /// </summary>
-        public static unsafe T Use<T>(SecureString password, Func<byte[], T> f)
+        public static unsafe T Use<T>(System.Security.SecureString password, Func<byte[], T> f)
         {
             var maxLength = Encoding.UTF8.GetMaxByteCount(password.Length);
             var bytes = IntPtr.Zero;

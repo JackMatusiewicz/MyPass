@@ -9,7 +9,7 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "MyPass.Tests", "MyPass.Test
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "MyPass.Console", "MyPass.Console\MyPass.Console.fsproj", "{2FB93C84-3BE9-4EE3-B282-5CD9F6279112}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyPass.Password", "MyPass.Password\MyPass.Password.csproj", "{60D9B559-111D-406E-9EA5-520DB5881142}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyPass.SecureString", "MyPass.SecureString\MyPass.SecureString.csproj", "{60D9B559-111D-406E-9EA5-520DB5881142}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

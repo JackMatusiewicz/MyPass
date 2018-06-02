@@ -7,8 +7,8 @@
     <ProjectGuid>{60D9B559-111D-406E-9EA5-520DB5881142}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MyPass.SecurePassword</RootNamespace>
-    <AssemblyName>MyPass.SecurePassword</AssemblyName>
+    <RootNamespace>MyPass.SecureString</RootNamespace>
+    <AssemblyName>MyPass.SecureString</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
