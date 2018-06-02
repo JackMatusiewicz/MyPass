@@ -5,9 +5,12 @@ using System.Security;
 
 namespace MyPass.SecurePassword
 {
-
     public static class SecurePasswordHandler
     {
+        /// <summary>
+        /// Takes a SecureString, converts it into a byte array and calls the provided function on it.
+        /// Before it returns, it zeroes out the byte array that stores the secure string data.
+        /// </summary>
         public static unsafe T Use<T>(SecureString password, Func<byte[], T> f)
         {
             var maxLength = Encoding.UTF8.GetMaxByteCount(password.Length);
