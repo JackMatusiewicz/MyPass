@@ -6,6 +6,17 @@ open MyPass
 
 module AesTests =
 
+    let roundTripWorks (k1 : AesKey) (k2 : AesKey) =
+        try
+            "testStringHere"
+            |> System.Text.Encoding.UTF8.GetBytes
+            |> fun bs -> Aes.encrypt bs k1
+            |> fun bs -> Aes.decrypt bs k2
+            |> System.Text.Encoding.UTF8.GetString
+            |> fun w -> w = "testStringHere"
+        with
+        | _ -> false
+
     [<Test>]
     [<Repeat(10000)>]
     let ``Aes Roundtrip``() =
@@ -22,7 +33,8 @@ module AesTests =
         let passphrase = PassPhrase "This is a test"
         let keyOne = Aes.generateFromPassPhrase salt passphrase
         let keyTwo = Aes.generateFromPassPhrase salt passphrase
-        Assert.That(keyOne.Key.SequenceEqual(keyTwo.Key), Is.True)
+
+        Assert.That(roundTripWorks keyOne keyTwo, Is.True)
 
     [<Test>]
     let ``Given a passphrase and a two salts, when an Aes key is generated then it is different based on salt`` () =
@@ -31,7 +43,7 @@ module AesTests =
         let passphrase = PassPhrase "This is a test"
         let keyOne = Aes.generateFromPassPhrase salt passphrase
         let keyTwo = Aes.generateFromPassPhrase salt2 passphrase
-        Assert.That(keyOne.Key.SequenceEqual(keyTwo.Key), Is.False)
+        Assert.That(roundTripWorks keyOne keyTwo, Is.False)
 
     [<Test>]
     let ``Given a two passphrase and a salt, when an Aes key is generated then it is different based on passphrase`` () =
@@ -40,4 +52,4 @@ module AesTests =
         let passphrase2 = PassPhrase "This is a test"
         let keyOne = Aes.generateFromPassPhrase salt passphrase
         let keyTwo = Aes.generateFromPassPhrase salt passphrase2
-        Assert.That(keyOne.Key.SequenceEqual(keyTwo.Key), Is.False)
+        Assert.That(roundTripWorks keyOne keyTwo, Is.False)

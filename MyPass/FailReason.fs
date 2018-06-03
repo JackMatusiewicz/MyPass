@@ -15,6 +15,7 @@ type FailReason =
     | HttpRequestFailed of StatusCode : int
     | InvalidHashPrefix
     | InvalidSha1Hash
+    | IncorrectKeyLength of Length : (int * int)
 
 module FailReason =
 
@@ -35,3 +36,4 @@ module FailReason =
         | HttpRequestFailed sc -> sprintf "Received a failure error code: %d" sc
         | InvalidHashPrefix -> "Hash prefix was not valid for the HaveIBeenPwned web service"
         | InvalidSha1Hash -> "The value was an invalid sha1 hash"
+        | IncorrectKeyLength (expected, actual) -> sprintf "Expected a key of length %d but got %d" expected actual

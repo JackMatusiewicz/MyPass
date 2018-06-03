@@ -10,8 +10,7 @@ type Salt = Salt of string
 [<Struct>]
 type PassPhrase = PassPhrase of string
 
-//Todo - look at making this private
-type AesKey = {
+type AesKey = private {
     Key : byte[]
 }
 
@@ -19,6 +18,13 @@ module Aes =
 
     let private keySizeBits = 256
     let keySizeBytes = keySizeBits / 8
+
+    let makeFrom (bytes : byte[]) : AesKey =
+        match bytes.Length = keySizeBytes with
+        | true ->
+            { Key = bytes }
+        | false ->
+            invalidArg "bytes" "Invalid length of key"  
 
     let private hash (data : string) =
         use sha256 = new SHA256Managed()
@@ -31,7 +37,7 @@ module Aes =
 
     let make () =
         use aes = makeKey ()
-        {Key = aes.Key}
+        makeFrom aes.Key
 
     let generateFromPassPhrase (salt : Salt) (phrase : PassPhrase) =
         let (Salt saltData) = salt

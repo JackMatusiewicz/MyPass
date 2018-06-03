@@ -16,6 +16,7 @@ module FailReasonTests =
         let e = InvalidChoice "test"
         let f = InvalidResponseFormat
         let g = HttpRequestFailed 404
+        let h = IncorrectKeyLength (2,3)
 
         Assert.That (FailReason.toString a, Is.EqualTo ("test was an invalid url"))
         Assert.That (FailReason.toString b, Is.EqualTo ("test already exists"))
@@ -25,3 +26,4 @@ module FailReasonTests =
         Assert.That (FailReason.toString g, Is.EqualTo ("Received a failure error code: 404"))
         Assert.That (FailReason.toString InvalidHashPrefix, Is.EqualTo ("Hash prefix was not valid for the HaveIBeenPwned web service"))
         Assert.That (FailReason.toString InvalidSha1Hash, Is.EqualTo ("The value was an invalid sha1 hash"))
+        Assert.That (FailReason.toString h, Is.EqualTo ("Expected a key of length 2 but got 3"))
