@@ -19,13 +19,6 @@ module Aes =
     let private keySizeBits = 256
     let keySizeBytes = keySizeBits / 8
 
-    let makeFrom (bytes : byte[]) : AesKey =
-        match bytes.Length = keySizeBytes with
-        | true ->
-            { Key = bytes }
-        | false ->
-            invalidArg "bytes" "Invalid length of key"  
-
     let private hash (data : string) =
         use sha256 = new SHA256Managed()
         sha256.ComputeHash(Encoding.UTF8.GetBytes(data))
@@ -34,6 +27,13 @@ module Aes =
         let aes = new AesManaged ()
         aes.KeySize <- keySizeBits
         aes
+
+    let makeFrom (bytes : byte[]) : AesKey =
+            match bytes.Length = keySizeBytes with
+            | true ->
+                { Key = bytes }
+            | false ->
+                invalidArg "bytes" "Invalid length of key"  
 
     let make () =
         use aes = makeKey ()
