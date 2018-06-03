@@ -26,4 +26,14 @@ module VaultDomainTests =
         let a = Name "bingbong" :> System.IComparable<Name>
         let b = Name "c"
         let r = a.CompareTo(b)
-        Assert.That(r, Is.EqualTo(-1))
+        Assert.That(r, Is.EqualTo -1)
+
+    [<Test>]
+    let ``Ensure Name hash codes are the same for strings of different cases`` () =
+        let a = Name "hellothere"
+        let b = Name "HelLOTHERe"
+
+        let x = a.GetHashCode ()
+        let y = b.GetHashCode ()
+
+        Assert.That(x, Is.EqualTo y)
