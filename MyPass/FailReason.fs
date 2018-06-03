@@ -27,7 +27,7 @@ module FailReason =
         match f with
         | InvalidUrl url -> sprintf "%s was an invalid url" url
         | ExceptionThrown exInfo ->
-            sprintf "ERROR: %s" (exInfo.SourceException.StackTrace)
+            sprintf "ERROR: %A" (exInfo.SourceException)
         | DuplicateEntry k -> sprintf "%s already exists" k
         | EntryNotFound k -> sprintf "%s was not found" k
         | InvalidCommand c -> sprintf "%s is not a valid MyPass command" c

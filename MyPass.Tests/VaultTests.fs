@@ -88,7 +88,9 @@ module VaultTests =
                 Vault.encrypt key store
                 >>= Vault.decrypt key
             match roundTripResult with
-            | Failure _ -> Assert.Fail()
+            | Failure f ->
+                printfn "%s" <| FailReason.toString f
+                Assert.Fail()
             | Success decStore -> Assert.That(decStore, Is.EqualTo(store))
 
     [<Test>]

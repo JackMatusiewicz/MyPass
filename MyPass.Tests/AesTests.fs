@@ -15,7 +15,9 @@ module AesTests =
             |> System.Text.Encoding.UTF8.GetString
             |> fun w -> w = "testStringHere"
         with
-        | _ -> false
+        | ex ->
+            printfn "%A" ex
+            false
 
     [<Test>]
     [<Repeat(10000)>]

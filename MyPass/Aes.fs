@@ -35,7 +35,7 @@ module Aes =
     let private zeroKey (bytes : byte[]) =
         for i in 0 .. (bytes.Length - 1) do bytes.[i] <- (byte 0)
 
-    let makeFrom (bytes : byte[]) : AesKey =
+    let fromBytes (bytes : byte[]) : AesKey =
             match bytes.Length = keySizeBytes with
             | true ->
                 let bytes =
@@ -47,14 +47,14 @@ module Aes =
 
     let make () =
         use aes = makeKey ()
-        makeFrom aes.Key
+        fromBytes aes.Key
 
     let generateFromPassPhrase (salt : Salt) (phrase : PassPhrase) =
         let (Salt saltData) = salt
         let (PassPhrase text) = phrase
         use deriver = new Rfc2898DeriveBytes(text, hash saltData, 1000)
-        let keyBytes = deriver.GetBytes(keySizeBytes)
-        {Key = keyBytes}
+        deriver.GetBytes(keySizeBytes)
+        |> fromBytes
 
     let private createEncryptionStream (key : byte[]) (data : Stream) : CryptoStream =
         use aes = makeKey ()

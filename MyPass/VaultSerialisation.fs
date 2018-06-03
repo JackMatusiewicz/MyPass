@@ -4,6 +4,10 @@ open Newtonsoft.Json
 
 module VaultSerialisation =
 
+    type AesKeyDto = {
+        Key : byte[]
+    }
+
     type SecuredSecretDto = (EncryptedData * AesKey)
 
     type SecretDto =
