@@ -23,6 +23,11 @@ module Aes =
         use sha256 = new SHA256Managed()
         sha256.ComputeHash(Encoding.UTF8.GetBytes(data))
 
+    /// This should ONLY be used to decrypt the keys to be stored on disk inside the vault.
+    let internal decryptedBytes (k : AesKey) =
+        k.Key
+        |> fun k -> ProtectedData.Unprotect (k, null, DataProtectionScope.CurrentUser)
+
     let private makeKey () =
         let aes = new AesManaged ()
         aes.KeySize <- keySizeBits
@@ -35,6 +40,7 @@ module Aes =
     let private zeroKey (bytes : byte[]) =
         for i in 0 .. (bytes.Length - 1) do bytes.[i] <- (byte 0)
 
+    // TODO - look at making this return a Result<,>
     let fromBytes (bytes : byte[]) : AesKey =
             match bytes.Length = keySizeBytes with
             | true ->
