@@ -10,8 +10,8 @@ open MyPass.SecureString
 [<RequireQualifiedAccess>]
 module Password =
 
-    let availableCharacters =
-        ['a'..'z'] @ ['A'..'Z'] @ ['0'..'9'] @ ['!'; '?'; '_'] |> Array.ofList
+    let alphanumericCharacters =
+        ['a'..'z'] @ ['A'..'Z'] @ ['0'..'9'] |> Array.ofList
 
     let createWithCharacters (length : uint32) (availableCharacters : char[]) =
         use rng = new RNGCryptoServiceProvider()
@@ -43,13 +43,13 @@ module Password =
                 create (availableCharacters.[index] :: acc) (current + 1u)
         create [] 0u
 
-    let createPassword = fun len -> createWithCharacters len availableCharacters
+    let createPassword = fun len -> createWithCharacters len alphanumericCharacters
 
     ///Uses the default set, along with any extra you pass in.
     let createWithExtraCharacters (chars : char[]) =
         fun len ->
             chars
-            |> fun c -> Array.concat [|chars; availableCharacters|]
+            |> fun c -> Array.concat [|chars; alphanumericCharacters|]
             |> Array.distinct
             |> createWithCharacters len
 

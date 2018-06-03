@@ -18,7 +18,7 @@ module PasswordTests =
     [<Repeat(50)>]
     let ``When constructing password with extra chars, then no unspecified chars are used `` () =
         let extra = [|'@'; ';'; '\''; '\"'; '['|]
-        let allValidChars = Array.concat [|Password.availableCharacters; extra|]
+        let allValidChars = Array.concat [|Password.alphanumericCharacters; extra|]
         let pw = Password.createWithExtraCharacters extra 15u
         pw.ToCharArray ()
         |> Array.map (fun c -> Array.contains c allValidChars)

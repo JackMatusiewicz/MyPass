@@ -55,7 +55,7 @@ module ConsoleUi =
     let private getExtraPasswordCharacters () =
         getInput "Please enter the extra characters to use for password generation:"
         |> fun s -> s.ToCharArray ()
-        |> (fun cs -> Array.append Password.availableCharacters cs)
+        |> (fun cs -> Array.append Password.alphanumericCharacters cs)
         |> Password.createWithCharacters 15u
 
     let getSecretPassword () =
