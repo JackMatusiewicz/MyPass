@@ -1,10 +1,41 @@
 ﻿namespace MyPass
 
+open System
+
 [<Struct>]
 type Description = Description of string
 
 [<Struct>]
-type Name = Name of string
+[<CustomEquality; CustomComparison>]
+type Name =
+    | Name of string
+
+    override this.Equals (o) =
+        match o with
+        | :? Name as n ->
+            let (Name s) = n
+            let (Name m) = this
+            s.Equals(m, StringComparison.InvariantCultureIgnoreCase)
+        | _ -> false
+
+    override this.GetHashCode () =
+        let (Name s) = this
+        s.ToLower().GetHashCode()
+
+    member __.Compare x y =
+        let (Name a) = x
+        let (Name b) = y
+        String.Compare(a,b, StringComparison.InvariantCultureIgnoreCase)
+
+    interface System.IComparable with
+       member this.CompareTo y =
+          match y with
+          | :? Name as y -> this.Compare this y
+          | _ -> invalidArg "y" "cannot compare value of different types"
+
+    interface System.IComparable<Name> with
+        member this.CompareTo(y) =
+            this.Compare this y
 
 [<Struct>]
 type EncryptedData = EncryptedData of byte[]
