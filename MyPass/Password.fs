@@ -79,4 +79,4 @@ module Password =
     
         Hkdf.expand secretKey userIdBytes [||] (masterKey.Length)
         |> xor masterKey
-        |> fun k -> { Key = k }
+        |> Aes.fromBytes

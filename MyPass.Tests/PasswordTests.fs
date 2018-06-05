@@ -34,7 +34,7 @@ module PasswordTests =
         let secretKey = Array.create 10 (byte 0)
         let pwOne = Password.createMasterKey versionId secretKey userId masterPassPhrase
         let pwTwo = Password.createMasterKey versionId secretKey userId masterPassPhrase
-        Assert.That(pwOne.Key.SequenceEqual(pwTwo.Key), Is.True)
+        Assert.That(AesTests.roundTripWorks pwOne pwTwo, Is.True)
 
     [<Test>]
     [<Repeat(5)>]
@@ -46,7 +46,7 @@ module PasswordTests =
         let secretKey2 = Array.create 10 (byte 1)
         let pwOne = Password.createMasterKey versionId secretKey userId masterPassPhrase
         let pwTwo = Password.createMasterKey versionId secretKey2 userId masterPassPhrase
-        Assert.That(pwOne.Key.SequenceEqual(pwTwo.Key), Is.False)
+        Assert.That(AesTests.roundTripWorks pwOne pwTwo, Is.False)
 
     [<Test>]
     [<Repeat(5)>]
@@ -58,7 +58,7 @@ module PasswordTests =
         let secretKey = Array.create 10 (byte 0)
         let pwOne = Password.createMasterKey versionId secretKey userId masterPassPhrase
         let pwTwo = Password.createMasterKey versionId secretKey userId2 masterPassPhrase
-        Assert.That(pwOne.Key.SequenceEqual(pwTwo.Key), Is.False)
+        Assert.That(AesTests.roundTripWorks pwOne pwTwo, Is.False)
 
     [<Test>]
     [<Repeat(5)>]
@@ -70,7 +70,7 @@ module PasswordTests =
         let secretKey = Array.create 10 (byte 0)
         let pwOne = Password.createMasterKey versionId secretKey userId masterPassPhrase
         let pwTwo = Password.createMasterKey versionId2 secretKey userId masterPassPhrase
-        Assert.That(pwOne.Key.SequenceEqual(pwTwo.Key), Is.False)
+        Assert.That(AesTests.roundTripWorks pwOne pwTwo, Is.False)
 
     [<Test>]
     [<Repeat(5)>]
@@ -84,4 +84,4 @@ module PasswordTests =
         let secretKey = Array.create 10 (byte 0)
         let pwOne = Password.createMasterKey versionId secretKey userId masterPassPhrase
         let pwTwo = Password.createMasterKey versionId secretKey userId masterPassPhrase2
-        Assert.That(pwOne.Key.SequenceEqual(pwTwo.Key), Is.False)
+        Assert.That(AesTests.roundTripWorks pwOne pwTwo, Is.False)

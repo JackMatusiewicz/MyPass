@@ -29,6 +29,17 @@ module VaultTests =
             }
         Result.map f (Url.make "https://www.google.com")
 
+    let private join (m1 : Map<'a, 'b>) (m2 : Map<'a, 'c>) : Map<'a, ('b * 'c) option> =
+        let getKeys = Map.toList >> (List.map fst)
+        let keys =
+            List.concat [getKeys m1; getKeys m2]
+            |> Set.ofList
+        let getItem m1 m2 (k : 'a) : ('b * 'c) option =
+            match (Map.tryFind k m1), (Map.tryFind k m2) with
+            | Some b, Some c -> Some (b,c)
+            | _ -> None
+        Seq.fold (fun m k -> Map.add k (getItem m1 m2 k) m) Map.empty keys
+
     [<Test>]
     let ``When trying to delete non-existant password entry then failure is recorded`` () =
         let vault = Vault.empty
@@ -81,15 +92,34 @@ module VaultTests =
             >=> (fun v -> Result.bind testPasswordEntry3 (fun pw -> Vault.storePassword pw v))
         let result = storePasswords Vault.empty
         match result with
-        | Failure _ -> Assert.Fail()
+        | Failure _ -> Assert.Fail ()
         | Success store ->
             let key = Aes.make ()
             let roundTripResult =
                 Vault.encrypt key store
                 >>= Vault.decrypt key
+
             match roundTripResult with
-            | Failure _ -> Assert.Fail()
-            | Success decStore -> Assert.That(decStore, Is.EqualTo(store))
+            | Failure f ->
+                printfn "%s" <| FailReason.toString f
+                Assert.Fail ()
+            | Success decStore ->
+                let success =
+                    join decStore.passwords store.passwords
+                    |> Map.toList
+                    |> List.traverse
+                        (fun ((Name n), k) ->
+                            match k with
+                            | None -> EntryNotFound n |> Failure
+                            | Some (a,b) ->
+                                (=) <!> (PasswordEntry.decrypt a) <*> (PasswordEntry.decrypt a))
+                    |> Result.map (List.fold (&&) true)
+                match success with
+                | Failure _ -> Assert.Fail ("Some passwords were not the same")
+                | Success b ->
+                    match b with
+                    | false -> Assert.Fail ("Some passwords were not the same")
+                    | true -> Assert.Pass ()
 
     [<Test>]
     let ``Given a password manager with a password, encryption round-trip fails if different key is used to decrypt`` () =

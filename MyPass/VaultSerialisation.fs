@@ -4,7 +4,11 @@ open Newtonsoft.Json
 
 module VaultSerialisation =
 
-    type SecuredSecretDto = (EncryptedData * AesKey)
+    type AesKeyDto = {
+        Key : byte[]
+    }
+
+    type SecuredSecretDto = (EncryptedData * AesKeyDto)
 
     type SecretDto =
         | SecretDto of SecuredSecretDto
@@ -17,10 +21,17 @@ module VaultSerialisation =
 
     type VaultDto = { passwordList : (Name * PasswordEntryDto) list }
 
+    let private toAesKeyDto (k : AesKey) =
+        let key = Aes.decryptedBytes k
+        { AesKeyDto.Key = key }
+
+    let private fromAesKeyDto (k : AesKeyDto) =
+        Aes.fromBytes k.Key
+
     let private fromSecretDto (s : SecretDto) : Result<FailReason, Secret> =
         match s with
         | SecretDto (data, key) ->
-            { Data = data; Key = key } |> Secret |> Success
+            { Data = data; Key = fromAesKeyDto key } |> Secret |> Success
         | WebLoginDto (url, name, (data, key)) ->
             let url = Url.make url
             Result.map
@@ -28,15 +39,15 @@ module VaultSerialisation =
                     {
                         UserName = name
                         Url = url
-                        SecuredData = { Data = data; Key = key }
+                        SecuredData = { Data = data; Key = fromAesKeyDto key }
                     } |> WebLogin)
                 url
 
     let private toSecretDto (s : Secret) : SecretDto =
         match s with
-        | Secret s -> (s.Data, s.Key) |> SecretDto
+        | Secret s -> (s.Data, toAesKeyDto s.Key) |> SecretDto
         | WebLogin w ->
-            (Url.toString w.Url, w.UserName, (w.SecuredData.Data, w.SecuredData.Key))
+            (Url.toString w.Url, w.UserName, (w.SecuredData.Data, toAesKeyDto w.SecuredData.Key))
             |> WebLoginDto
 
     let private toEntryDto (pe : PasswordEntry) : PasswordEntryDto =
