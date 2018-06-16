@@ -3,6 +3,10 @@ image: Visual Studio 2017
 environment:
   COVERALLS_REPO_TOKEN:
     secure: E4QGOzsFKIG9JaF8MwZdI7gZct7pJ1eekTiKeTmOJIs71+THZNrrfc0l/ORxoyB/
+
+configuration:
+  - Debug
+  - Release
 before_build:
 - nuget restore
 build:
