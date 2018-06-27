@@ -68,7 +68,7 @@ module Password =
         : AesKey
         =
         let getKey (salt : byte[]) (passwordBytes : byte[]) =
-            use pbkdf2 = new Rfc2898DeriveBytes(passwordBytes, salt, 10000)
+            use pbkdf2 = new Rfc2898DeriveBytes(passwordBytes, salt, 100000, HashAlgorithmName.SHA512)
             pbkdf2.GetBytes(Aes.keySizeBytes)
 
         let userIdBytes = userId |> System.Text.Encoding.UTF8.GetBytes
