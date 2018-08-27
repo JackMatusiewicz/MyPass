@@ -13,6 +13,8 @@ open Result.Operators
 type CompromisedStatus = Compromised | NotCompromised
 
 /// Represents the JSON string that is returned from the HIBP password query.
+/// The string is a list of suffixes of compromised passwords beginning with the supplied prefix,
+/// along with a count of the number of breaches the password has been bound in.
 type HibpResponse = Response of (HashPrefix * string)
 
 module Hibp =
