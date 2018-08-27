@@ -42,7 +42,7 @@ module Hibp =
         |> Result.map (Set.ofList)
 
     let isCompromised
-        (finder : HashPrefix -> Result<FailReason, HibpResponse>)
+        (getCompromisedSuffixes : HashPrefix -> Result<FailReason, HibpResponse>)
         (secret : SecuredSecret)
         : Result<FailReason, CompromisedStatus>
         =
@@ -58,6 +58,6 @@ module Hibp =
             |> (=<<) HashPrefix.make
 
         hashPrefix
-        |> (=<<) finder
+        |> (=<<) getCompromisedSuffixes
         |> (=<<) toHashes
         |> (=<<) (fun hashes -> hash >>= fun hash -> Success <| contains hash hashes)
