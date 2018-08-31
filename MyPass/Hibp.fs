@@ -41,7 +41,7 @@ module Hibp =
         |> List.map (fun (d : string) -> (d.Split([|':'|])).[0])
         |> List.map (fun d -> hashPrefix + d)
         |> List.traverse Sha1Hash.fromString
-        |> Result.map (Set.ofList)
+        |> Result.map Set.ofList
 
     let isCompromised
         (getCompromisedSuffixes : HashPrefix -> Result<FailReason, HibpResponse>)
