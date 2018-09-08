@@ -236,7 +236,7 @@ module ConsoleUi =
             FailReason.fromException ex
             |> Failure
 
-    let showPasswordToUser (v : Vault) =
+    let private getUserEntryChoice (v : Vault) =
         let getUserChoice (max : int) =
             let v =
                 sprintf "Please pick a password (0 - %d)" max
@@ -260,6 +260,9 @@ module ConsoleUi =
         getUserChoice (List.length choices - 1)
         |> Result.map (fun i -> List.item i choices)
         |> Result.map snd
+
+    let showPasswordToUser (v : Vault) =
+        getUserEntryChoice v
         |> (=<<) (fun name -> showSpecificPassword (Name name) v)
 
     let printPassword () =
@@ -268,19 +271,20 @@ module ConsoleUi =
         |> (=<<) showPasswordToUser
 
     let private changePassword (vault : Vault) : Result<FailReason, Vault> =
-        let name = getEntryName ()
-        showSpecificPassword name vault
+        let choice = getUserEntryChoice vault |> Result.map Name
+
+        Result.bind choice (fun n -> showSpecificPassword n vault)
         |> (=<<)
             (fun () ->
                 let pw =
                     getSecretPassword ()
                     |> SecuredSecret.create
-                Vault.getPassword name vault
+                Result.bind choice (fun n -> Vault.getPassword n vault)
                 |> Result.map (PasswordEntry.updateSecret pw)
                 |> (=<<) (fun e -> Vault.updatePassword e vault))
         |> (=<<)
             (fun v ->
-                showSpecificPassword name v
+                Result.bind choice (fun n -> showSpecificPassword n v)
                 |> Result.map (fun _ -> v))
 
     let updatePassword () =
