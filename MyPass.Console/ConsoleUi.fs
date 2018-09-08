@@ -236,9 +236,31 @@ module ConsoleUi =
             FailReason.fromException ex
             |> Failure
 
-    let private showPasswordToUser (vault : Vault) : Result<FailReason, unit> =
-        let name = getEntryName ()
-        showSpecificPassword name vault
+    let showPasswordToUser (v : Vault) =
+        let getUserChoice (max : int) =
+            let v =
+                sprintf "Please pick a password (0 - %d)" max
+                |> getInput
+                |> int
+            if v >= 0 && v <= max then
+                Success v
+            else
+                sprintf "You must choose between 0-%d" max
+                |> InvalidChoice
+                |> Failure
+
+        let choices =
+            v.passwords
+            |> Map.toList
+            |> List.map fst
+            |> List.mapi (fun i (Name k) -> (i,k))
+
+        List.iter (fun (index, name) -> printfn "%d) %s" index name) choices
+
+        getUserChoice (List.length choices - 1)
+        |> Result.map (fun i -> List.item i choices)
+        |> Result.map snd
+        |> (=<<) (fun name -> showSpecificPassword (Name name) v)
 
     let printPassword () =
         constructComponentsFromUserInput

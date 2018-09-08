@@ -30,7 +30,7 @@ module VaultTests =
         Result.map f (Url.make "https://www.google.com")
 
     let private join (m1 : Map<'a, 'b>) (m2 : Map<'a, 'c>) : Map<'a, ('b * 'c) option> =
-        let getKeys = Map.toList >> (List.map fst)
+        let getKeys m = m |> Map.toList |> List.map fst
         let keys =
             List.concat [getKeys m1; getKeys m2]
             |> Set.ofList
