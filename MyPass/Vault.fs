@@ -30,6 +30,8 @@ module Vault =
             let newStore = Map.add name entry store
             Success { passwords = newStore }
 
+    /// Takes a new password entry and replaces another entry with the same key.
+    /// Will fail if there is no entry with the provided name of the new entry.
     let updatePassword
         (entry : PasswordEntry)
         (manager : Vault)
@@ -44,6 +46,8 @@ module Vault =
             let newStore = Map.add name entry store
             Success { passwords = newStore }
 
+    /// Removes a secret that has the provided name.
+    /// Will fail if there is no secret with the provided name.
     let removePassword
         (name : Name)
         (manager : Vault)
@@ -57,6 +61,7 @@ module Vault =
             EntryNotFound "Password entry not found"
             |> Failure
 
+    /// Encrypts a vault with the provided AES key.
     let encrypt
         (key : AesKey)
         (manager : Vault)
@@ -70,6 +75,7 @@ module Vault =
             |> Success
         |> exceptionToFailure
 
+    /// Decrypts a vault with the provided key.
     let decrypt
         (key : AesKey)
         (encryptedManager : byte[])
@@ -82,6 +88,8 @@ module Vault =
             |> VaultSerialisation.deserialise
         |> exceptionToFailure
 
+    /// Gets the password entry for the provided name.
+    /// Will fail if no entry exists.
     let getPassword
         (name : Name)
         (manager : Vault)
@@ -94,6 +102,7 @@ module Vault =
             EntryNotFound "Unable to find a password matching that name."
             |> Failure
 
+    /// Finds all of the compromised entries in the vault.
     let getCompromisedPasswords
         (isCompromised : SecuredSecret -> Result<FailReason, CompromisedStatus>)
         (vault : Vault)
