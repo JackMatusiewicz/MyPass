@@ -13,6 +13,7 @@ module Password =
     let alphanumericCharacters =
         ['a'..'z'] @ ['A'..'Z'] @ ['0'..'9'] |> Array.ofList
 
+    //TODO: Now that this uses a secure string, we need to dispose!
     let createWithCharacters (length : uint32) (availableCharacters : char[]) : SecureString =
         use rng = new RNGCryptoServiceProvider()
         let randomBytes = Array.create 4 (byte 0)
