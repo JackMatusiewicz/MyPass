@@ -58,7 +58,7 @@ module Main =
             let parsedArgs : ParseResults<Arguments> = argsParser.Parse args
             match parsedArgs.Contains Mode with
             | false ->
-                printfn "Please enter a mode (choices are: CREATE | ADD | LIST | GET | UPDATE | PWNED)"
+                printfn "Please choose a mode (choices are: CREATE | ADD | LIST | GET | UPDATE | PWNED)"
                 Console.ReadLine ()
                 |> runApp argsParser
             | true ->
