@@ -111,6 +111,11 @@
     <Reference Include="FSharp.Core">
       <HintPath>..\packages\FSharp.Core.4.3.4\lib\net45\FSharp.Core.dll</HintPath>
     </Reference>
+    <ProjectReference Include="..\MyPass.SecureString\MyPass.SecureString.csproj">
+      <Name>MyPass.SecureString</Name>
+      <Project>{60d9b559-111d-406e-9ea5-520db5881142}</Project>
+      <Private>True</Private>
+    </ProjectReference>
     <ProjectReference Include="..\MyPass\MyPass.fsproj">
       <Name>MyPass</Name>
       <Project>{0277b2d6-b9a2-43c2-99cf-e767e7afb46b}</Project>

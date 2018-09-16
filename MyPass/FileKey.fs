@@ -1,7 +1,7 @@
 ﻿namespace MyPass
 
-open System.IO
 open System.IO.Abstractions
+open MyPass.SecureString
 
 [<Struct>]
 type FileKey = FileKey of string
@@ -15,7 +15,7 @@ module FileKey =
 
     let generateFileKey () : FileKey =
         Password.createWithCharacters 16u availableCharacters
-        |> FileKey
+        |> fun p -> SecurePasswordHandler.Use (p, fun p -> p |> String.fromBytes |> FileKey)
 
     let read
         (fs : IFileSystem)

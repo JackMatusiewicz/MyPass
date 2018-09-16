@@ -13,9 +13,10 @@ module Password =
     let alphanumericCharacters =
         ['a'..'z'] @ ['A'..'Z'] @ ['0'..'9'] |> Array.ofList
 
-    let createWithCharacters (length : uint32) (availableCharacters : char[]) =
+    let createWithCharacters (length : uint32) (availableCharacters : char[]) : SecureString =
         use rng = new RNGCryptoServiceProvider()
         let randomBytes = Array.create 4 (byte 0)
+        let pw = new SecureString ()
 
         let findIndex (len : int) =
             let rec findLargerPowerOfTwo len (acc : int) =
@@ -37,11 +38,13 @@ module Password =
 
         let rec create (acc : char list) (current : uint32) =
             match current with
-            | _ when current = length -> acc |> String.ofList
+            | _ when current = length -> acc
             | _ ->
                 let index = findIndex (availableCharacters.Length)
                 create (availableCharacters.[index] :: acc) (current + 1u)
         create [] 0u
+        |> List.iter (pw.AppendChar)
+        pw
 
     let createPassword = fun len -> createWithCharacters len alphanumericCharacters
 

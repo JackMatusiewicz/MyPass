@@ -2,9 +2,9 @@
 
 open NUnit.Framework
 open MyPass
-open Result
 open System.IO.Abstractions
 open System.Linq
+open MyPass.SecureString
 
 module FileKeyTests =
 
@@ -22,7 +22,9 @@ module FileKeyTests =
 
     [<Test>]
     let ``Given a file key, when key is extracted from object, then correct value returned`` () =
-        let pw = Password.createPassword 10u
+        let pw =
+            Password.createPassword 10u
+            |> fun p -> SecurePasswordHandler.Use(p, fun p -> String.fromBytes p)
         let fk = FileKey pw
         let pw2 = FileKey.getKey fk
 

@@ -66,6 +66,11 @@
       <HintPath>..\packages\System.IO.Abstractions.2.1.0.178\lib\net40\System.IO.Abstractions.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
+    <ProjectReference Include="..\MyPass.SecureString\MyPass.SecureString.csproj">
+      <Name>MyPass.SecureString</Name>
+      <Project>{60d9b559-111d-406e-9ea5-520db5881142}</Project>
+      <Private>True</Private>
+    </ProjectReference>
     <ProjectReference Include="..\MyPass\MyPass.fsproj">
       <Project>{0277B2D6-B9A2-43C2-99CF-E767E7AFB46B}</Project>
       <Name>MyPass</Name>

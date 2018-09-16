@@ -1,15 +1,13 @@
 ﻿namespace MyPass.Console
 
 open MyPass
-open MyPass.Aes
 open MyPass.Result.Operators
-open MyPass.Reader
 open MyPass.Reader.Operators
-open MyPass.Vault
 open System
 open System.Security
 open System.IO
 open System.IO.Abstractions
+open MyPass.SecureString
 
 ///These are all the specific pieces of information we require from the user.
 type UserInput = {
@@ -52,7 +50,7 @@ module ConsoleUi =
         printfn "Please enter the master pass phrase for this vault:"
         SecureInput.get ()
 
-    let private getExtraPasswordCharacters () =
+    let private generatePassword () =
         getInput "Please enter the extra characters to use for password generation:"
         |> fun s -> s.ToCharArray ()
         |> (fun cs -> Array.append Password.alphanumericCharacters cs)
@@ -61,9 +59,10 @@ module ConsoleUi =
     let getSecretPassword () =
         let value = getInput "Do you want to write your own password (Y) or have one generated?"
         if value = "Y" || value = "y" then
-            getInput "Please enter your password:"
+            printfn "Please enter your password:"
+            SecureInput.get ()
         else
-            getExtraPasswordCharacters ()
+            generatePassword ()
 
     let private getWebsiteUrl () =
         getInput "Please enter the URL of the site"
@@ -77,12 +76,12 @@ module ConsoleUi =
         let url = getWebsiteUrl ()
         let userName = getWebsiteUserName ()
         let pw = getSecretPassword ()
-        let secret = SecuredSecret.create pw
+        let secret = SecurePasswordHandler.Use(pw, fun p -> p |> String.fromBytes |> SecuredSecret.create)
         Result.map (fun url -> VaultDomain.makeWebLogin url userName secret) url
 
     let private makeSecret () =
         getSecretPassword ()
-        |> SecuredSecret.create
+        |> fun p -> SecurePasswordHandler.Use(p, fun p -> p |> String.fromBytes |> SecuredSecret.create)
         |> Secret
 
     let private makePasswordEntry () =
@@ -278,7 +277,7 @@ module ConsoleUi =
             (fun () ->
                 let pw =
                     getSecretPassword ()
-                    |> SecuredSecret.create
+                    |> fun p -> SecurePasswordHandler.Use(p, fun p -> p |> String.fromBytes |> SecuredSecret.create)
                 Result.bind choice (fun n -> Vault.getPassword n vault)
                 |> Result.map (PasswordEntry.updateSecret pw)
                 |> (=<<) (fun e -> Vault.updatePassword e vault))
