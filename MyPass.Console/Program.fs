@@ -20,7 +20,7 @@ module Main =
             |> printfn "%s"
         | _ -> printfn "Operation completed."
 
-    let runApp (argsParser : ArgumentParser<Arguments>) (mode : string) =
+    let private runCommand (argsParser : ArgumentParser<Arguments>) (mode : string) =
         match mode with
         | "create" ->
             ConsoleUi.createNewVault ()
@@ -41,6 +41,16 @@ module Main =
             |> MyPass.Result.Failure
         |> printError
 
+    let rec runApp (argsParser : ArgumentParser<Arguments>) =
+        printfn "Please enter a command:"
+        let choice = Console.ReadLine().ToLower()
+        match choice with
+        | "exit" ->
+            printfn "Closing MyPass"
+        | _ ->
+            runCommand argsParser choice
+            runApp argsParser
+
     [<EntryPoint; STAThread>]
     let main args =
         let argsParser = ArgumentParser.Create<Arguments>(programName = "MyPass")
@@ -58,10 +68,11 @@ module Main =
             let parsedArgs : ParseResults<Arguments> = argsParser.Parse args
             match parsedArgs.Contains Mode with
             | false ->
-                printfn "Please choose a mode (choices are: CREATE | ADD | LIST | GET | UPDATE | PWNED)"
-                Console.ReadLine ()
-                |> runApp argsParser
+                printfn "You are running MyPass in interactive mode"
+                printfn "You can choose from the following modes: CREATE | ADD | LIST | GET | UPDATE | PWNED"
+                printfn "Please enter \"exit\" to quit."
+                runApp argsParser
             | true ->
                 let mode = (parsedArgs.GetResult Mode).ToLower()
-                runApp argsParser mode
+                runCommand argsParser mode
         0
