@@ -20,6 +20,27 @@ module Main =
             |> printfn "%s"
         | _ -> printfn "Operation completed."
 
+    let runApp (argsParser : ArgumentParser<Arguments>) (mode : string) =
+        match mode with
+        | "create" ->
+            ConsoleUi.createNewVault ()
+        | "add" ->
+            ConsoleUi.addSecret ()
+        | "list" ->
+            ConsoleUi.listSecrets ()
+        | "get" ->
+            ConsoleUi.printPassword ()
+        | "update" ->
+            ConsoleUi.updatePassword ()
+        | "pwned" ->
+            ConsoleUi.checkForCompromisedPasswords ()
+        | _ ->
+            argsParser.PrintUsage ()
+            |> sprintf "%s"
+            |> InvalidCommand
+            |> MyPass.Result.Failure
+        |> printError
+
     [<EntryPoint; STAThread>]
     let main args =
         let argsParser = ArgumentParser.Create<Arguments>(programName = "MyPass")
@@ -36,26 +57,11 @@ module Main =
         | false ->
             let parsedArgs : ParseResults<Arguments> = argsParser.Parse args
             match parsedArgs.Contains Mode with
-            | false -> argsParser.PrintUsage () |> printfn "%s"
+            | false ->
+                printfn "Please enter a mode (choices are: CREATE | ADD | LIST | GET | UPDATE | PWNED)"
+                Console.ReadLine ()
+                |> runApp argsParser
             | true ->
                 let mode = (parsedArgs.GetResult Mode).ToLower()
-                match mode with
-                | "create" ->
-                    ConsoleUi.createNewVault ()
-                | "add" ->
-                    ConsoleUi.addSecret ()
-                | "list" ->
-                    ConsoleUi.listSecrets ()
-                | "get" ->
-                    ConsoleUi.printPassword ()
-                | "update" ->
-                    ConsoleUi.updatePassword ()
-                | "pwned" ->
-                    ConsoleUi.checkForCompromisedPasswords ()
-                | _ ->
-                    argsParser.PrintUsage ()
-                    |> sprintf "%s"
-                    |> InvalidCommand
-                    |> MyPass.Result.Failure
-                |> printError
-        0    
+                runApp argsParser mode
+        0
