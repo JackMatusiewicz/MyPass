@@ -2,7 +2,6 @@
 
 open System
 open System.Security.Cryptography
-open System.Runtime.InteropServices
 open System.Security
 
 open MyPass.SecureString

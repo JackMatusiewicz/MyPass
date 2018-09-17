@@ -1,6 +1,5 @@
 ﻿namespace MyPass
 
-open Newtonsoft.Json
 open System.Text
 
 [<CompilationRepresentation (CompilationRepresentationFlags.ModuleSuffix)>]

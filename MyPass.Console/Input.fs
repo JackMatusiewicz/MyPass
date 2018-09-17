@@ -1,7 +1,6 @@
 ﻿namespace MyPass.Console
 
 open System
-open System.Text
 open System.Security
 
 module SecureInput =
