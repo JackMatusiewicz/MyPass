@@ -312,4 +312,4 @@ module ConsoleUi =
         |> (=<<) (Vault.findDuplicateSecrets)
         |> fun d -> printfn "Here are groups of duplicate passwords:"; d
         |> Result.map (List.map (List.reduce (fun (Name acc) (Name n) -> Name <| sprintf "%s, %s" n acc)))
-        |> Result.map (List.iter (fun (Name n) -> printfn "%s" n))
+        |> Result.map (List.iteri (fun i (Name n) -> printfn "%d) %s" i n))
