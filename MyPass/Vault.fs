@@ -114,5 +114,22 @@ module Vault =
         |> Array.Parallel.map (Tuple.map isCompromised)
         |> Array.toList
         |> List.traverse (Tuple.sequence)
-        |> Result.map (List.filter (fun (a,b) -> b = Compromised))
+        |> Result.map (List.filter (fun (_,b) -> b = Compromised))
         |> Result.map (List.map fst)
+
+    //TODO - this needs tests!
+    /// Returns sets of secrets that all share the same password
+    let findMatching (vault : Vault) : Result<FailReason, Name list list> =
+        let construct (data : (Name * Sha1Hash) list) : Map<Sha1Hash, Name list> =
+            let rec construct (acc : Map<Sha1Hash, Name list>) ((n,h) : Name * Sha1Hash) =
+                match Map.tryFind h acc with
+                | Some data -> Map.add h (n::data) acc
+                | None -> Map.add h [n] acc
+            List.fold construct Map.empty data
+
+        vault.passwords
+        |> Map.toList
+        |> List.map (Tuple.map PasswordEntry.getSecureData)
+        |> List.traverse (Tuple.traverse SecuredSecret.hash)
+        |> Result.map construct
+        |> Result.map (Map.toList >> List.map snd)
