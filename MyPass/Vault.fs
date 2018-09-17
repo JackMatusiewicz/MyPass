@@ -118,7 +118,7 @@ module Vault =
 
     //TODO - this needs tests!
     /// Returns sets of secrets that all share the same password
-    let findMatching (vault : Vault) : Result<FailReason, Name list list> =
+    let findDuplicateSecrets (vault : Vault) : Result<FailReason, Name list list> =
         let construct (data : (Name * Sha1Hash) list) : Map<Sha1Hash, Name list> =
             let rec construct (acc : Map<Sha1Hash, Name list>) ((n,h) : Name * Sha1Hash) =
                 match Map.tryFind h acc with
@@ -132,3 +132,4 @@ module Vault =
         |> List.traverse (Tuple.traverse SecuredSecret.hash)
         |> Result.map construct
         |> Result.map (Map.toList >> List.map snd)
+        |> Result.map (List.filter (fun l -> List.length l > 1))

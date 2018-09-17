@@ -302,3 +302,14 @@ module ConsoleUi =
         |> (=<<) (Vault.getCompromisedPasswords (Hibp.isCompromised Hibp.checkHashPrefix))
         |> fun data -> printfn "Here are a list of compromised passwords:"; data
         |> Result.map (List.iter (fun (Name n) -> printfn "%s" n))
+
+    //TODO - remove the hacky use of the Name type.
+    let showDuplicatePasswords () =
+        let ud = constructComponentsFromUserInput
+        let fs = new FileSystem ()
+        ud
+        |> (=<<) (loadVault fs)
+        |> (=<<) (Vault.findDuplicateSecrets)
+        |> fun d -> printfn "Here are groups of duplicate passwords:"; d
+        |> Result.map (List.map (List.reduce (fun (Name acc) (Name n) -> Name <| sprintf "%s, %s" n acc)))
+        |> Result.map (List.iter (fun (Name n) -> printfn "%s" n))
