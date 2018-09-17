@@ -53,7 +53,7 @@ module Password =
     let createWithExtraCharacters (chars : char[]) =
         fun len ->
             chars
-            |> fun c -> Array.concat [|chars; alphanumericCharacters|]
+            |> fun c -> Array.concat [|c; alphanumericCharacters|]
             |> Array.distinct
             |> createWithCharacters len
 
