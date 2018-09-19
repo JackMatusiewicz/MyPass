@@ -116,7 +116,6 @@ module Vault =
         |> Result.map (List.filter (fun (_,b) -> b = Compromised))
         |> Result.map (List.map fst)
 
-    //TODO - this needs tests!
     /// Returns sets of secrets that all share the same password
     let findReusedSecrets (vault : Vault) : Result<FailReason, Name list list> =
         let construct (data : (Name * Sha1Hash) list) : Map<Sha1Hash, Name list> =
