@@ -118,7 +118,7 @@ module Vault =
 
     //TODO - this needs tests!
     /// Returns sets of secrets that all share the same password
-    let findDuplicateSecrets (vault : Vault) : Result<FailReason, Name list list> =
+    let findReusedSecrets (vault : Vault) : Result<FailReason, Name list list> =
         let construct (data : (Name * Sha1Hash) list) : Map<Sha1Hash, Name list> =
             let rec construct (acc : Map<Sha1Hash, Name list>) ((n,h) : Name * Sha1Hash) =
                 match Map.tryFind h acc with

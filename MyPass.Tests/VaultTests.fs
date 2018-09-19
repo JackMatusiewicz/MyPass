@@ -212,7 +212,7 @@ module VaultTests =
             Vault.storePassword testPasswordEntry Vault.empty
             >>= Vault.storePassword testPasswordEntry2
             >>= Vault.storePassword testPasswordEntryDupe
-        let results = vault >>= Vault.findDuplicateSecrets
+        let results = vault >>= Vault.findReusedSecrets
         match results with
         | Success (a::[]) ->
             Assert.That(a, Is.EqualTo([Name "www.bing.com2"; Name "www.bing.com"]))
