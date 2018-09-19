@@ -26,6 +26,9 @@ module Result =
         | Success s -> f s
         | Failure f -> Failure f
 
+    let bind2 (a : Result<'c, 'a>) (b : Result<'c, 'b>) (f : 'a -> 'b -> Result<'c, 'd>) =
+        bind a (fun a -> bind b (fun b -> f a b))
+
     let iter (f : 'a -> unit) (a : Result<'f, 'a>) : unit =
         match a with
         | Failure f -> ()

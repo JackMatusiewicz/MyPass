@@ -3,7 +3,6 @@
 open NUnit.Framework
 open MyPass
 open MyPass.Result.Operators
-open Result
 open System.Linq
 
 module VaultTests =
@@ -18,6 +17,12 @@ module VaultTests =
         Secret = SecuredSecret.create "bingSecret" |> Secret
         Description = Description "My bing password"
         Name = Name "www.bing.com"
+    }
+
+    let testPasswordEntryDupe = {
+        Secret = SecuredSecret.create "bingSecret" |> Secret
+        Description = Description "My bing password2"
+        Name = Name "www.bing.com2"
     }
 
     let testPasswordEntry3 =
@@ -200,3 +205,15 @@ module VaultTests =
             | Success a, Success b ->
                 Assert.That (a, Is.EqualTo(b))
             | _ -> Assert.Fail ()
+
+    [<Test>]
+    let ``Given a password manager, when I search for dupe passwords, then correct results are returned`` () =
+        let vault =
+            Vault.storePassword testPasswordEntry Vault.empty
+            >>= Vault.storePassword testPasswordEntry2
+            >>= Vault.storePassword testPasswordEntryDupe
+        let results = vault >>= Vault.findDuplicateSecrets
+        match results with
+        | Success (a::[]) ->
+            Assert.That(a, Is.EqualTo([Name "www.bing.com2"; Name "www.bing.com"]))
+        | _ -> Assert.Fail "Expected to see a single list returned."
