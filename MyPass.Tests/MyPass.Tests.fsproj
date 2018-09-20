@@ -1,72 +1,11 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\NUnit3TestAdapter.3.9.0\build\net35\NUnit3TestAdapter.props" Condition="Exists('..\packages\NUnit3TestAdapter.3.9.0\build\net35\NUnit3TestAdapter.props')" />
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>38a5c6e2-987a-4401-9997-6d0a64c1f6b9</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <RootNamespace>MyPass.Tests</RootNamespace>
-    <AssemblyName>MyPass.Tests</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
-    <TargetFSharpCoreVersion>4.4.1.0</TargetFSharpCoreVersion>
+    <TargetFramework>net472</TargetFramework>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <Name>MyPass.Tests</Name>
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
-    <TargetFrameworkProfile />
+    <TargetFSharpCoreVersion>4.4.1.0</TargetFSharpCoreVersion>
+    <DebugType Condition="'$(TargetFramework)' != '' AND '$(TargetFramework)' != 'netcoreapp1.0'">Full</DebugType>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <Tailcalls>false</Tailcalls>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Debug\MyPass.Tests.XML</DocumentationFile>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <Tailcalls>true</Tailcalls>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Release\MyPass.Tests.XML</DocumentationFile>
-  </PropertyGroup>
-  <PropertyGroup>
-    <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
-  </PropertyGroup>
-  <Choose>
-    <When Condition="'$(VisualStudioVersion)' == '11.0'">
-      <PropertyGroup Condition="Exists('$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets')">
-        <FSharpTargetsPath>$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets</FSharpTargetsPath>
-      </PropertyGroup>
-    </When>
-    <Otherwise>
-      <PropertyGroup Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\FSharp\Microsoft.FSharp.Targets')">
-        <FSharpTargetsPath>$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\FSharp\Microsoft.FSharp.Targets</FSharpTargetsPath>
-      </PropertyGroup>
-    </Otherwise>
-  </Choose>
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\packages\NUnit3TestAdapter.3.9.0\build\net35\NUnit3TestAdapter.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\NUnit3TestAdapter.3.9.0\build\net35\NUnit3TestAdapter.props'))" />
-  </Target>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
-  <Import Project="$(FSharpTargetsPath)" Condition="Exists('$(FSharpTargetsPath)')" />
+
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="SecureString.fs" />
@@ -87,7 +26,6 @@
     <Compile Include="Sha1HashTests.fs" />
     <Compile Include="FailReasonTests.fs" />
     <Compile Include="RoundTripTests.fs" />
-    <Content Include="packages.config" />
     <Content Include="FileKey.fk">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -95,31 +33,32 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="mscorlib" />
-    <Reference Include="nunit.framework">
-      <HintPath>..\packages\NUnit.3.9.0\lib\net45\nunit.framework.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.IO.Abstractions, Version=2.1.0.178, Culture=neutral, PublicKeyToken=96bf224d23c43e59">
-      <HintPath>..\packages\System.IO.Abstractions.2.1.0.178\lib\net40\System.IO.Abstractions.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System.Numerics" />
-    <Reference Include="FSharp.Core">
-      <HintPath>..\packages\FSharp.Core.4.3.4\lib\net45\FSharp.Core.dll</HintPath>
-    </Reference>
-    <ProjectReference Include="..\MyPass.SecureString\MyPass.SecureString.csproj">
-      <Name>MyPass.SecureString</Name>
-      <Project>{60d9b559-111d-406e-9ea5-520db5881142}</Project>
-      <Private>True</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\MyPass\MyPass.fsproj">
-      <Name>MyPass</Name>
-      <Project>{0277b2d6-b9a2-43c2-99cf-e767e7afb46b}</Project>
-      <Private>True</Private>
-    </ProjectReference>
+    <ProjectReference Include="..\MyPass.SecureString\MyPass.SecureString.csproj" />
+    <ProjectReference Include="..\MyPass\MyPass.fsproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coveralls.io" version="1.4.2" />
+    <PackageReference Include="coveralls.net" version="0.7.0" developmentDependency="true" />
+    <PackageReference Include="FSharp.Core" version="4.3.4" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.8.0" />
+    <PackageReference Include="NUnit" version="3.9.0" />
+    <PackageReference Include="NUnit.Console" version="3.7.0" />
+    <PackageReference Include="NUnit.ConsoleRunner" version="3.7.0" />
+    <PackageReference Include="NUnit.Extension.NUnitProjectLoader" version="3.5.0" />
+    <PackageReference Include="NUnit.Extension.NUnitV2Driver" version="3.6.0" />
+    <PackageReference Include="NUnit.Extension.NUnitV2ResultWriter" version="3.5.0" />
+    <PackageReference Include="NUnit.Extension.TeamCityEventListener" version="1.0.2" />
+    <PackageReference Include="NUnit.Extension.VSProjectLoader" version="3.5.0" />
+    <PackageReference Include="NUnit3TestAdapter" version="3.9.0" />
+    <PackageReference Include="OpenCover" version="4.6.519" />
+    <PackageReference Include="System.IO.Abstractions" version="2.1.0.178" />
   </ItemGroup>
 </Project>
