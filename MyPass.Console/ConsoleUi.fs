@@ -1,6 +1,7 @@
 ﻿namespace MyPass.Console
 
 open MyPass
+open MyPass.Clipboard
 open MyPass.Result.Operators
 open MyPass.Reader.Operators
 open System
@@ -218,7 +219,7 @@ module ConsoleUi =
 
     let private givePasswordToUser (password : string) =
         printfn "Your password will be in your clipboard for 15 seconds."
-        Clipboard.timedStoreInClipboard 15000 password
+        Clipboard.timedStore 15000 password
         printfn "Your password has been removed from your clipboard"
 
     let getEntryName () =

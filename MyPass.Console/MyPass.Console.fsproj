@@ -22,6 +22,7 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
     <Reference Include="Microsoft.CSharp" />
+    <ProjectReference Include="..\MyPass.Clipboard\MyPass.Clipboard.fsproj" />
     <ProjectReference Include="..\MyPass.SecureString\MyPass.SecureString.csproj" />
     <ProjectReference Include="..\MyPass\MyPass.fsproj" />
   </ItemGroup>

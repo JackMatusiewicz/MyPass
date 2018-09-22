@@ -1,15 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2036
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "MyPass", "MyPass\MyPass.fsproj", "{0277B2D6-B9A2-43C2-99CF-E767E7AFB46B}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "MyPass", "MyPass\MyPass.fsproj", "{0277B2D6-B9A2-43C2-99CF-E767E7AFB46B}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "MyPass.Tests", "MyPass.Tests\MyPass.Tests.fsproj", "{38A5C6E2-987A-4401-9997-6D0A64C1F6B9}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "MyPass.Tests", "MyPass.Tests\MyPass.Tests.fsproj", "{38A5C6E2-987A-4401-9997-6D0A64C1F6B9}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "MyPass.Console", "MyPass.Console\MyPass.Console.fsproj", "{2FB93C84-3BE9-4EE3-B282-5CD9F6279112}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "MyPass.Console", "MyPass.Console\MyPass.Console.fsproj", "{2FB93C84-3BE9-4EE3-B282-5CD9F6279112}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyPass.SecureString", "MyPass.SecureString\MyPass.SecureString.csproj", "{60D9B559-111D-406E-9EA5-520DB5881142}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MyPass.SecureString", "MyPass.SecureString\MyPass.SecureString.csproj", "{60D9B559-111D-406E-9EA5-520DB5881142}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "MyPass.Clipboard", "MyPass.Clipboard\MyPass.Clipboard.fsproj", "{3D6F2610-3A15-4A3D-9E11-58AD2238F32D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,8 +35,15 @@ Global
 		{60D9B559-111D-406E-9EA5-520DB5881142}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{60D9B559-111D-406E-9EA5-520DB5881142}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{60D9B559-111D-406E-9EA5-520DB5881142}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3D6F2610-3A15-4A3D-9E11-58AD2238F32D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3D6F2610-3A15-4A3D-9E11-58AD2238F32D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3D6F2610-3A15-4A3D-9E11-58AD2238F32D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3D6F2610-3A15-4A3D-9E11-58AD2238F32D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {43451615-9876-40C2-A71C-1D250548100C}
 	EndGlobalSection
 EndGlobal
