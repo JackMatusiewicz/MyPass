@@ -13,6 +13,18 @@ type Arguments =
 
 module Main =
 
+    let private splash =
+        """
+ __  __       _____
+|  \/  |     |  __ \
+| \  / |_   _| |__) |_ _ ___ ___
+| |\/| | | | |  ___/ _` / __/ __|
+| |  | | |_| | |  | (_| \__ \__ \
+|_|  |_|\__, |_|   \__,_|___/___/
+        __/  |
+        |___/
+        """;
+
     let private printError (result : MyPass.Result<FailReason, 'a>) =
         match result with
         | MyPass.Result.Failure f ->
@@ -70,6 +82,7 @@ module Main =
             let parsedArgs : ParseResults<Arguments> = argsParser.Parse args
             match parsedArgs.Contains Mode with
             | false ->
+                printfn "%s" splash
                 printfn "You are running MyPass in interactive mode"
                 printfn "You can choose from the following modes: CREATE | ADD | LIST | GET | UPDATE | DUPE | PWNED"
                 printfn "Please enter \"exit\" to quit."
