@@ -26,7 +26,6 @@ module Aes =
     /// This should ONLY be used to decrypt the keys to be stored on disk inside the vault.
     let internal decryptedBytes (k : AesKey) =
         k.Key
-        |> fun k -> ProtectedData.Unprotect (k, null, DataProtectionScope.CurrentUser)
 
     let private makeKey () =
         let aes = new AesManaged ()
@@ -34,20 +33,20 @@ module Aes =
         aes
 
     let private decryptKeyBytes (k : AesKey) =
-        let keyBytes = k.Key
-        ProtectedData.Unprotect (keyBytes, null, DataProtectionScope.CurrentUser)
+        k.Key
 
     let private zeroKey (bytes : byte[]) =
         for i in 0 .. (bytes.Length - 1) do bytes.[i] <- (byte 0)
 
     // TODO - look at making this return a Result<,>
+    /// Creates an AES key from some bytes. This will zero the input bytes.
     let fromBytes (bytes : byte[]) : AesKey =
             match bytes.Length = keySizeBytes with
             | true ->
-                let bytes =
-                    Array.copy bytes
-                    |> fun d -> ProtectedData.Protect (d, null, DataProtectionScope.CurrentUser)
-                { Key = bytes }
+                let keyData = Array.copy bytes
+                for i in 0 .. bytes.Length do
+                    bytes.[i] <- (byte 0)
+                { Key = keyData }
             | false ->
                 invalidArg "bytes" "Invalid length of key"
 

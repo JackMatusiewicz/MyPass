@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net472</TargetFramework>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
     <OutputType>Library</OutputType>
     <RootNamespace>MyPass</RootNamespace>
     <AssemblyName>MyPass</AssemblyName>
@@ -33,14 +33,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="mscorlib" />
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.DirectoryServices" />
-    <Reference Include="System.Numerics" />
-    <Reference Include="System.Security" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xml.Linq" />
     <ProjectReference Include="..\MyPass.SecureString\MyPass.SecureString.csproj" />
   </ItemGroup>
 
