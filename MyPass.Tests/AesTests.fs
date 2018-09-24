@@ -30,7 +30,7 @@ module AesTests =
     [<Test>]
     [<Repeat(10000)>]
     let ``Aes roundtrip fails with different keys`` () =
-        let k1 - Aes.make ()
+        let k1 = Aes.make ()
         let k2 = Aes.make ()
         Assert.That (roundTripWorks k1 k2, Is.False)
 
