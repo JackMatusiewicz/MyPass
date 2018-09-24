@@ -295,6 +295,20 @@ module ConsoleUi =
         |> (=<<) changePassword
         |> (=<<) (fun d -> Result.bind ud (fun ud -> storeVault fs ud d))
 
+    let private remvovePw (vault : Vault) : Result<FailReason, Vault> =
+        getUserEntryChoice vault
+        |> Result.map Name
+        |> (=<<) (fun name -> Vault.removePassword name vault)
+
+    //TODO - there is lots of boilerplate duplication, refactor this!
+    let removePassword () =
+        let ud = constructComponentsFromUserInput
+        let fs = new FileSystem ()
+        ud
+        |> (=<<) (loadVault fs)
+        |> (=<<) remvovePw
+        |> (=<<) (fun d -> Result.bind ud (fun ud -> storeVault fs ud d))
+
     let checkForCompromisedPasswords () =
         let ud = constructComponentsFromUserInput
         let fs = new FileSystem ()
