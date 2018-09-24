@@ -66,6 +66,12 @@ type PasswordEntry = {
 
 type Vault = { passwords : Map<Name, PasswordEntry> }
 
+[<RequireQualifiedAccess>]
+[<CompilationRepresentation (CompilationRepresentationFlags.ModuleSuffix)>]
+module Name =
+
+    let toString (Name n) = n
+
 module VaultDomain =
 
     let makeWebLogin (url : Url) (name : Name) (secret : SecuredSecret) =
