@@ -33,7 +33,7 @@ module Aes =
         aes
 
     let private decryptKeyBytes (k : AesKey) =
-        k.Key
+        Array.copy k.Key
 
     let private zeroKey (bytes : byte[]) =
         for i in 0 .. (bytes.Length - 1) do bytes.[i] <- (byte 0)
