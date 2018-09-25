@@ -23,31 +23,26 @@ module Aes =
         use sha256 = new SHA256Managed()
         sha256.ComputeHash(Encoding.UTF8.GetBytes(data))
 
-    /// This should ONLY be used to decrypt the keys to be stored on disk inside the vault.
-    let internal decryptedBytes (k : AesKey) =
-        k.Key
-        |> fun k -> ProtectedData.Unprotect (k, null, DataProtectionScope.CurrentUser)
+    /// This should only be used to construct the AES key dto.
+    let internal copyKeyBytes (k : AesKey) =
+        Array.copy k.Key
 
     let private makeKey () =
         let aes = new AesManaged ()
         aes.KeySize <- keySizeBits
         aes
 
-    let private decryptKeyBytes (k : AesKey) =
-        let keyBytes = k.Key
-        ProtectedData.Unprotect (keyBytes, null, DataProtectionScope.CurrentUser)
-
     let private zeroKey (bytes : byte[]) =
         for i in 0 .. (bytes.Length - 1) do bytes.[i] <- (byte 0)
 
     // TODO - look at making this return a Result<,>
+    /// Creates an AES key from some bytes. This will zero the input bytes.
     let fromBytes (bytes : byte[]) : AesKey =
             match bytes.Length = keySizeBytes with
             | true ->
-                let bytes =
-                    Array.copy bytes
-                    |> fun d -> ProtectedData.Protect (d, null, DataProtectionScope.CurrentUser)
-                { Key = bytes }
+                let keyData = Array.copy bytes
+                zeroKey bytes
+                { Key = keyData }
             | false ->
                 invalidArg "bytes" "Invalid length of key"
 
@@ -73,7 +68,7 @@ module Aes =
         cs
 
     let encrypt (data : byte[]) (key : AesKey) : byte[] =
-        let key = decryptKeyBytes key
+        let key = copyKeyBytes key
         let writeDataToStream (data : byte[]) : MemoryStream = 
             let ms = new MemoryStream()
             use encryptionStream = createEncryptionStream key ms
@@ -101,7 +96,7 @@ module Aes =
         new CryptoStream(data, decryptor, CryptoStreamMode.Read)
 
     let decrypt (data : byte[]) (key : AesKey) : byte[] =
-        let key = decryptKeyBytes key
+        let key = copyKeyBytes key
         let ms = new MemoryStream(data)
         use decryptionStream = createDecryptionStream key ms
         use sr = new StreamReader(decryptionStream)

@@ -22,7 +22,7 @@ module VaultSerialisation =
     type VaultDto = { passwordList : (Name * PasswordEntryDto) list }
 
     let private toAesKeyDto (k : AesKey) =
-        let key = Aes.decryptedBytes k
+        let key = Aes.copyKeyBytes k
         { AesKeyDto.Key = key }
 
     let private fromAesKeyDto (k : AesKeyDto) =

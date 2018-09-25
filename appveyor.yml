@@ -7,10 +7,12 @@ environment:
 configuration:
   - Debug
   - Release
+install:
+- cmd: appveyor downloadfile https://dist.nuget.org/win-x86-commandline/v4.3.0/nuget.exe
 before_build:
-- nuget restore
+- cmd: .\nuget.exe restore
 build:
   project: MyPass.sln
   verbosity: normal
 artifacts:
-  - path: MyPass.Console\bin\Release\net472
+  - path: MyPass.Console\bin\Release\netcoreapp2.1
