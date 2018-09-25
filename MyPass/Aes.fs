@@ -44,8 +44,7 @@ module Aes =
             match bytes.Length = keySizeBytes with
             | true ->
                 let keyData = Array.copy bytes
-                for i in 0 .. bytes.Length do
-                    bytes.[i] <- (byte 0)
+                zeroKey bytes
                 { Key = keyData }
             | false ->
                 invalidArg "bytes" "Invalid length of key"
