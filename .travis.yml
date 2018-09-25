@@ -2,9 +2,8 @@ language: csharp
 dotnet: 2.1.300
 mono: 5.10.0
 solution: MyPass.sln
-install:
-  - nuget restore MyPass.sln
-  - nuget install NUnit.Runners -Version 3.6.0 -OutputDirectory testrunner
 script:
   - cd MyPass.Tests
+  - dotnet restore
+  - dotnet build
   - dotnet test
