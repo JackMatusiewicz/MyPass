@@ -28,6 +28,13 @@ module AesTests =
         Assert.That(dataToEncrypt.SequenceEqual(decrypted), Is.True)
 
     [<Test>]
+    [<Repeat(10000)>]
+    let ``Aes roundtrip fails with different keys`` () =
+        let k1 = Aes.make ()
+        let k2 = Aes.make ()
+        Assert.That (roundTripWorks k1 k2, Is.False)
+
+    [<Test>]
     let ``Given a passphrase and a salt, when an Aes key is generated then it is identical on multiple calls`` () =
         let salt = Salt "salty"
         let passphrase = PassPhrase "This is a test"

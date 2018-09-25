@@ -44,6 +44,8 @@ module Main =
             ConsoleUi.printPassword ()
         | "update" ->
             ConsoleUi.updatePassword ()
+        | "remove" ->
+            ConsoleUi.removePassword ()
         | "pwned" ->
             ConsoleUi.checkForCompromisedPasswords ()
         | "dupe" ->
@@ -84,7 +86,7 @@ module Main =
             | false ->
                 printfn "%s" splash
                 printfn "You are running MyPass in interactive mode"
-                printfn "You can choose from the following modes: CREATE | ADD | LIST | GET | UPDATE | DUPE | PWNED"
+                printfn "You can choose from the following modes: CREATE | ADD | LIST | GET | UPDATE | REMOVE | DUPE | PWNED"
                 printfn "Please enter \"exit\" to quit."
                 runApp argsParser
             | true ->

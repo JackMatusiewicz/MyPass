@@ -295,6 +295,20 @@ module ConsoleUi =
         |> (=<<) changePassword
         |> (=<<) (fun d -> Result.bind ud (fun ud -> storeVault fs ud d))
 
+    let private remvovePw (vault : Vault) : Result<FailReason, Vault> =
+        getUserEntryChoice vault
+        |> Result.map Name
+        |> (=<<) (fun name -> Vault.removePassword name vault)
+
+    //TODO - there is lots of boilerplate duplication, refactor this!
+    let removePassword () =
+        let ud = constructComponentsFromUserInput
+        let fs = new FileSystem ()
+        ud
+        |> (=<<) (loadVault fs)
+        |> (=<<) remvovePw
+        |> (=<<) (fun d -> Result.bind ud (fun ud -> storeVault fs ud d))
+
     let checkForCompromisedPasswords () =
         let ud = constructComponentsFromUserInput
         let fs = new FileSystem ()
@@ -304,7 +318,6 @@ module ConsoleUi =
         |> fun data -> printfn "Here are a list of compromised passwords:"; data
         |> Result.map (List.iter (fun (Name n) -> printfn "%s" n))
 
-    //TODO - remove the hacky use of the Name type.
     let showDuplicatePasswords () =
         let ud = constructComponentsFromUserInput
         let fs = new FileSystem ()
@@ -312,5 +325,6 @@ module ConsoleUi =
         |> (=<<) (loadVault fs)
         |> (=<<) Vault.findReusedSecrets
         |> fun d -> printfn "Here are groups of duplicate passwords:"; d
-        |> Result.map (List.map (List.reduce (fun (Name acc) (Name n) -> Name <| sprintf "%s, %s" n acc)))
-        |> Result.map (List.iteri (fun i (Name n) -> printfn "%d) %s" i n))
+        |> Result.map (List.map (List.map (Name.toString)))
+        |> Result.map (List.map (List.reduce (fun acc n -> sprintf "%s, %s" n acc)))
+        |> Result.map (List.iteri (fun i n -> printfn "%d) %s" i n))
