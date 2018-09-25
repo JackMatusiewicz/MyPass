@@ -13,3 +13,6 @@ module String =
 
     let fromBytes (bs : byte[]) =
         Encoding.UTF8.GetString bs
+
+    let toBytes (s : string) =
+        Encoding.UTF8.GetBytes s

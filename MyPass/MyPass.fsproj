@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <OutputType>Library</OutputType>
     <RootNamespace>MyPass</RootNamespace>
     <AssemblyName>MyPass</AssemblyName>
@@ -39,6 +39,7 @@
   <ItemGroup>
     <PackageReference Include="FSharp.Core" version="4.3.4" />
     <PackageReference Include="FSharp.Data" version="2.4.6" />
+    <PackageReference Include="Microsoft.AspNetCore.Cryptography.KeyDerivation" Version="2.1.1" />
     <PackageReference Include="Newtonsoft.Json" version="11.0.1" />
     <PackageReference Include="System.IO.Abstractions" version="2.1.0.178" />
   </ItemGroup>

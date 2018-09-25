@@ -3,6 +3,7 @@
 open System
 open System.Security.Cryptography
 open System.Security
+open Microsoft.AspNetCore.Cryptography.KeyDerivation;
 
 open MyPass.SecureString
 
@@ -71,8 +72,12 @@ module Password =
         : AesKey
         =
         let getKey (salt : byte[]) (passwordBytes : byte[]) =
-            use pbkdf2 = new Rfc2898DeriveBytes(passwordBytes, salt, 100000, HashAlgorithmName.SHA512)
-            pbkdf2.GetBytes(Aes.keySizeBytes)
+            KeyDerivation.Pbkdf2(
+                String.fromBytes passwordBytes,
+                salt,
+                KeyDerivationPrf.HMACSHA512,
+                100000,
+                Aes.keySizeBytes)
 
         let userIdBytes = userId |> System.Text.Encoding.UTF8.GetBytes
         let versionIdBytes = versionId |> System.Text.Encoding.UTF8.GetBytes
