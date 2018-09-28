@@ -262,6 +262,7 @@ module ConsoleUi =
         getUserChoice (List.length choices - 1)
         |> Result.map (fun i -> List.item i choices)
         |> Result.map snd
+        |> Result.map (fun c -> printfn "You have chosen: %s" c; c)
 
     let showPasswordToUser (v : Vault) =
         getUserEntryChoice v
