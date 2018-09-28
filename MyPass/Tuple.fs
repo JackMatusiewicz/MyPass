@@ -2,6 +2,9 @@
 
 module Tuple =
 
+    let lmap (f : 'a -> 'b) ((a,c) : 'a * 'c) =
+        (f a, c)
+
     let map (f : 'a -> 'b) ((c,a) : 'c * 'a) =
         (c, f a)
 
