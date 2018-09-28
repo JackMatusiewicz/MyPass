@@ -297,7 +297,7 @@ module ConsoleUi =
         >>= changePassword
         >>= (fun d -> Result.bind ud (fun ud -> storeVault fs ud d))
 
-    let private remvovePw (vault : Vault) : Result<FailReason, Vault> =
+    let private removePw (vault : Vault) : Result<FailReason, Vault> =
         getUserEntryChoice vault
         |> Result.map Name
         >>= (fun name -> Vault.removePassword name vault)
@@ -308,7 +308,7 @@ module ConsoleUi =
         let fs = new FileSystem ()
         ud
         >>= loadVault fs
-        >>= remvovePw
+        >>= removePw
         >>= (fun d -> Result.bind ud (fun ud -> storeVault fs ud d))
 
     let checkForCompromisedPasswords () =
