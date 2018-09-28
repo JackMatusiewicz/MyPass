@@ -50,9 +50,9 @@ module Hibp =
         let hashString = Result.map Sha1Hash.get hash
         let hashPrefix =
             Result.map (fun (hash : string) -> hash.[0..4]) hashString
-            |> (=<<) HashPrefix.make
+            >>= HashPrefix.make
 
         hashPrefix
-        |> (=<<) getCompromisedSuffixes
-        |> (=<<) toHashes
-        |> (=<<) (fun hashes -> hash >>= fun hash -> Success <| contains hash hashes)
+        >>= getCompromisedSuffixes
+        >>= toHashes
+        >>= (fun hashes -> hash >>= fun hash -> Success <| contains hash hashes)

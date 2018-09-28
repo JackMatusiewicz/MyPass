@@ -229,7 +229,7 @@ module ConsoleUi =
     let private showSpecificPassword (name : Name) (vault : Vault) =
         try
             Vault.getPassword name vault
-            |> (=<<) PasswordEntry.decrypt
+            >>= PasswordEntry.decrypt
             |> Result.map givePasswordToUser
         with
         | ex ->
@@ -263,26 +263,26 @@ module ConsoleUi =
 
     let showPasswordToUser (v : Vault) =
         getUserEntryChoice v
-        |> (=<<) (fun name -> showSpecificPassword (Name name) v)
+        >>= (fun name -> showSpecificPassword (Name name) v)
 
     let printPassword () =
         constructComponentsFromUserInput
-        |> (=<<) (loadVault (new FileSystem ()))
-        |> (=<<) showPasswordToUser
+        >>= loadVault (new FileSystem ())
+        >>= showPasswordToUser
 
     let private changePassword (vault : Vault) : Result<FailReason, Vault> =
         let choice = getUserEntryChoice vault |> Result.map Name
 
         Result.bind choice (fun n -> showSpecificPassword n vault)
-        |> (=<<)
+        >>=
             (fun () ->
                 let pw =
                     getSecretPassword ()
                     |> fun p -> SecurePasswordHandler.Use(p, fun p -> p |> String.fromBytes |> SecuredSecret.create)
                 Result.bind choice (fun n -> Vault.getPassword n vault)
                 |> Result.map (PasswordEntry.updateSecret pw)
-                |> (=<<) (fun e -> Vault.updatePassword e vault))
-        |> (=<<)
+                >>= (fun e -> Vault.updatePassword e vault))
+        >>=
             (fun v ->
                 Result.bind choice (fun n -> showSpecificPassword n v)
                 |> Result.map (fun _ -> v))
@@ -291,30 +291,30 @@ module ConsoleUi =
         let ud = constructComponentsFromUserInput
         let fs = new FileSystem ()
         ud
-        |> (=<<) (loadVault fs)
-        |> (=<<) changePassword
-        |> (=<<) (fun d -> Result.bind ud (fun ud -> storeVault fs ud d))
+        >>= loadVault fs
+        >>= changePassword
+        >>= (fun d -> Result.bind ud (fun ud -> storeVault fs ud d))
 
     let private remvovePw (vault : Vault) : Result<FailReason, Vault> =
         getUserEntryChoice vault
         |> Result.map Name
-        |> (=<<) (fun name -> Vault.removePassword name vault)
+        >>= (fun name -> Vault.removePassword name vault)
 
     //TODO - there is lots of boilerplate duplication, refactor this!
     let removePassword () =
         let ud = constructComponentsFromUserInput
         let fs = new FileSystem ()
         ud
-        |> (=<<) (loadVault fs)
-        |> (=<<) remvovePw
-        |> (=<<) (fun d -> Result.bind ud (fun ud -> storeVault fs ud d))
+        >>= loadVault fs
+        >>= remvovePw
+        >>= (fun d -> Result.bind ud (fun ud -> storeVault fs ud d))
 
     let checkForCompromisedPasswords () =
         let ud = constructComponentsFromUserInput
         let fs = new FileSystem ()
         ud
-        |> (=<<) (loadVault fs)
-        |> (=<<) (Vault.getCompromisedPasswords (Hibp.isCompromised Hibp.checkHashPrefix))
+        >>= loadVault fs
+        >>= (Vault.getCompromisedPasswords (Hibp.isCompromised Hibp.checkHashPrefix))
         |> fun data -> printfn "Here are a list of compromised passwords:"; data
         |> Result.map (List.iter (fun (Name n) -> printfn "%s" n))
 
@@ -322,8 +322,8 @@ module ConsoleUi =
         let ud = constructComponentsFromUserInput
         let fs = new FileSystem ()
         ud
-        |> (=<<) (loadVault fs)
-        |> (=<<) Vault.findReusedSecrets
+        >>= loadVault fs
+        >>= Vault.findReusedSecrets
         |> fun d -> printfn "Here are groups of duplicate passwords:"; d
         |> Result.map (List.map (List.map (Name.toString)))
         |> Result.map (List.map (List.reduce (fun acc n -> sprintf "%s, %s" n acc)))
