@@ -29,3 +29,10 @@ module TupleTests =
         match Tuple.traverse f x with
         | Failure f -> Assert.That (f, Is.EqualTo ("even"))
         | Success s -> Assert.Fail ()
+
+    [<Test>]
+    let ``lmap works correctly`` () =
+        let x = (5,3)
+        let add10 = (+) 10
+        let x = Tuple.lmap add10 x
+        Assert.That(x, Is.EqualTo(15,3))

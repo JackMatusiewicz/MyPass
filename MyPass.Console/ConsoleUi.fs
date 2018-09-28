@@ -318,7 +318,7 @@ module ConsoleUi =
         >>= loadVault fs
         >>= (Vault.getCompromisedPasswords (Hibp.isCompromised Hibp.checkHashPrefix))
         |> fun data -> printfn "Here are a list of compromised passwords:"; data
-        |> Result.map (List.iter (fun (Name n) -> printfn "%s" n))
+        |> Result.map (List.iter (Name.toString >> printfn "%s"))
 
     let showDuplicatePasswords () =
         let ud = constructComponentsFromUserInput
