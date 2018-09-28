@@ -1,7 +1,0 @@
-language: csharp
-dotnet: 2.1.300
-mono: 5.10.0
-solution: MyPass.sln
-script:
-  - cd MyPass.Console
-  - dotnet build -f net472
