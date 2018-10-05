@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="CircularBuffer.fs" />
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="FailReason.fs" />
     <Compile Include="Result.fs" />

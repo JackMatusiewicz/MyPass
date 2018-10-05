@@ -72,6 +72,12 @@ module Name =
 
     let toString (Name n) = n
 
+[<RequireQualifiedAccess>]
+[<CompilationRepresentation (CompilationRepresentationFlags.ModuleSuffix)>]
+module Description =
+
+    let toString (Description n) = n
+
 module VaultDomain =
 
     let makeWebLogin (url : Url) (name : Name) (secret : SecuredSecret) =
