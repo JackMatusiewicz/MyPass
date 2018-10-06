@@ -224,7 +224,7 @@ module VaultTests =
     let ``Given a password manager and some operations, when we check the history, then the history is accurate`` () =
         let now = System.DateTime.UtcNow
         let dates =
-            [| 1.0 .. 4.0 |]
+            [| 1.0 .. 6.0 |]
             |> Array.map (fun i -> now.AddDays(i))
 
         let getTime =
@@ -240,6 +240,8 @@ module VaultTests =
                 sprintf "%s - %s" (dates.[1].ToString("O")) ("Adding www.bing.com to the vault.")
                 sprintf "%s - %s" (dates.[2].ToString("O")) ("Deleting www.bing.com from the vault.")
                 sprintf "%s - %s" (dates.[3].ToString("O")) ("Updating www.gmail.com in the vault.")
+                sprintf "%s - %s" (dates.[4].ToString("O")) ("Performing a secret reuse check.")
+                sprintf "%s - %s" (dates.[5].ToString("O")) ("Performing a breach check with HaveIBeenPwned.")
             |]
 
         let updatedEntry =
@@ -251,6 +253,10 @@ module VaultTests =
             >>= Vault.storePassword getTime testPasswordEntry2
             >>= Vault.removePassword  getTime (testPasswordEntry2.Name)
             >>= Vault.updatePassword getTime updatedEntry
+            >>= Vault.findReusedSecrets getTime
+            |> Result.map snd
+            >>= Vault.getCompromisedPasswords getTime (fun _ -> Success NotCompromised)
+            |> Result.map snd
 
         match vault with
         | Failure _ -> Assert.Fail ()

@@ -114,7 +114,7 @@ module UserActivity =
             | Delete n -> sprintf "Deleting %s from the vault." <| Name.toString n
             | Update n -> sprintf "Updating %s in the vault." <| Name.toString n
             | Get n -> sprintf "Getting the password of %s." <| Name.toString n
-            | DupeCheck -> "Performing a duplicate check"
+            | DupeCheck -> "Performing a secret reuse check."
             | BreachCheck -> "Performing a breach check with HaveIBeenPwned."
         sprintf "%s - %s" (ua.Date.ToString("O")) (activityString ua.Activity)
 
