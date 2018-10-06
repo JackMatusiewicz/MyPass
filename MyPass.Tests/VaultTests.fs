@@ -219,3 +219,43 @@ module VaultTests =
         | Success ((a::[]), _) ->
             Assert.That(a, Is.EqualTo([Name "www.bing.com2"; Name "www.bing.com"]))
         | _ -> Assert.Fail "Expected to see a single list returned."
+
+    [<Test>]
+    let ``Given a password manager and some operations, when we check the history, then the history is accurate`` () =
+        let now = System.DateTime.UtcNow
+        let dates =
+            [| 1.0 .. 4.0 |]
+            |> Array.map (fun i -> now.AddDays(i))
+
+        let getTime =
+            let mutable counter = 0
+            fun () ->
+                let date = dates.[counter]
+                counter <- counter + 1
+                date
+
+        let expected =
+            [|
+                sprintf "%d) %s - %s" 0 (dates.[0].ToString("O")) ("Adding www.gmail.com to the vault.")
+                sprintf "%d) %s - %s" 0 (dates.[1].ToString("O")) ("Adding www.bing.com to the vault.")
+                sprintf "%d) %s - %s" 0 (dates.[2].ToString("O")) ("Deleting www.bing.com from the vault.")
+                sprintf "%d) %s - %s" 0 (dates.[3].ToString("O")) ("Updating www.gmail.com in the vault.")
+            |]
+
+        let updatedEntry =
+            PasswordEntry.updateSecret
+                (SecuredSecret.create "newPassword")
+                testPasswordEntry
+        let vault =
+            Vault.storePassword Time.get testPasswordEntry Vault.empty
+            >>= Vault.storePassword getTime testPasswordEntry2
+            >>= Vault.removePassword  getTime (testPasswordEntry2.Name)
+            >>= Vault.updatePassword getTime updatedEntry
+
+        match vault with
+        | Failure _ -> Assert.Fail ()
+        | Success v ->
+            let historyData =
+                AppendOnlyRingBuffer.get v.History
+                |> Array.map UserActivity.toString
+            Assert.That(historyData, Is.EqualTo expected)
