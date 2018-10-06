@@ -259,3 +259,13 @@ module VaultTests =
                 AppendOnlyRingBuffer.get v.History
                 |> Array.map UserActivity.toString
             Assert.That(historyData, Is.EqualTo expected)
+
+    [<Test>]
+    let ``Given an old Vault dto, when converted to a vault then the vault functions`` () =
+        let vdto = "{\"PasswordList\" : []}"
+        let vault = VaultSerialisation.deserialise vdto
+        match vault with
+        | Failure _ -> Assert.Fail ()
+        | Success v ->
+            let historyData = v.History.Buffer.Length
+            Assert.That(historyData, Is.GreaterThan(0))
