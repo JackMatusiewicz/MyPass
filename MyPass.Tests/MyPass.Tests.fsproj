@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="AppendOnlyRingBufferTests.fs" />
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="SecureString.fs" />
     <Compile Include="TemporaryDirectory.fs" />
