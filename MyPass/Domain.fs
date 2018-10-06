@@ -37,22 +37,6 @@ type Name =
         member this.CompareTo(y) =
             this.Compare this y
 
-type Activity =
-    | Add of Name
-    | Delete of Name
-    | Update of Name
-    | Get of Name
-    | DupeCheck
-    | BreachCheck
-
-type UserActivity =
-    {
-        Activity : Activity
-        Date : DateTime
-    }
-
-type History = UserActivity AppendOnlyRingBuffer
-
 [<Struct>]
 type EncryptedData = EncryptedData of byte[]
 
@@ -60,37 +44,27 @@ type EncryptedData = EncryptedData of byte[]
 // However, if we have a public function that gives the data and the key, we have no control
 // over when it is decrypted.
 // It also means we can guarantee that a user hasn't created a securedSecret with a bad key.
-type SecuredSecret =
-    private
-        {
-            Data : EncryptedData
-            Key : AesKey
-        }
+type SecuredSecret = private {
+    Data : EncryptedData
+    Key : AesKey }
 
-type WebLogin =
-    {
-        SecuredData : SecuredSecret
-        Url : Url
-        UserName : Name
-    }
+type WebLogin = {
+    SecuredData : SecuredSecret
+    Url : Url
+    UserName : Name }
 
 [<Struct>]
 type Secret =
     | Secret of Secret : SecuredSecret
     | WebLogin of Login : WebLogin
 
-type PasswordEntry =
-    {
-        Secret : Secret
-        Description : Description
-        Name : Name
-    }
+type PasswordEntry = {
+    Secret : Secret
+    Description : Description
+    Name : Name
+}
 
-type Vault =
-    {
-        Passwords : Map<Name, PasswordEntry>
-        History : History
-    }
+type Vault = { passwords : Map<Name, PasswordEntry> }
 
 [<RequireQualifiedAccess>]
 [<CompilationRepresentation (CompilationRepresentationFlags.ModuleSuffix)>]

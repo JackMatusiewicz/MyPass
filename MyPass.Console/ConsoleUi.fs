@@ -181,7 +181,7 @@ module ConsoleUi =
             let entry = makePasswordEntry ()
             let result =
                 Result.map (PasswordEntry.create name desc) entry
-                >>= (fun entry -> Result.bind vault (Vault.storePassword entry))
+                >>= (fun entry -> Result.bind vault (Vault.storePassword Time.get entry))
                 |> Result.map (storeVault fs userData)
             match result with
             | Failure f -> printfn "ERROR: %s" <| FailReason.toString f
@@ -200,7 +200,7 @@ module ConsoleUi =
             | WebLogin wl -> sprintf "\n%A - %A" wl.Url wl.UserName
 
         let printEntries vault =
-            vault.passwords
+            vault.Passwords
             |> Map.toList
             |> List.iter
                 (fun (n,e) ->
@@ -228,11 +228,15 @@ module ConsoleUi =
         getInput "Please enter the name of the password"
         |> Name
 
-    let private showSpecificPassword (name : Name) (vault : Vault) =
+    let private showSpecificPassword (name : Name) (vault : Vault) : Result<FailReason, Vault> =
         try
-            Vault.getPassword name vault
+            let res = Vault.getPassword Time.get name vault
+
+            (res |> Result.map fst)
             >>= PasswordEntry.decrypt
-            |> Result.map givePasswordToUser
+            |> Result.map givePasswordToUser |> ignore
+
+            Result.map snd res
         with
         | ex ->
             FailReason.fromException ex
@@ -252,7 +256,7 @@ module ConsoleUi =
                 |> Failure
 
         let choices =
-            v.passwords
+            v.Passwords
             |> Map.toList
             |> List.map fst
             |> List.mapi (fun i (Name k) -> (i,k))
@@ -268,27 +272,28 @@ module ConsoleUi =
         getUserEntryChoice v
         >>= (fun name -> showSpecificPassword (Name name) v)
 
-    let printPassword () =
-        constructComponentsFromUserInput
-        >>= loadVault (new FileSystem ())
-        >>= showPasswordToUser
+    let printPassword () : Result<FailReason, unit> =
+        let fs = new FileSystem ()
+        let ud = constructComponentsFromUserInput
+        let vault = ud >>= loadVault (fs)
+        let updatedVault = vault >>= showPasswordToUser
+        Result.bind2 ud updatedVault (storeVault fs)
 
     let private changePassword (vault : Vault) : Result<FailReason, Vault> =
         let choice = getUserEntryChoice vault |> Result.map Name
 
         Result.bind choice (fun n -> showSpecificPassword n vault)
         >>=
-            (fun () ->
+            (fun v ->
                 let pw =
                     getSecretPassword ()
                     |> fun p -> SecurePasswordHandler.Use(p, fun p -> p |> String.fromBytes |> SecuredSecret.create)
-                Result.bind choice (fun n -> Vault.getPassword n vault)
-                |> Result.map (PasswordEntry.updateSecret pw))
-        >>= (fun e -> Vault.updatePassword e vault)
+                Result.bind choice (fun n -> Vault.getPassword Time.get n v)
+                |> Result.map (Tuple.lmap (PasswordEntry.updateSecret pw)))
+        >>= ((<||) (Vault.updatePassword Time.get))
         >>=
             (fun v ->
-                Result.bind choice (fun n -> showSpecificPassword n v)
-                |> Result.map (fun _ -> v))
+                Result.bind choice (fun n -> showSpecificPassword n v))
 
     let updatePassword () =
         let ud = constructComponentsFromUserInput
@@ -301,7 +306,7 @@ module ConsoleUi =
     let private removePw (vault : Vault) : Result<FailReason, Vault> =
         getUserEntryChoice vault
         |> Result.map Name
-        >>= (fun name -> Vault.removePassword name vault)
+        >>= (fun name -> Vault.removePassword Time.get name vault)
 
     //TODO - there is lots of boilerplate duplication, refactor this!
     let removePassword () =
@@ -317,17 +322,25 @@ module ConsoleUi =
         let fs = new FileSystem ()
         ud
         >>= loadVault fs
-        >>= (Vault.getCompromisedPasswords (Hibp.isCompromised Hibp.checkHashPrefix))
+        >>= (Vault.getCompromisedPasswords Time.get (Hibp.isCompromised Hibp.checkHashPrefix))
         |> fun data -> printfn "Here are a list of compromised passwords:"; data
-        |> Result.map (List.iter (Name.toString >> printfn "%s"))
+        |> Result.map
+            (fun (data, vault) ->
+                List.iter (Name.toString >> printfn "%s") data
+                vault)
+        |> fun v -> Result.bind2 ud v (storeVault fs)
 
     let showDuplicatePasswords () =
         let ud = constructComponentsFromUserInput
         let fs = new FileSystem ()
         ud
         >>= loadVault fs
-        >>= Vault.findReusedSecrets
-        |> fun d -> printfn "Here are groups of duplicate passwords:"; d
-        |> Result.map (List.map (List.map (Name.toString)))
-        |> Result.map (List.map (List.reduce (fun acc n -> sprintf "%s, %s" n acc)))
-        |> Result.map (List.iteri (fun i n -> printfn "%d) %s" i n))
+        >>= Vault.findReusedSecrets Time.get
+        >>= (fun (secrets, vault) ->
+                secrets
+                |> fun d -> printfn "Here are groups of duplicate passwords:"; d
+                |> List.map (List.map (Name.toString))
+                |> List.map (List.reduce (fun acc n -> sprintf "%s, %s" n acc))
+                |> List.iteri (fun i n -> printfn "%d) %s" i n)
+                Result.lift vault)
+        |> fun v -> Result.bind2 ud v (storeVault fs)

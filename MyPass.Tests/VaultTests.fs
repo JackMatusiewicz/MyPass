@@ -48,7 +48,7 @@ module VaultTests =
     [<Test>]
     let ``When trying to delete non-existant password entry then failure is recorded`` () =
         let vault = Vault.empty
-        let result = Vault.removePassword (Name "www.gmail.com") vault
+        let result = Vault.removePassword Time.get (Name "www.gmail.com") vault
         match result with
         | Success _ -> Assert.Fail()
         | Failure s -> Assert.Pass ()
@@ -56,7 +56,7 @@ module VaultTests =
     [<Test>]
     let ``When trying to update non-existant password entry then failure is recorded`` () =
         let vault = Vault.empty
-        let result = Vault.updatePassword testPasswordEntry vault
+        let result = Vault.updatePassword Time.get testPasswordEntry vault
         match result with
         | Success _ -> Assert.Fail()
         | Failure s -> Assert.Pass ()
@@ -65,8 +65,8 @@ module VaultTests =
     let ``When trying to add existing password entry then failure is recorded`` () =
         let vault = Vault.empty
         let result =
-            Vault.storePassword testPasswordEntry vault
-            >>= Vault.storePassword testPasswordEntry
+            Vault.storePassword Time.get testPasswordEntry vault
+            >>= Vault.storePassword Time.get testPasswordEntry
         match result with
         | Success _ -> Assert.Fail()
         | Failure s -> Assert.Pass ()
@@ -74,7 +74,7 @@ module VaultTests =
     [<Test>]
     let ``When to retrieve a non-existant password entry then a failure is returned`` () =
         let vault = Vault.empty
-        let result = Vault.getPassword (Name "www.gmail.com") vault
+        let result = Vault.getPassword Time.get (Name "www.gmail.com") vault
         match result with
         | Success _ -> Assert.Fail()
         | Failure s -> Assert.Pass ()
@@ -82,19 +82,19 @@ module VaultTests =
     [<Test>]
     let ``Given a password manager with a password, when I retrieve it then the result is the correct password`` () =
         let result =
-            Vault.storePassword testPasswordEntry Vault.empty
-            >>= Vault.storePassword testPasswordEntry2
-            >>= Vault.getPassword (Name "www.gmail.com")
+            Vault.storePassword Time.get testPasswordEntry Vault.empty
+            >>= Vault.storePassword Time.get testPasswordEntry2
+            >>= Vault.getPassword Time.get (Name "www.gmail.com")
         match result with
         | Failure _ -> Assert.Fail()
-        | Success pw -> Assert.That(pw, Is.EqualTo testPasswordEntry)
+        | Success pw -> Assert.That(fst pw, Is.EqualTo testPasswordEntry)
 
     [<Test>]
     let ``Given a password manager with a password, encryption round-trip works`` () =
         let storePasswords =
-            Vault.storePassword testPasswordEntry
-            >=> Vault.storePassword testPasswordEntry2
-            >=> (fun v -> Result.bind testPasswordEntry3 (fun pw -> Vault.storePassword pw v))
+            Vault.storePassword Time.get testPasswordEntry
+            >=> Vault.storePassword Time.get testPasswordEntry2
+            >=> (fun v -> Result.bind testPasswordEntry3 (fun pw -> Vault.storePassword Time.get pw v))
         let result = storePasswords Vault.empty
         match result with
         | Failure _ -> Assert.Fail ()
@@ -110,7 +110,7 @@ module VaultTests =
                 Assert.Fail ()
             | Success decStore ->
                 let success =
-                    join decStore.passwords store.passwords
+                    join decStore.Passwords store.Passwords
                     |> Map.toList
                     |> List.traverse
                         (fun ((Name n), k) ->
@@ -129,8 +129,8 @@ module VaultTests =
     [<Test>]
     let ``Given a password manager with a password, encryption round-trip fails if different key is used to decrypt`` () =
         let storePasswords =
-            Vault.storePassword testPasswordEntry
-            >=> Vault.storePassword testPasswordEntry2
+            Vault.storePassword Time.get testPasswordEntry
+            >=> Vault.storePassword Time.get testPasswordEntry2
         let result = storePasswords Vault.empty      
         match result with
         | Failure _ -> Assert.Fail()
@@ -145,15 +145,15 @@ module VaultTests =
 
     [<Test>]
     let ``Given a password manager with a password, when I remove it then it is removed.`` () =
-        let result = Vault.storePassword testPasswordEntry Vault.empty
+        let result = Vault.storePassword Time.get testPasswordEntry Vault.empty
         match result with
         | Failure _ -> Assert.Fail()
         | Success pw ->
-            Assert.That(pw.passwords |> Map.toSeq |> Seq.length, Is.EqualTo 1)
-            let updatedResult = Vault.removePassword (Name "www.gmail.com") pw
+            Assert.That(pw.Passwords |> Map.toSeq |> Seq.length, Is.EqualTo 1)
+            let updatedResult = Vault.removePassword Time.get (Name "www.gmail.com") pw
             match updatedResult with
             | Failure _ -> Assert.Fail()
-            | Success pw -> Assert.That(pw.passwords |> Map.toSeq |> Seq.length, Is.EqualTo 0)
+            | Success pw -> Assert.That(pw.Passwords |> Map.toSeq |> Seq.length, Is.EqualTo 0)
 
     [<Test>]
     let ``Given a password manager when I create an entry then then password is retrieved.`` () =
@@ -162,12 +162,14 @@ module VaultTests =
             SecuredSecret.create password |> Secret
             |> PasswordEntry.create (Name "google") (Description "my google account")
         let result =
-            Vault.storePassword entry Vault.empty
-            >>= Vault.getPassword (Name "google")
-            >>= PasswordEntry.decrypt
+            Vault.storePassword Time.get entry Vault.empty
+            >>= Vault.getPassword Time.get (Name "google")
+            >>= (fun (en, va ) ->
+                    PasswordEntry.decrypt en
+                    |> Result.map (fun en -> en,va))
         match result with
         | Failure _ -> Assert.Fail()
-        | Success p -> Assert.That(p, Is.EqualTo password)
+        | Success p -> Assert.That(fst p, Is.EqualTo password)
 
     [<Test>]
     let ``Given a password manager when I create an entry then then password is retrieved and encrypted.`` () =
@@ -176,12 +178,12 @@ module VaultTests =
             SecuredSecret.create password |> Secret
             |> PasswordEntry.create (Name "google") (Description "my google account")
         let result =
-            Vault.storePassword entry Vault.empty
-            >>= Vault.getPassword (Name "google")
+            Vault.storePassword Time.get entry Vault.empty
+            >>= Vault.getPassword Time.get (Name "google")
         match result with
         | Failure _ -> Assert.Fail()
         | Success p ->
-            let (EncryptedData bytes) = (PasswordEntry.getSecureData >> SecuredSecret.getEncryptedData) p
+            let (EncryptedData bytes) = (PasswordEntry.getSecureData >> SecuredSecret.getEncryptedData) (fst p)
             Assert.That(
                 bytes.SequenceEqual(System.Text.Encoding.UTF8.GetBytes(password)),
                 Is.False)
@@ -193,14 +195,14 @@ module VaultTests =
                 (SecuredSecret.create "newPassword")
                 testPasswordEntry
         let result =
-            Vault.storePassword testPasswordEntry Vault.empty
-            >>= Vault.updatePassword updatedEntry
-            >>= Vault.getPassword (Name "www.gmail.com")
+            Vault.storePassword Time.get testPasswordEntry Vault.empty
+            >>= Vault.updatePassword Time.get updatedEntry
+            >>= Vault.getPassword Time.get (Name "www.gmail.com")
         match result with
         | Failure _ -> Assert.Fail ()
         | Success pw ->
             let pwOne = PasswordEntry.decrypt updatedEntry
-            let pwTwo = PasswordEntry.decrypt pw
+            let pwTwo = PasswordEntry.decrypt (fst pw)
             match pwOne,pwTwo with
             | Success a, Success b ->
                 Assert.That (a, Is.EqualTo(b))
@@ -209,11 +211,11 @@ module VaultTests =
     [<Test>]
     let ``Given a password manager, when I search for dupe passwords, then correct results are returned`` () =
         let vault =
-            Vault.storePassword testPasswordEntry Vault.empty
-            >>= Vault.storePassword testPasswordEntry2
-            >>= Vault.storePassword testPasswordEntryDupe
-        let results = vault >>= Vault.findReusedSecrets
+            Vault.storePassword Time.get testPasswordEntry Vault.empty
+            >>= Vault.storePassword Time.get testPasswordEntry2
+            >>= Vault.storePassword Time.get testPasswordEntryDupe
+        let results = vault >>= (Vault.findReusedSecrets Time.get)
         match results with
-        | Success (a::[]) ->
+        | Success ((a::[]), _) ->
             Assert.That(a, Is.EqualTo([Name "www.bing.com2"; Name "www.bing.com"]))
         | _ -> Assert.Fail "Expected to see a single list returned."
