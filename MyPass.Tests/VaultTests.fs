@@ -236,10 +236,10 @@ module VaultTests =
 
         let expected =
             [|
-                sprintf "%d) %s - %s" 0 (dates.[0].ToString("O")) ("Adding www.gmail.com to the vault.")
-                sprintf "%d) %s - %s" 0 (dates.[1].ToString("O")) ("Adding www.bing.com to the vault.")
-                sprintf "%d) %s - %s" 0 (dates.[2].ToString("O")) ("Deleting www.bing.com from the vault.")
-                sprintf "%d) %s - %s" 0 (dates.[3].ToString("O")) ("Updating www.gmail.com in the vault.")
+                sprintf "%s - %s" (dates.[0].ToString("O")) ("Adding www.gmail.com to the vault.")
+                sprintf "%s - %s" (dates.[1].ToString("O")) ("Adding www.bing.com to the vault.")
+                sprintf "%s - %s" (dates.[2].ToString("O")) ("Deleting www.bing.com from the vault.")
+                sprintf "%s - %s" (dates.[3].ToString("O")) ("Updating www.gmail.com in the vault.")
             |]
 
         let updatedEntry =
@@ -247,7 +247,7 @@ module VaultTests =
                 (SecuredSecret.create "newPassword")
                 testPasswordEntry
         let vault =
-            Vault.storePassword Time.get testPasswordEntry Vault.empty
+            Vault.storePassword getTime testPasswordEntry Vault.empty
             >>= Vault.storePassword getTime testPasswordEntry2
             >>= Vault.removePassword  getTime (testPasswordEntry2.Name)
             >>= Vault.updatePassword getTime updatedEntry
