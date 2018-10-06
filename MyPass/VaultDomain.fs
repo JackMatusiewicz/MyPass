@@ -40,6 +40,7 @@ type Name =
 type Activity =
     | Add of Name
     | Delete of Name
+    | Update of Name
     | Get of Name
     | DupeCheck
     | BreachCheck
