@@ -73,11 +73,17 @@ module VaultSerialisation =
     let deserialise (vaultDtoString : string) : Result<FailReason, Vault> =
         let vaultDto = JsonConvert.DeserializeObject<VaultDto> (vaultDtoString)
 
+        // TODO - not pretty but needed for back compat.
+        let history : History =
+            if obj.ReferenceEquals (vaultDto.History, null) then
+                AppendOnlyRingBuffer.make 100
+            else vaultDto.History
+
         vaultDto
         |> (fun v -> v.PasswordList)
         |> List.traverse (Tuple.traverse fromEntryDto)
         |> Result.map Map.ofList
-        |> Result.map (fun ps -> {Passwords = ps; History = vaultDto.History})
+        |> Result.map (fun ps -> {Passwords = ps; History = history})
 
     let serialise (v : Vault) : string =
         v.Passwords

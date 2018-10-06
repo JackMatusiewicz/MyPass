@@ -344,3 +344,14 @@ module ConsoleUi =
                 |> List.iteri (fun i n -> printfn "%d) %s" i n)
                 Result.lift vault)
         |> fun v -> Result.bind2 ud v (storeVault fs)
+
+    let printHistory () =
+        let ud = constructComponentsFromUserInput
+        let fs = new FileSystem ()
+
+        ud
+        >>= loadVault fs
+        |> Result.map (fun v -> v.History)
+        |> Result.map AppendOnlyRingBuffer.get
+        |> Result.map (Array.map UserActivity.toString)
+        |> Result.map (Array.iteri (fun i v -> printfn "%d) %s" i v))

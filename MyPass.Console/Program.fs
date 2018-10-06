@@ -9,7 +9,7 @@ type Arguments =
     interface IArgParserTemplate with
         member x.Usage =
             match x with
-            | Mode _ -> "Specify the mode you wish to run, choose from: CREATE|ADD|LIST|GET|UPDATE|DUPE|PWNED"
+            | Mode _ -> "Specify the mode you wish to run, choose from: CREATE|ADD|LIST|GET|UPDATE|DUPE|PWNED|HISTORY"
 
 module Main =
 
@@ -50,6 +50,8 @@ module Main =
             ConsoleUi.checkForCompromisedPasswords ()
         | "dupe" ->
             ConsoleUi.showDuplicatePasswords ()
+        | "history" ->
+            ConsoleUi.printHistory ()
         | _ ->
             argsParser.PrintUsage ()
             |> sprintf "%s"
@@ -86,7 +88,7 @@ module Main =
             | false ->
                 printfn "%s" splash
                 printfn "You are running MyPass in interactive mode"
-                printfn "You can choose from the following modes: CREATE | ADD | LIST | GET | UPDATE | REMOVE | DUPE | PWNED"
+                printfn "You can choose from the following modes: CREATE | ADD | LIST | GET | UPDATE | REMOVE | DUPE | PWNED | HISTORY"
                 printfn "Please enter \"exit\" to quit."
                 runApp argsParser
             | true ->

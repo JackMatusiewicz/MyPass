@@ -104,6 +104,20 @@ module Description =
 
     let toString (Description n) = n
 
+[<RequireQualifiedAccess>]
+[<CompilationRepresentation (CompilationRepresentationFlags.ModuleSuffix)>]
+module UserActivity =
+    let toString (ua : UserActivity) =
+        let activityString (a : Activity) =
+            match a with
+            | Add n -> sprintf "Adding %s to the vault." <| Name.toString n
+            | Delete n -> sprintf "Deleting %s from the vault." <| Name.toString n
+            | Update n -> sprintf "Updating %s in the vault." <| Name.toString n
+            | Get n -> sprintf "Getting the password of %s." <| Name.toString n
+            | DupeCheck -> "Performing a duplicate check"
+            | BreachCheck -> "Performing a breach check with HaveIBeenPwned."
+        sprintf "%s - %s" (ua.Date.ToString("O")) (activityString ua.Activity)
+
 module VaultDomain =
 
     let makeWebLogin (url : Url) (name : Name) (secret : SecuredSecret) =
