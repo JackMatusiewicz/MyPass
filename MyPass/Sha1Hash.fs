@@ -12,7 +12,7 @@ module Sha1Hash =
     let private sha1Regex = Regex("^[a-fA-F0-9]{40}$")
 
     let make (s : string) : Sha1Hash =
-        let pwBytes = Encoding.UTF8.GetBytes(s : string)
+        let pwBytes = String.toBytes s
         use sha1 = new SHA1Managed ()
 
         sha1.ComputeHash (pwBytes)

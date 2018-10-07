@@ -23,7 +23,7 @@ module Aes =
 
     let private hash (data : string) =
         use sha256 = new SHA256Managed()
-        sha256.ComputeHash(Encoding.UTF8.GetBytes(data))
+        sha256.ComputeHash(String.toBytes data)
 
     /// This should only be used to construct the AES key dto.
     let internal copyKeyBytes (k : AesKey) =
@@ -40,13 +40,13 @@ module Aes =
     // TODO - look at making this return a Result<,>
     /// Creates an AES key from some bytes. This will zero the input bytes.
     let fromBytes (bytes : byte[]) : AesKey =
-            match bytes.Length = keySizeBytes with
-            | true ->
-                let keyData = Array.copy bytes
-                zeroKey bytes
-                { Key = keyData }
-            | false ->
-                invalidArg "bytes" "Invalid length of key"
+        match bytes.Length = keySizeBytes with
+        | true ->
+            let keyData = Array.copy bytes
+            zeroKey bytes
+            { Key = keyData }
+        | false ->
+            invalidArg "bytes" "Invalid length of key"
 
     let make () =
         use aes = makeKey ()
@@ -105,4 +105,4 @@ module Aes =
         let stringData = sr.ReadToEnd()
         decryptionStream.Dispose()
         zeroKey key
-        Encoding.UTF8.GetBytes(stringData)
+        String.toBytes stringData

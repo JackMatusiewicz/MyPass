@@ -16,7 +16,7 @@ module SecuredSecret =
 
             sd.Key
             |> Aes.decrypt encryptedBytes
-            |> Encoding.UTF8.GetString
+            |> String.fromBytes
             |> Success
         with
         | ex ->
@@ -31,7 +31,7 @@ module SecuredSecret =
         let passwordKey = Aes.make ()
         let encryptedPassword =
             password
-            |> Encoding.UTF8.GetBytes
+            |> String.toBytes
             |> fun data -> Aes.encrypt data passwordKey
             |> EncryptedData
         { Data = encryptedPassword; Key = passwordKey }

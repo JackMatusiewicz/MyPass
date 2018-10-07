@@ -79,8 +79,8 @@ module Password =
                 100000,
                 Aes.keySizeBytes)
 
-        let userIdBytes = userId |> System.Text.Encoding.UTF8.GetBytes
-        let versionIdBytes = versionId |> System.Text.Encoding.UTF8.GetBytes
+        let userIdBytes = userId |> String.toBytes
+        let versionIdBytes = versionId |> String.toBytes
         let expandedSalt = Hkdf.expand userIdBytes versionIdBytes [||] 32
         let masterKey =
             SecurePasswordHandler.Use(masterPassphrase, System.Func<byte[], byte[]> (getKey expandedSalt))

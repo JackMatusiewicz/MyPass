@@ -32,6 +32,6 @@ module FileKey =
             |> Failure
 
     let toBytes (FileKey fk) =
-        System.Text.Encoding.UTF8.GetBytes fk
+        String.toBytes fk
 
     let getKey (FileKey fk) = fk

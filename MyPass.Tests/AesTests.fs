@@ -9,10 +9,10 @@ module AesTests =
     let roundTripWorks (k1 : AesKey) (k2 : AesKey) =
         try
             "testStringHere"
-            |> System.Text.Encoding.UTF8.GetBytes
+            |> String.toBytes
             |> fun bs -> Aes.encrypt bs k1
             |> fun bs -> Aes.decrypt bs k2
-            |> System.Text.Encoding.UTF8.GetString
+            |> String.fromBytes
             |> fun w -> w = "testStringHere"
         with
         | _ -> false

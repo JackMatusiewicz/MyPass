@@ -103,7 +103,7 @@ module Vault =
         fun () ->
             manager
             |> VaultSerialisation.serialise
-            |> Encoding.UTF8.GetBytes
+            |> String.toBytes
             |> fun data -> Aes.encrypt data key
             |> Success
         |> exceptionToFailure
@@ -117,7 +117,7 @@ module Vault =
         fun () ->
             encryptedManager
             |> fun data -> Aes.decrypt data key
-            |> Encoding.UTF8.GetString
+            |> String.fromBytes
             |> VaultSerialisation.deserialise
         |> exceptionToFailure
 
