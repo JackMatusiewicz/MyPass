@@ -10,9 +10,11 @@ type Salt = Salt of string
 [<Struct>]
 type PassPhrase = PassPhrase of string
 
-type AesKey = private {
-    Key : byte[]
-}
+type AesKey =
+    private
+        {
+            Key : byte[]
+        }
 
 module Aes =
 

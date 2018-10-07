@@ -25,18 +25,18 @@ module HibpTests =
                 Name = Name "www.bing.com"
             }
 
-        Vault.storePassword pe Vault.empty
+        Vault.storePassword Time.get pe Vault.empty
         |> Result.map (fun v ->
             let data = "0043E8CC80EA715B31A294CFB2B1959A8FC:2\r\n1E4C9B93F3F0682250B6CF8331B7EE68FD8:8\r\n03D6F047380D19641538F981DEDF2EBF810:2"
             let prefix = HashPrefix.make "5BAA6"
             let finder = fun _ -> Response <!> (Tuple.leftSequence (prefix, data))
             let findCompromise = Hibp.isCompromised finder
-            let compromisedPws = Vault.getCompromisedPasswords findCompromise v
+            let compromisedPws = Vault.getCompromisedPasswords Time.get findCompromise v
             match compromisedPws with
             | Failure f ->
                 printfn "%s" <| FailReason.toString f
                 Assert.Fail ()
-            | Success (s::[]) ->
+            | Success ((s::[]), _) ->
                 Assert.That (s, Is.EqualTo (Name "www.bing.com"))
             | x ->
                 printfn "OUTPUT NOT EXPECTED: %A" x

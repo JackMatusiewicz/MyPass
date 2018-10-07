@@ -19,7 +19,11 @@ module VaultSerialisation =
         Description : Description
         Name : Name }
 
-    type VaultDto = { passwordList : (Name * PasswordEntryDto) list }
+    type VaultDto =
+        {
+            PasswordList : (Name * PasswordEntryDto) list
+            History : History
+        }
 
     let private toAesKeyDto (k : AesKey) =
         let key = Aes.copyKeyBytes k
@@ -67,15 +71,23 @@ module VaultSerialisation =
             (fromSecretDto pe.SecretDto)
 
     let deserialise (vaultDtoString : string) : Result<FailReason, Vault> =
-        JsonConvert.DeserializeObject<VaultDto> (vaultDtoString)
-        |> (fun v -> v.passwordList)
+        let vaultDto = JsonConvert.DeserializeObject<VaultDto> (vaultDtoString)
+
+        // TODO - not pretty but needed for back compat.
+        let history : History =
+            if obj.ReferenceEquals (vaultDto.History, null) then
+                AppendOnlyRingBuffer.make 100
+            else vaultDto.History
+
+        vaultDto
+        |> (fun v -> v.PasswordList)
         |> List.traverse (Tuple.traverse fromEntryDto)
         |> Result.map Map.ofList
-        |> Result.map (fun ps -> {passwords = ps})
+        |> Result.map (fun ps -> {Passwords = ps; History = history})
 
     let serialise (v : Vault) : string =
-        v.passwords
+        v.Passwords
         |> Map.toList
         |> List.map (Tuple.map toEntryDto)
-        |> fun ps -> { passwordList = ps }
+        |> fun ps -> { PasswordList = ps; History = v.History }
         |> JsonConvert.SerializeObject

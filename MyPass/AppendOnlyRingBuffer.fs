@@ -1,10 +1,11 @@
 ﻿namespace MyPass
 
 /// Head always points at the next free slot
-type 'a AppendOnlyRingBuffer = {
-    Buffer : 'a option []
-    Head : int
-}
+type 'a AppendOnlyRingBuffer =
+    {
+        Buffer : 'a option []
+        Head : int
+    }
 
 module AppendOnlyRingBuffer =
 

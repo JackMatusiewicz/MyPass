@@ -5,7 +5,11 @@ open System.Text
 [<CompilationRepresentation (CompilationRepresentationFlags.ModuleSuffix)>]
 module Vault =
 
-    let empty = { passwords = Map.empty }
+    let empty =
+        {
+            Passwords = Map.empty
+            History = AppendOnlyRingBuffer.make 100
+        }
 
     let private exceptionToFailure (f : unit -> Result<FailReason, 'b>) =
         try
@@ -16,46 +20,76 @@ module Vault =
             |> Failure
 
     let storePassword
+        (getTime : unit -> System.DateTime)
         (entry : PasswordEntry)
         (manager : Vault)
         : Result<FailReason, Vault>
         =
-        let store = manager.passwords
+        let store = manager.Passwords
         let name = entry.Name
         if Map.containsKey name store then
             DuplicateEntry "Password entry already exists"
             |> Failure
         else
             let newStore = Map.add name entry store
-            Success { passwords = newStore }
+            let activity =
+                {
+                    Activity = Add name
+                    Date = getTime ()
+                }
+
+            {
+                Passwords = newStore
+                History = AppendOnlyRingBuffer.add activity manager.History
+            } |> Success
 
     /// Takes a new password entry and replaces another entry with the same key.
     /// Will fail if there is no entry with the provided name of the new entry.
     let updatePassword
+        (getTime : unit -> System.DateTime)
         (entry : PasswordEntry)
         (manager : Vault)
         : Result<FailReason, Vault>
         =
-        let store = manager.passwords
+        let store = manager.Passwords
         let name = entry.Name
         if Map.containsKey name store = false then
             EntryNotFound "Password entry not found"
             |> Failure
         else
             let newStore = Map.add name entry store
-            Success { passwords = newStore }
+            let activity =
+                {
+                    Activity = Update name
+                    Date = getTime ()
+                }
+
+            {
+                Passwords = newStore
+                History = AppendOnlyRingBuffer.add activity manager.History
+            } |> Success
 
     /// Removes a secret that has the provided name.
     /// Will fail if there is no secret with the provided name.
     let removePassword
+        (getTime : unit -> System.DateTime)
         (name : Name)
         (manager : Vault)
         : Result<FailReason, Vault>
         =
-        let store = manager.passwords
+        let store = manager.Passwords
         if Map.containsKey name store then
-            let updatedStore = Map.remove name store
-            Success { passwords = updatedStore }
+            let newStore = Map.remove name store
+            let activity =
+                {
+                    Activity = Delete name
+                    Date = getTime ()
+                }
+
+            {
+                Passwords = newStore
+                History = AppendOnlyRingBuffer.add activity manager.History
+            } |> Success
         else
             EntryNotFound "Password entry not found"
             |> Failure
@@ -90,34 +124,63 @@ module Vault =
     /// Gets the password entry for the provided name.
     /// Will fail if no entry exists.
     let getPassword
+        (getTime : unit -> System.DateTime)
         (name : Name)
         (manager : Vault)
-        : Result<FailReason, PasswordEntry>
+        : Result<FailReason, PasswordEntry * Vault>
         =
-        let store = manager.passwords
+        let store = manager.Passwords
         if Map.containsKey name store then
-            Success <| Map.find name store
+            let entry = Map.find name store
+            let activity =
+                {
+                    Activity = Get name
+                    Date = getTime ()
+                }
+
+            {
+                Passwords = manager.Passwords
+                History = AppendOnlyRingBuffer.add activity manager.History
+            } |> fun store -> Success (entry, store)
         else
             EntryNotFound "Unable to find a password matching that name."
             |> Failure
 
     /// Finds all of the compromised entries in the vault.
     let getCompromisedPasswords
+        (getTime : unit -> System.DateTime)
         (isCompromised : SecuredSecret -> Result<FailReason, CompromisedStatus>)
         (vault : Vault)
-        : Result<FailReason, Name list>
+        : Result<FailReason, Name list * Vault>
         =
-        vault.passwords
-        |> Map.toArray
-        |> Array.map (Tuple.map PasswordEntry.getSecureData)
-        |> Array.Parallel.map (Tuple.map isCompromised)
-        |> Array.toList
-        |> List.traverse (Tuple.sequence)
-        |> Result.map (List.filter (fun (_,b) -> b = Compromised))
-        |> Result.map (List.map fst)
+
+        let compromisedPasswords =
+            vault.Passwords
+            |> Map.toArray
+            |> Array.map (Tuple.map PasswordEntry.getSecureData)
+            |> Array.Parallel.map (Tuple.map isCompromised)
+            |> Array.toList
+            |> List.traverse (Tuple.sequence)
+            |> Result.map (List.filter (fun (_,b) -> b = Compromised))
+            |> Result.map (List.map fst)
+
+        let newVault =
+            let activity =
+                {
+                    Activity = BreachCheck
+                    Date = getTime ()
+                }
+            { vault with History = AppendOnlyRingBuffer.add activity vault.History }
+
+        Result.map (fun comp -> comp, newVault) compromisedPasswords
 
     /// Returns sets of secrets that all share the same password
-    let findReusedSecrets (vault : Vault) : Result<FailReason, Name list list> =
+    let findReusedSecrets
+        (getTime : unit -> System.DateTime)
+        (vault : Vault)
+        : Result<FailReason, Name list list * Vault>
+        =
+
         let construct (data : (Name * Sha1Hash) list) : Map<Sha1Hash, Name list> =
             let rec construct (acc : Map<Sha1Hash, Name list>) ((n,h) : Name * Sha1Hash) =
                 match Map.tryFind h acc with
@@ -125,10 +188,21 @@ module Vault =
                 | None -> Map.add h [n] acc
             List.fold construct Map.empty data
 
-        vault.passwords
-        |> Map.toList
-        |> List.map (Tuple.map PasswordEntry.getSecureData)
-        |> List.traverse (Tuple.traverse SecuredSecret.hash)
-        |> Result.map construct
-        |> Result.map (Map.toList >> List.map snd)
-        |> Result.map (List.filter (fun l -> List.length l > 1))
+        let dupePasswords =
+            vault.Passwords
+            |> Map.toList
+            |> List.map (Tuple.map PasswordEntry.getSecureData)
+            |> List.traverse (Tuple.traverse SecuredSecret.hash)
+            |> Result.map construct
+            |> Result.map (Map.toList >> List.map snd)
+            |> Result.map (List.filter (fun l -> List.length l > 1))
+
+        let newVault =
+            let activity =
+                {
+                    Activity = DupeCheck
+                    Date = getTime ()
+                }
+            { vault with History = AppendOnlyRingBuffer.add activity vault.History }
+
+        Result.map (fun comp -> comp, newVault) dupePasswords
