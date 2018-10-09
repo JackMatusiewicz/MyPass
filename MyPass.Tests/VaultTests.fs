@@ -236,12 +236,12 @@ module VaultTests =
 
         let expected =
             [|
-                sprintf "%s - %s" (dates.[0].ToString("O")) ("Adding www.gmail.com to the vault.")
-                sprintf "%s - %s" (dates.[1].ToString("O")) ("Adding www.bing.com to the vault.")
-                sprintf "%s - %s" (dates.[2].ToString("O")) ("Deleting www.bing.com from the vault.")
-                sprintf "%s - %s" (dates.[3].ToString("O")) ("Updating www.gmail.com in the vault.")
-                sprintf "%s - %s" (dates.[4].ToString("O")) ("Performing a secret reuse check.")
-                sprintf "%s - %s" (dates.[5].ToString("O")) ("Performing a breach check with HaveIBeenPwned.")
+                sprintf "%s - %s" (dates.[0].ToString("G")) ("Adding www.gmail.com to the vault.")
+                sprintf "%s - %s" (dates.[1].ToString("G")) ("Adding www.bing.com to the vault.")
+                sprintf "%s - %s" (dates.[2].ToString("G")) ("Deleting www.bing.com from the vault.")
+                sprintf "%s - %s" (dates.[3].ToString("G")) ("Updating www.gmail.com in the vault.")
+                sprintf "%s - %s" (dates.[4].ToString("G")) ("Performing a secret reuse check.")
+                sprintf "%s - %s" (dates.[5].ToString("G")) ("Performing a breach check with HaveIBeenPwned.")
             |]
 
         let updatedEntry =

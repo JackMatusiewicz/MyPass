@@ -354,4 +354,4 @@ module ConsoleUi =
         |> Result.map (fun v -> v.History)
         |> Result.map AppendOnlyRingBuffer.get
         |> Result.map (Array.map UserActivity.toString)
-        |> Result.map (Array.iteri (fun i v -> printfn "%d) %s" i v))
+        |> Result.map (Array.iter (printfn "%s"))

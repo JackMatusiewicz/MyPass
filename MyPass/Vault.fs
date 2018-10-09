@@ -1,7 +1,5 @@
 ﻿namespace MyPass
 
-open System.Text
-
 [<CompilationRepresentation (CompilationRepresentationFlags.ModuleSuffix)>]
 module Vault =
 
@@ -32,12 +30,7 @@ module Vault =
             |> Failure
         else
             let newStore = Map.add name entry store
-            let activity =
-                {
-                    Activity = Add name
-                    Date = getTime ()
-                }
-
+            let activity = UserActivity.make (getTime ()) (Add name)
             {
                 Passwords = newStore
                 History = AppendOnlyRingBuffer.add activity manager.History
@@ -58,12 +51,7 @@ module Vault =
             |> Failure
         else
             let newStore = Map.add name entry store
-            let activity =
-                {
-                    Activity = Update name
-                    Date = getTime ()
-                }
-
+            let activity = UserActivity.make (getTime ()) (Update name)
             {
                 Passwords = newStore
                 History = AppendOnlyRingBuffer.add activity manager.History
@@ -80,12 +68,7 @@ module Vault =
         let store = manager.Passwords
         if Map.containsKey name store then
             let newStore = Map.remove name store
-            let activity =
-                {
-                    Activity = Delete name
-                    Date = getTime ()
-                }
-
+            let activity = UserActivity.make (getTime ()) (Delete name)
             {
                 Passwords = newStore
                 History = AppendOnlyRingBuffer.add activity manager.History
@@ -132,12 +115,7 @@ module Vault =
         let store = manager.Passwords
         if Map.containsKey name store then
             let entry = Map.find name store
-            let activity =
-                {
-                    Activity = Get name
-                    Date = getTime ()
-                }
-
+            let activity = UserActivity.make (getTime ()) (Get name)
             {
                 Passwords = manager.Passwords
                 History = AppendOnlyRingBuffer.add activity manager.History
@@ -165,11 +143,7 @@ module Vault =
             |> Result.map (List.map fst)
 
         let newVault =
-            let activity =
-                {
-                    Activity = BreachCheck
-                    Date = getTime ()
-                }
+            let activity = UserActivity.make (getTime ()) BreachCheck
             { vault with History = AppendOnlyRingBuffer.add activity vault.History }
 
         Result.map (fun comp -> comp, newVault) compromisedPasswords
@@ -198,11 +172,7 @@ module Vault =
             |> Result.map (List.filter (fun l -> List.length l > 1))
 
         let newVault =
-            let activity =
-                {
-                    Activity = DupeCheck
-                    Date = getTime ()
-                }
+            let activity = UserActivity.make (getTime ()) DupeCheck
             { vault with History = AppendOnlyRingBuffer.add activity vault.History }
 
         Result.map (fun comp -> comp, newVault) dupePasswords

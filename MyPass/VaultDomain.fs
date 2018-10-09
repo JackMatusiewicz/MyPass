@@ -107,6 +107,13 @@ module Description =
 [<RequireQualifiedAccess>]
 [<CompilationRepresentation (CompilationRepresentationFlags.ModuleSuffix)>]
 module UserActivity =
+
+    let make (date : System.DateTime) (a : Activity) =
+        {
+            Activity = a
+            Date = date
+        }
+
     let toString (ua : UserActivity) =
         let activityString (a : Activity) =
             match a with
@@ -116,7 +123,7 @@ module UserActivity =
             | Get n -> sprintf "Getting the password of %s." <| Name.toString n
             | DupeCheck -> "Performing a secret reuse check."
             | BreachCheck -> "Performing a breach check with HaveIBeenPwned."
-        sprintf "%s - %s" (ua.Date.ToString("O")) (activityString ua.Activity)
+        sprintf "%s - %s" (ua.Date.ToString("G")) (activityString ua.Activity)
 
 module VaultDomain =
 
