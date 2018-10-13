@@ -117,12 +117,12 @@ module UserActivity =
     let toString (ua : UserActivity) =
         let activityString (a : Activity) =
             match a with
-            | Add n -> sprintf "Adding %s to the vault." <| Name.toString n
-            | Delete n -> sprintf "Deleting %s from the vault." <| Name.toString n
-            | Update n -> sprintf "Updating %s in the vault." <| Name.toString n
-            | Get n -> sprintf "Getting the password of %s." <| Name.toString n
-            | DupeCheck -> "Performing a secret reuse check."
-            | BreachCheck -> "Performing a breach check with HaveIBeenPwned."
+            | Add n -> sprintf "Added %s to the vault." <| Name.toString n
+            | Delete n -> sprintf "Deleted %s from the vault." <| Name.toString n
+            | Update n -> sprintf "Updated %s in the vault." <| Name.toString n
+            | Get n -> sprintf "Got the secret of %s." <| Name.toString n
+            | DupeCheck -> "Performed a secret reuse check."
+            | BreachCheck -> "Performed a breach check with HaveIBeenPwned."
         sprintf "%s - %s" (ua.Date.ToString("G")) (activityString ua.Activity)
 
 module VaultDomain =
