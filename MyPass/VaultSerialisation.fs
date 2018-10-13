@@ -13,6 +13,7 @@ module VaultSerialisation =
     type SecretDto =
         | SecretDto of SecuredSecretDto
         | WebLoginDto of (string * Name * SecuredSecretDto)
+        | FileDto of (Name * string * SecuredSecretDto)
 
     type PasswordEntryDto = {
         SecretDto : SecretDto
@@ -46,6 +47,18 @@ module VaultSerialisation =
                         SecuredData = { Data = data; Key = fromAesKeyDto key }
                     } |> WebLogin)
                 url
+        | FileDto (fileName, extension, (data, key)) ->
+            {
+                FileName = fileName
+                Extension = extension
+                SecuredData =
+                    {
+                        Data = data
+                        Key = fromAesKeyDto key
+                    }
+            }
+            |> File
+            |> Success
 
     let private toSecretDto (s : Secret) : SecretDto =
         match s with
@@ -53,6 +66,9 @@ module VaultSerialisation =
         | WebLogin w ->
             (Url.toString w.Url, w.UserName, (w.SecuredData.Data, toAesKeyDto w.SecuredData.Key))
             |> WebLoginDto
+        | File w ->
+            (w.FileName, w.Extension, (w.SecuredData.Data, toAesKeyDto w.SecuredData.Key))
+            |> FileDto
 
     let private toEntryDto (pe : PasswordEntry) : PasswordEntryDto =
         {

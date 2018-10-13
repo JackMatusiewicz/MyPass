@@ -197,7 +197,8 @@ module ConsoleUi =
         let printSecretData (s : Secret) =
             match s with
             | Secret _ -> ""
-            | WebLogin wl -> sprintf "\n%A - %A" wl.Url wl.UserName
+            | WebLogin wl -> sprintf "\n%A - %s" wl.Url (Name.toString wl.UserName)
+            | File fd -> sprintf "\n%s.%s" (Name.toString fd.FileName) fd.Extension
 
         let printEntries vault =
             vault.Passwords

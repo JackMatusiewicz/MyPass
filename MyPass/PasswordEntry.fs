@@ -9,6 +9,7 @@ module PasswordEntry =
         match entry.Secret with
         | WebLogin wl -> wl.SecuredData
         | Secret s -> s
+        | File fd -> fd.SecuredData
 
     let decrypt (entry : PasswordEntry) : Result<FailReason, string> =
         getSecureData entry

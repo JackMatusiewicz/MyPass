@@ -74,10 +74,18 @@ type WebLogin =
         UserName : Name
     }
 
+type FileDetails =
+    {
+        SecuredData : SecuredSecret
+        FileName : Name
+        Extension : string
+    }
+
 [<Struct>]
 type Secret =
     | Secret of Secret : SecuredSecret
     | WebLogin of Login : WebLogin
+    | File of Details : FileDetails
 
 type PasswordEntry =
     {
@@ -139,3 +147,5 @@ module VaultDomain =
         | Secret s -> Secret newSecret
         | WebLogin l ->
             WebLogin { l with SecuredData = newSecret }
+        | File fd ->
+            File { fd with SecuredData = newSecret }
