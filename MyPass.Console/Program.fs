@@ -9,7 +9,7 @@ type Arguments =
     interface IArgParserTemplate with
         member x.Usage =
             match x with
-            | Mode _ -> "Specify the mode you wish to run, choose from: CREATE|ADD|LIST|GET|UPDATE|DUPE|PWNED|HISTORY"
+            | Mode _ -> "Specify the mode you wish to run, choose from: CREATE|ADD|DETAIL|GET|UPDATE|DUPE|PWNED|HISTORY"
 
 module Main =
 
@@ -38,8 +38,8 @@ module Main =
             ConsoleUi.createNewVault ()
         | "add" ->
             ConsoleUi.addSecret ()
-        | "list" ->
-            ConsoleUi.listSecrets ()
+        | "detail" ->
+            ConsoleUi.printDetail ()
         | "get" ->
             ConsoleUi.printPassword ()
         | "update" ->

@@ -142,6 +142,32 @@ module ConsoleUi =
         getUserInputForExistingVault ()
         |> (Result.map makeUserData)
 
+    let private getUserEntryChoice (v : Vault) =
+        let getUserChoice (max : int) =
+            let v =
+                sprintf "Please pick a password (0 - %d)" max
+                |> getInput
+                |> int
+            if v >= 0 && v <= max then
+                Success v
+            else
+                sprintf "You must choose between 0-%d" max
+                |> InvalidChoice
+                |> Failure
+
+        let choices =
+            v.Passwords
+            |> Map.toList
+            |> List.map fst
+            |> List.mapi (fun i (Name k) -> (i,k))
+
+        List.iter (fun (index, name) -> printfn "%d) %s" index name) choices
+
+        getUserChoice (List.length choices - 1)
+        |> Result.map (fun i -> List.item i choices)
+        |> Result.map snd
+        |> Result.map (fun c -> printfn "You have chosen: %s" c; c)
+
     let constructVault
         (fs : IFileSystem)
         (userData : UserData)
@@ -193,31 +219,26 @@ module ConsoleUi =
         constructComponentsFromUserInput
         |> Result.map (addSecretToVault (new FileSystem ()))
 
-    let listAllSecrets (fs : IFileSystem) (userData : UserData) : unit =
-        let printSecretData (s : Secret) =
-            match s with
-            | Secret _ -> ""
-            | WebLogin wl -> sprintf "\n%A - %A" wl.Url wl.UserName
+    let printDetail () : Result<FailReason, unit> =
+        let printEntryDetails (entry : PasswordEntry) =
+            printfn "--------------------------------------"
+            printfn "Entry name: %s" <| Name.toString entry.Name
+            printfn "Description: %s" <| Description.toString entry.Description
+            match entry.Secret with
+            | Secret _ -> ()
+            | WebLogin wl ->
+                printfn "Username: %s" <| Name.toString wl.UserName
+                printfn "URL: %s" <| Url.toString wl.Url
+            printfn "--------------------------------------"
 
-        let printEntries vault =
-            vault.Passwords
-            |> Map.toList
-            |> List.iter
-                (fun (n,e) ->
-                    printfn "%A\n%A%A\n---------------\n"
-                        n
-                        e.Description
-                        (printSecretData e.Secret))
-
-        try
-            loadVault fs userData
-            |> Result.iter printEntries
-        with
-        | ex -> printfn "ERROR: %s" <| ex.ToString()
-
-    let listSecrets () =
-        constructComponentsFromUserInput
-        |> Result.map (listAllSecrets (new FileSystem ()))
+        let fs = new FileSystem ()
+        let ud = constructComponentsFromUserInput
+        let vault = ud >>= loadVault (fs)
+        let entryName = vault >>= getUserEntryChoice
+        Result.bind2 entryName vault (fun en v -> Vault.getPassword Time.get (Name en) v)
+        |> Result.map (Tuple.lmap printEntryDetails)
+        |> Result.map snd
+        |> fun v -> Result.bind2 ud v (storeVault fs)
 
     let private givePasswordToUser (password : string) =
         printfn "Your password will be in your clipboard for 15 seconds."
@@ -241,32 +262,6 @@ module ConsoleUi =
         | ex ->
             FailReason.fromException ex
             |> Failure
-
-    let private getUserEntryChoice (v : Vault) =
-        let getUserChoice (max : int) =
-            let v =
-                sprintf "Please pick a password (0 - %d)" max
-                |> getInput
-                |> int
-            if v >= 0 && v <= max then
-                Success v
-            else
-                sprintf "You must choose between 0-%d" max
-                |> InvalidChoice
-                |> Failure
-
-        let choices =
-            v.Passwords
-            |> Map.toList
-            |> List.map fst
-            |> List.mapi (fun i (Name k) -> (i,k))
-
-        List.iter (fun (index, name) -> printfn "%d) %s" index name) choices
-
-        getUserChoice (List.length choices - 1)
-        |> Result.map (fun i -> List.item i choices)
-        |> Result.map snd
-        |> Result.map (fun c -> printfn "You have chosen: %s" c; c)
 
     let showPasswordToUser (v : Vault) =
         getUserEntryChoice v
