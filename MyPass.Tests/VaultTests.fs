@@ -25,6 +25,17 @@ module VaultTests =
         Name = Name "www.bing.com2"
     }
 
+    let webLoginName = (Name "My google account")
+    let testWebLogin =
+        let secret =
+            VaultDomain.makeWebLogin
+            <!> (Url.make "https://www.google.com/")
+            <*> (Result.lift (Name "testUsername"))
+            <*> (Result.lift (SecuredSecret.create "test"))
+
+        (PasswordEntry.create webLoginName (Description "TestDesc"))
+        <!> secret
+
     let testPasswordEntry3 =
         let f = fun url ->
             {
@@ -271,6 +282,63 @@ module VaultTests =
                 AppendOnlyRingBuffer.get v.History
                 |> Array.map UserActivity.toString
             Assert.That(historyData, Is.EqualTo expected)
+
+    [<Test>]
+    let ``Given a Vault with a secret, when I request the public details, then I can't access the password`` () =
+
+        let vault = Vault.storePassword Time.get testPasswordEntry Vault.empty
+        let actualPassword =
+            Result.bind vault (Vault.getPassword Time.get testPasswordEntry.Name)
+            |> Result.map fst
+        let publicEntry =
+            Result.bind vault (Vault.getPublicEntryDetails Time.get testPasswordEntry.Name)
+            |> Result.map fst
+
+        match actualPassword with
+        | Success p ->
+            Assert.That(p, Is.EqualTo testPasswordEntry)
+        | Failure _ -> Assert.Fail ()
+
+        match publicEntry with
+        | Failure _ -> Assert.Fail ()
+        | Success p ->
+            match p.Secret with
+            | Secret s ->
+                match SecuredSecret.getEncryptedData s with
+                | (EncryptedData d) -> Assert.That(d.Length, Is.Zero)
+            | WebLogin _ -> Assert.Fail ()
+
+    [<Test>]
+    let ``Given a Vault with a web login, when I request the public details, then I can't access the password`` () =
+
+        let vault = Result.bind testWebLogin (fun e -> Vault.storePassword Time.get e Vault.empty)
+        let actualPassword =
+            Result.bind vault (Vault.getPassword Time.get webLoginName)
+            |> Result.map fst
+        let publicEntry =
+            Result.bind vault (Vault.getPublicEntryDetails Time.get webLoginName)
+            |> Result.map fst
+
+        match actualPassword with
+        | Success p ->
+            match p.Secret with
+            | WebLogin wl ->
+                let pw = SecuredSecret.decrypt wl.SecuredData
+                match pw with
+                | Failure _ -> Assert.Fail ()
+                | Success pw ->
+                    Assert.That(pw, Is.EqualTo ("test"))
+            | _ -> Assert.Fail ()
+        | Failure _ -> Assert.Fail ()
+
+        match publicEntry with
+        | Failure _ -> Assert.Fail ()
+        | Success p ->
+            match p.Secret with
+            | WebLogin wl ->
+                match SecuredSecret.getEncryptedData wl.SecuredData with
+                | (EncryptedData d) -> Assert.That(d.Length, Is.Zero)
+            | _ -> Assert.Fail ()
 
     [<Test>]
     let ``Given an old Vault dto, when converted to a vault then the vault functions`` () =
