@@ -125,7 +125,7 @@ module Vault =
             |> Failure
 
     /// Gets the part of the entry that aren't secret.
-    let getNonSecretEntry
+    let getPublicEntryDetails
         (getTime : unit -> System.DateTime)
         (name : Name)
         (manager : Vault)

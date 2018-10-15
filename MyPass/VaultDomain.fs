@@ -122,7 +122,7 @@ module UserActivity =
             | Delete n -> sprintf "Deleted %s from the vault." <| Name.toString n
             | Update n -> sprintf "Updated %s in the vault." <| Name.toString n
             | Get n -> sprintf "Got the secret of %s." <| Name.toString n
-            | Details n -> sprintf "Got the non-secret details of %s." <| Name.toString n
+            | Details n -> sprintf "Got the public details of %s." <| Name.toString n
             | DupeCheck -> "Performed a secret reuse check."
             | BreachCheck -> "Performed a breach check with HaveIBeenPwned."
         sprintf "%s - %s" (ua.Date.ToString("G")) (activityString ua.Activity)
