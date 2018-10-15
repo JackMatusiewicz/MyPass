@@ -243,7 +243,7 @@ module VaultTests =
                 sprintf "%s - %s" (dates.[4].ToString("G")) ("Performed a secret reuse check.")
                 sprintf "%s - %s" (dates.[5].ToString("G")) ("Performed a breach check with HaveIBeenPwned.")
                 sprintf "%s - %s" (dates.[6].ToString("G")) ("Got the secret of www.gmail.com.")
-                sprintf "%s - %s" (dates.[6].ToString("G")) ("Got the public details of www.gmail.com.")
+                sprintf "%s - %s" (dates.[7].ToString("G")) ("Got the public details of www.gmail.com.")
             |]
 
         let updatedEntry =
