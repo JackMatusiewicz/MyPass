@@ -235,7 +235,7 @@ module ConsoleUi =
         let ud = constructComponentsFromUserInput
         let vault = ud >>= loadVault (fs)
         let entryName = vault >>= getUserEntryChoice
-        Result.bind2 entryName vault (fun en v -> Vault.getPassword Time.get (Name en) v)
+        Result.bind2 entryName vault (fun en v -> Vault.getNonSecretEntry Time.get (Name en) v)
         |> Result.map (Tuple.lmap printEntryDetails)
         |> Result.map snd
         |> fun v -> Result.bind2 ud v (storeVault fs)

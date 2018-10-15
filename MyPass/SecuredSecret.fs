@@ -35,3 +35,11 @@ module SecuredSecret =
             |> fun data -> Aes.encrypt data passwordKey
             |> EncryptedData
         { Data = encryptedPassword; Key = passwordKey }
+
+    /// Creates a SecuredSecret with zeroed data.
+    /// Mainly used to replace encrypted data when we want to return the secret to view public details.
+    let createDummy () : SecuredSecret =
+        {
+            Data = (EncryptedData [||])
+            Key = Aes.make ()
+        }
