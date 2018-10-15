@@ -124,6 +124,39 @@ module Vault =
             EntryNotFound "Unable to find a password matching that name."
             |> Failure
 
+    /// Gets the part of the entry that aren't secret.
+    let getPublicEntryDetails
+        (getTime : unit -> System.DateTime)
+        (name : Name)
+        (manager : Vault)
+        : Result<FailReason, PasswordEntry * Vault>
+        =
+        let store = manager.Passwords
+        if Map.containsKey name store then
+            let entry = Map.find name store
+            let entryWithoutSecret =
+                {
+                    entry with
+                        Secret =
+                            match entry.Secret with
+                            | Secret _ ->
+                                SecuredSecret.createDummy ()
+                                |> Secret
+                            | WebLogin wl ->
+                                {
+                                    wl with
+                                        SecuredData = SecuredSecret.createDummy ()
+                                } |> WebLogin
+                }
+            let activity = UserActivity.make (getTime ()) (Details name)
+            {
+                Passwords = manager.Passwords
+                History = AppendOnlyRingBuffer.add activity manager.History
+            } |> fun store -> Success (entryWithoutSecret, store)
+        else
+            EntryNotFound "Unable to find a password matching that name."
+            |> Failure
+
     /// Finds all of the compromised entries in the vault.
     let getCompromisedPasswords
         (getTime : unit -> System.DateTime)
