@@ -287,11 +287,12 @@ module VaultTests =
     let ``Given a Vault with a secret, when I request the public details, then I can't access the password`` () =
 
         let vault = Vault.storePassword Time.get testPasswordEntry Vault.empty
-        let actualPassword =
-            Result.bind vault (Vault.getPassword Time.get testPasswordEntry.Name)
-            |> Result.map fst
-        let publicEntry =
+        let publicEntryWithVault =
             Result.bind vault (Vault.getPublicEntryDetails Time.get testPasswordEntry.Name)
+        let publicEntry = Result.map fst publicEntryWithVault
+        let updatedVault = Result.map snd publicEntryWithVault
+        let actualPassword =
+            Result.bind updatedVault (Vault.getPassword Time.get testPasswordEntry.Name)
             |> Result.map fst
 
         match actualPassword with
@@ -312,11 +313,14 @@ module VaultTests =
     let ``Given a Vault with a web login, when I request the public details, then I can't access the password`` () =
 
         let vault = Result.bind testWebLogin (fun e -> Vault.storePassword Time.get e Vault.empty)
-        let actualPassword =
-            Result.bind vault (Vault.getPassword Time.get webLoginName)
-            |> Result.map fst
-        let publicEntry =
+        let publicEntryWithVault =
             Result.bind vault (Vault.getPublicEntryDetails Time.get webLoginName)
+
+        let updatedVault = Result.map snd publicEntryWithVault
+        let publicEntry = Result.map fst publicEntryWithVault
+
+        let actualPassword =
+            Result.bind updatedVault (Vault.getPassword Time.get webLoginName)
             |> Result.map fst
 
         match actualPassword with
