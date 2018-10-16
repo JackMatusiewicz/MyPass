@@ -23,7 +23,7 @@ module RoundTripTests =
 
             let fileKeyBytes = FileKey.toBytes fk
             let key =
-                MasterKey.create
+                MasterKey.make
                     "Version1.0"
                     fileKeyBytes
                     userName

@@ -37,8 +37,8 @@ module PasswordTests =
             |> fun p -> SecurePasswordHandler.Use(p, fun p -> p |> String.fromBytes)
         let masterPassPhrase = Password.createPassword 10u
         let secretKey = Array.create 10 (byte 0)
-        let pwOne = MasterKey.create versionId secretKey userId masterPassPhrase
-        let pwTwo = MasterKey.create versionId secretKey userId masterPassPhrase
+        let pwOne = MasterKey.make versionId secretKey userId masterPassPhrase
+        let pwTwo = MasterKey.make versionId secretKey userId masterPassPhrase
         Assert.That(AesTests.roundTripWorks pwOne pwTwo, Is.True)
 
     [<Test>]
@@ -53,8 +53,8 @@ module PasswordTests =
         let masterPassPhrase = Password.createPassword 10u
         let secretKey = Array.create 10 (byte 0)
         let secretKey2 = Array.create 10 (byte 1)
-        let pwOne = MasterKey.create versionId secretKey userId masterPassPhrase
-        let pwTwo = MasterKey.create versionId secretKey2 userId masterPassPhrase
+        let pwOne = MasterKey.make versionId secretKey userId masterPassPhrase
+        let pwTwo = MasterKey.make versionId secretKey2 userId masterPassPhrase
         Assert.That(AesTests.roundTripWorks pwOne pwTwo, Is.False)
 
     [<Test>]
@@ -72,8 +72,8 @@ module PasswordTests =
                 userId
                 (fun () -> Password.createPassword 15u |> fun p -> SecurePasswordHandler.Use(p, fun p -> String.fromBytes p))
         let secretKey = Array.create 10 (byte 0)
-        let pwOne = MasterKey.create versionId secretKey userId masterPassPhrase
-        let pwTwo = MasterKey.create versionId secretKey userId2 masterPassPhrase
+        let pwOne = MasterKey.make versionId secretKey userId masterPassPhrase
+        let pwTwo = MasterKey.make versionId secretKey userId2 masterPassPhrase
         Assert.That(AesTests.roundTripWorks pwOne pwTwo, Is.False)
 
     [<Test>]
@@ -91,8 +91,8 @@ module PasswordTests =
                 versionId
                 (fun () -> Password.createPassword 15u |> fun p -> SecurePasswordHandler.Use(p, fun p -> String.fromBytes p))
         let secretKey = Array.create 10 (byte 0)
-        let pwOne = MasterKey.create versionId secretKey userId masterPassPhrase
-        let pwTwo = MasterKey.create versionId2 secretKey userId masterPassPhrase
+        let pwOne = MasterKey.make versionId secretKey userId masterPassPhrase
+        let pwTwo = MasterKey.make versionId2 secretKey userId masterPassPhrase
         Assert.That(AesTests.roundTripWorks pwOne pwTwo, Is.False)
 
     [<Test>]
@@ -111,6 +111,6 @@ module PasswordTests =
                 (fun () -> Password.createPassword 10u |> fun p -> SecurePasswordHandler.Use(p, fun p -> String.fromBytes p))
             |> SecureString.fromString
         let secretKey = Array.create 10 (byte 0)
-        let pwOne = MasterKey.create versionId secretKey userId masterPassPhrase
-        let pwTwo = MasterKey.create versionId secretKey userId masterPassPhrase2
+        let pwOne = MasterKey.make versionId secretKey userId masterPassPhrase
+        let pwTwo = MasterKey.make versionId secretKey userId masterPassPhrase2
         Assert.That(AesTests.roundTripWorks pwOne pwTwo, Is.False)
