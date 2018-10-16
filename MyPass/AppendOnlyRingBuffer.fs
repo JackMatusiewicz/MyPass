@@ -26,7 +26,12 @@ module AppendOnlyRingBuffer =
         }
 
     let get (buffer : 'a AppendOnlyRingBuffer) : 'a [] =
-        let rec fill (oldBuffer : 'a option []) (currentIndex : int) (accIndex : int) (acc : 'a []) : 'a [] =
+        let rec fill
+            (oldBuffer : 'a option [])
+            (currentIndex : int)
+            (accIndex : int)
+            (acc : 'a []) : 'a []
+            =
             match accIndex with
             | _ when accIndex < 0 ->
                 acc
@@ -35,10 +40,17 @@ module AppendOnlyRingBuffer =
                 | None -> failwith "impossible"
                 | Some v ->
                     acc.[accIndex] <- v
-                    let nextIndex = if currentIndex - 1 < 0 then oldBuffer.Length - 1 else currentIndex - 1
+                    let nextIndex =
+                        if currentIndex - 1 < 0 then
+                            oldBuffer.Length - 1
+                        else currentIndex - 1
                     fill oldBuffer nextIndex (accIndex - 1) acc
 
         let filled = Array.sumBy (function | None -> 0 | Some _ -> 1) buffer.Buffer
         let returnBuffer = Array.init filled (fun _ -> Unchecked.defaultof<'a>)
-        let startIndex = if buffer.Head - 1 < 0 then buffer.Buffer.Length - 1 else buffer.Head - 1
+        let startIndex =
+            if buffer.Head - 1 < 0 then
+                buffer.Buffer.Length - 1
+            else buffer.Head - 1
+
         fill buffer.Buffer startIndex (returnBuffer.Length-1) returnBuffer

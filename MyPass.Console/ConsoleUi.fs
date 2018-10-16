@@ -52,12 +52,18 @@ module ConsoleUi =
         SecureInput.get ()
 
     let private generatePassword () =
-        getInput "Please enter the extra characters to use for password generation:"
-        |> fun s -> s.ToCharArray ()
-        |> (fun cs -> Array.append Password.alphanumericCharacters cs)
-        |> (fun cs -> getInput "Please enter the number of characters for the password:", cs)
-        |> Tuple.lmap uint32
-        |> (<||) Password.createWithCharacters
+        let value = getInput "Would you like a random password (Y) or a memorable password?"
+        if value = "y" || value = "Y" then
+            getInput "Please enter the extra characters to use for password generation:"
+            |> fun s -> s.ToCharArray ()
+            |> (fun cs -> Array.append Password.alphanumericCharacters cs)
+            |> (fun cs -> getInput "Please enter the number of characters for the password:", cs)
+            |> Tuple.lmap uint32
+            |> (<||) Password.createWithCharacters
+        else
+            getInput "Please enter the minimum number of characters for the password:"
+            |> uint32
+            |> Password.createMemorablePassword
 
     let getSecretPassword () =
         let value = getInput "Do you want to write your own password (Y) or have one generated?"
@@ -131,7 +137,7 @@ module ConsoleUi =
     let makeUserData (userInput : UserInput) =
         let fileKeyBytes = FileKey.toBytes userInput.FileKey
         let masterKey =
-            Password.createMasterKey
+            MasterKey.make
                 "Version1.0"
                 fileKeyBytes
                 userInput.UserName
