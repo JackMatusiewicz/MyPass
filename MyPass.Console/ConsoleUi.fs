@@ -131,7 +131,7 @@ module ConsoleUi =
     let makeUserData (userInput : UserInput) =
         let fileKeyBytes = FileKey.toBytes userInput.FileKey
         let masterKey =
-            Password.createMasterKey
+            MasterKey.create
                 "Version1.0"
                 fileKeyBytes
                 userInput.UserName

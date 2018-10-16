@@ -4,6 +4,7 @@ open System.Security
 open Microsoft.AspNetCore.Cryptography.KeyDerivation;
 open MyPass.SecureString
 
+[<RequireQualifiedAccess>]
 module MasterKey =
 
     let private xor (keyOne : byte[]) (keyTwo : byte[]) =
