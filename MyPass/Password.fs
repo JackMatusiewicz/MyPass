@@ -3,15 +3,21 @@
 open System
 open System.Security.Cryptography
 open System.Security
-open Microsoft.AspNetCore.Cryptography.KeyDerivation;
-
-open MyPass.SecureString
 
 [<RequireQualifiedAccess>]
 module Password =
 
+    let vowels =
+        ['a'; 'e'; 'i'; 'o'; 'u'] @ ['A'; 'E'; 'I'; 'O'; 'U']
+        |> Set.ofList
+
+    let consonants =
+        ['a' .. 'z'] @ ['A' .. 'Z']
+        |> Set.ofList
+        |> fun cons -> Set.difference cons vowels
+
     let alphanumericCharacters =
-        ['a'..'z'] @ ['A'..'Z'] @ ['0'..'9'] |> Array.ofList
+        (Set.toList vowels) @ (Set.toList consonants) @ ['0'..'9'] |> Array.ofList
 
     //TODO: Now that this uses a secure string, we need to dispose!
     let createWithCharacters (length : uint32) (availableCharacters : char[]) : SecureString =
@@ -56,35 +62,4 @@ module Password =
             |> fun c -> Array.concat [|c; alphanumericCharacters|]
             |> Array.distinct
             |> createWithCharacters len
-
-    let private xor (keyOne : byte[]) (keyTwo : byte[]) =
-        keyOne
-        |> Array.zip keyTwo
-        |> Array.map (fun (a,b) -> a ^^^ b)
-
-    // TODO - look at moving elsewhere.
-    // TODO - look at making the AesKey constructor validate the bytes.
-    let createMasterKey
-        (versionId : string)
-        (secretKey : byte[])
-        (userId : string)
-        (masterPassphrase : SecureString)
-        : AesKey
-        =
-        let getKey (salt : byte[]) (passwordBytes : byte[]) =
-            KeyDerivation.Pbkdf2(
-                String.fromBytes passwordBytes,
-                salt,
-                KeyDerivationPrf.HMACSHA512,
-                100000,
-                Aes.keySizeBytes)
-
-        let userIdBytes = userId |> String.toBytes
-        let versionIdBytes = versionId |> String.toBytes
-        let expandedSalt = Hkdf.expand userIdBytes versionIdBytes [||] 32
-        let masterKey =
-            SecurePasswordHandler.Use(masterPassphrase, System.Func<byte[], byte[]> (getKey expandedSalt))
     
-        Hkdf.expand secretKey userIdBytes [||] (masterKey.Length)
-        |> xor masterKey
-        |> Aes.fromBytes
