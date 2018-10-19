@@ -7,23 +7,29 @@ open System.Linq
 
 module VaultTests =
 
-    let testPasswordEntry = {
-        Secret = SecuredSecret.create "gmailSecret" |> Secret
-        Description = Description "My gmail password"
-        Name = Name "www.gmail.com"
-    }
+    let testPasswordEntry =
+        {
+            Tags = Set.empty
+            Secret = SecuredSecret.create "gmailSecret" |> Secret
+            Description = Description "My gmail password"
+            Name = Name "www.gmail.com"
+        }
 
-    let testPasswordEntry2 = {
-        Secret = SecuredSecret.create "bingSecret" |> Secret
-        Description = Description "My bing password"
-        Name = Name "www.bing.com"
-    }
+    let testPasswordEntry2 =
+        {
+            Tags = Set.empty
+            Secret = SecuredSecret.create "bingSecret" |> Secret
+            Description = Description "My bing password"
+            Name = Name "www.bing.com"
+        }
 
-    let testPasswordEntryDupe = {
-        Secret = SecuredSecret.create "bingSecret" |> Secret
-        Description = Description "My bing password2"
-        Name = Name "www.bing.com2"
-    }
+    let testPasswordEntryDupe =
+        {
+            Tags = Set.empty
+            Secret = SecuredSecret.create "bingSecret" |> Secret
+            Description = Description "My bing password2"
+            Name = Name "www.bing.com2"
+        }
 
     let webLoginName = (Name "My google account")
     let testWebLogin =
@@ -39,6 +45,7 @@ module VaultTests =
     let testPasswordEntry3 =
         let f = fun url ->
             {
+                Tags = [Tag.fromString "password"] |> Set.ofList
                 Secret = VaultDomain.makeWebLogin url (Name "jackma") (SecuredSecret.create "55")
                 Description = Description "admin"
                 Name = Name "admin"

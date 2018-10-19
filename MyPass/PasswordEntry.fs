@@ -19,10 +19,17 @@ module PasswordEntry =
         (desc : Description)
         (secret : Secret)
         =
+        let tags =
+            match secret with
+            | Secret _ -> []
+            | WebLogin w ->
+                [Tag.fromString "password"]
+
         {
             Name = name
             Description = desc
             Secret = secret
+            Tags = Set.ofList tags
         }
 
     let updateSecret

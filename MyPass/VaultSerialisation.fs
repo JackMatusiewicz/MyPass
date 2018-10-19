@@ -14,10 +14,13 @@ module VaultSerialisation =
         | SecretDto of SecuredSecretDto
         | WebLoginDto of (string * Name * SecuredSecretDto)
 
-    type PasswordEntryDto = {
-        SecretDto : SecretDto
-        Description : Description
-        Name : Name }
+    type PasswordEntryDto =
+        {
+            Tags : Tag list
+            SecretDto : SecretDto
+            Description : Description
+            Name : Name
+        }
 
     type VaultDto =
         {
@@ -59,15 +62,23 @@ module VaultSerialisation =
             Name = pe.Name
             Description = pe.Description
             SecretDto = toSecretDto pe.Secret
+            Tags = Set.toList pe.Tags
         }
 
     let private fromEntryDto (pe : PasswordEntryDto) : Result<FailReason, PasswordEntry> =
+        let tags =
+            if obj.ReferenceEquals (pe.Tags, null) then
+                Set.empty
+            else Set.ofList pe.Tags
+
         Result.map
             (fun secretDto ->
                 {
                     Name = pe.Name
                     Description = pe.Description
-                    Secret = secretDto })
+                    Secret = secretDto
+                    Tags = tags
+                })
             (fromSecretDto pe.SecretDto)
 
     let deserialise (vaultDtoString : string) : Result<FailReason, Vault> =

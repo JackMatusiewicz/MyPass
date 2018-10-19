@@ -6,6 +6,9 @@ open System
 type Description = Description of string
 
 [<Struct>]
+type Tag = internal Tag of string
+
+[<Struct>]
 [<CustomEquality; CustomComparison>]
 type Name =
     | Name of string
@@ -82,6 +85,7 @@ type Secret =
 
 type PasswordEntry =
     {
+        Tags : Tag Set
         Secret : Secret
         Description : Description
         Name : Name
@@ -98,6 +102,17 @@ type Vault =
 module Name =
 
     let toString (Name n) = n
+
+[<RequireQualifiedAccess>]
+module Tag =
+
+    let fromString (v : string) =
+        v
+            .ToLower()
+            .Trim(' ')
+        |> Tag
+
+    let toString (Tag t) = t
 
 [<RequireQualifiedAccess>]
 [<CompilationRepresentation (CompilationRepresentationFlags.ModuleSuffix)>]
