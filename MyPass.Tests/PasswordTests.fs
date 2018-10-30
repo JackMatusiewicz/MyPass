@@ -114,3 +114,44 @@ module PasswordTests =
         let pwOne = MasterKey.make versionId secretKey userId masterPassPhrase
         let pwTwo = MasterKey.make versionId secretKey userId masterPassPhrase2
         Assert.That(AesTests.roundTripWorks pwOne pwTwo, Is.False)
+
+    [<Test>]
+    [<Explicit("Check the distribution of characters in passwords")>]
+    let ``Password character distribution`` () =
+        let characters = Password.alphanumericCharacters
+        let mutable characterMap =
+            characters
+            |> Array.map (fun i -> (i, 0))
+            |> Map.ofArray
+        let mutable passwordBytes : byte array = [||]
+
+        let addChar (c : char) =
+            match Map.containsKey c characterMap with
+            | false -> failwith "Impossible"
+            | true ->
+                let v = Map.find c characterMap
+                characterMap <- Map.add c (v + 1) characterMap
+
+        for _ in 1 .. 100000 do
+            let securePassword = Password.createWithCharacters 50u characters
+            SecurePasswordHandler.Use(securePassword, fun p -> passwordBytes <- Array.copy p)
+            String.fromBytes passwordBytes
+            |> fun s -> s.ToCharArray ()
+            |> Array.iter addChar
+
+        Map.iter (printfn "%c : %d") characterMap
+        Assert.Pass ()
+
+    //[<Test>]
+    //let ``Password generator doesn't create duplicate passwords frequently`` () =
+    //    let mutable seenPasswords : Set<string> = Set.empty
+    //    let mutable passwordBytes : byte array = [||]
+    //    for _ in 1 .. 1000 do
+    //        let securePassword = Password.createWithCharacters 40u Password.alphanumericCharacters
+    //        SecurePasswordHandler.Use(securePassword, fun p -> passwordBytes <- Array.copy p)
+    //        let pw String.fromBytes passwordBytes
+    //        if Set.contains pw seenPasswords
+    //            Assert.Fail ("We generated a duplicate password")
+    //        else
+    //            seenPasswords <- Set.add pw seenPasswords
+    //    Assert.Pass ()
