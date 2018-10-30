@@ -142,16 +142,20 @@ module PasswordTests =
         Map.iter (printfn "%c : %d") characterMap
         Assert.Pass ()
 
-    //[<Test>]
-    //let ``Password generator doesn't create duplicate passwords frequently`` () =
-    //    let mutable seenPasswords : Set<string> = Set.empty
-    //    let mutable passwordBytes : byte array = [||]
-    //    for _ in 1 .. 1000 do
-    //        let securePassword = Password.createWithCharacters 40u Password.alphanumericCharacters
-    //        SecurePasswordHandler.Use(securePassword, fun p -> passwordBytes <- Array.copy p)
-    //        let pw String.fromBytes passwordBytes
-    //        if Set.contains pw seenPasswords
-    //            Assert.Fail ("We generated a duplicate password")
-    //        else
-    //            seenPasswords <- Set.add pw seenPasswords
-    //    Assert.Pass ()
+    [<Test>]
+    [<Explicit("This test might take a long time")>]
+    let ``Password generator doesn't create duplicate passwords frequently`` () =
+        let mutable passwordBytes : byte array = [||]
+        let rec checkForDupes (iter : int) (s : Set<string>) =
+            match iter with
+            | _ when iter <= 0 -> Assert.Pass ()
+            | _ ->
+                let securePassword = Password.createWithCharacters 40u Password.alphanumericCharacters
+                SecurePasswordHandler.Use(securePassword, fun p -> passwordBytes <- Array.copy p)
+                let pw = String.fromBytes passwordBytes
+                if (Set.contains pw s) then
+                    Assert.Fail ("We generated a duplicate password")
+                else
+                    let newS = Set.add pw s
+                    checkForDupes (iter - 1) newS
+        checkForDupes 50000 Set.empty
