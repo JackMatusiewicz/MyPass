@@ -16,6 +16,7 @@ type FailReason =
     | InvalidHashPrefix
     | InvalidSha1Hash
     | IncorrectKeyLength of Length : (int * int)
+    | DuplicateTag of Tag : string
 
 module FailReason =
 
@@ -37,3 +38,4 @@ module FailReason =
         | InvalidHashPrefix -> "Hash prefix was not valid for the HaveIBeenPwned web service"
         | InvalidSha1Hash -> "The value was an invalid sha1 hash"
         | IncorrectKeyLength (expected, actual) -> sprintf "Expected a key of length %d but got %d" expected actual
+        | DuplicateTag tag -> sprintf "Duplicate tag found: %s" tag

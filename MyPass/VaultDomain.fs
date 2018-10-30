@@ -114,6 +114,10 @@ module Tag =
 
     let toString (Tag t) = t
 
+    // Some default tags:
+    let password = fromString "password"
+    let personalInformation = fromString "personal information"
+
 [<RequireQualifiedAccess>]
 [<CompilationRepresentation (CompilationRepresentationFlags.ModuleSuffix)>]
 module Description =
