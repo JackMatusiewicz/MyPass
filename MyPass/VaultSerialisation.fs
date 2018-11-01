@@ -69,7 +69,14 @@ module VaultSerialisation =
         let tags =
             if obj.ReferenceEquals (pe.Tags, null) then
                 Set.empty
-            else Set.ofList pe.Tags
+            else
+                let nonNullTags =
+                    pe.Tags
+                    |> List.filter
+                        (fun t ->
+                            let s = Tag.toString t
+                            obj.ReferenceEquals (s,null) <> true)
+                Set.ofList nonNullTags
 
         Result.map
             (fun secretDto ->

@@ -108,6 +108,23 @@ module VaultTests =
         | Success pw -> Assert.That(fst pw, Is.EqualTo testPasswordEntry)
 
     [<Test>]
+    let ``Given a vault, when I update the tags on an entry, then the new tag is stored`` () =
+        let newTag = Tag.fromString "TestTag"
+        let entry =
+            Vault.storePassword Time.get testPasswordEntry Vault.empty
+            >>= Vault.getPassword Time.get testPasswordEntry.Name
+            >>= (fun (e,v) ->
+                    let newE = PasswordEntry.addTag newTag e
+                    newE >>= fun e -> Vault.updatePassword Time.get e v)
+            >>= (Vault.getPublicEntryDetails Time.get testPasswordEntry.Name)
+            |> Result.map fst
+
+        match entry with
+        | Failure f -> Assert.Fail (FailReason.toString f)
+        | Success e ->
+            Assert.That (Set.contains newTag e.Tags, Is.True)
+
+    [<Test>]
     let ``Given a password manager with a password, encryption round-trip works`` () =
         let storePasswords =
             Vault.storePassword Time.get testPasswordEntry
