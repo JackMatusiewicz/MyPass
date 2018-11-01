@@ -78,6 +78,8 @@ module VaultSerialisation =
                     Description = pe.Description
                     Secret = secretDto
                     Tags =
+                        // Back-compat, will add the password tag to web logins
+                        // (as we set this by default).
                         match secretDto with
                         | WebLogin w -> Set.add (Tag.password) tags
                         | _ -> tags
