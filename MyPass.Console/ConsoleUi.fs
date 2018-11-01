@@ -93,6 +93,17 @@ module ConsoleUi =
         |> fun p -> SecurePasswordHandler.Use(p, fun p -> p |> String.fromBytes |> SecuredSecret.create)
         |> Secret
 
+    let printTags (tags : Set<Tag>) =
+        let data = Set.toList tags
+        match data with
+        | [] -> ()
+        | _ ->
+            data
+            |> List.map Tag.toString
+            |> List.reduce (sprintf "%s,%s")
+            |> printfn "Tags: %s"
+
+
     let private makePasswordEntry () =
         let r = getInput "What do you want to store?\n1. Web login.\n2. Secret"
         match r with
@@ -230,6 +241,7 @@ module ConsoleUi =
             printfn "--------------------------------------"
             printfn "Entry name: %s" <| Name.toString entry.Name
             printfn "Description: %s" <| Description.toString entry.Description
+            printTags entry.Tags
             match entry.Secret with
             | Secret _ -> ()
             | WebLogin wl ->

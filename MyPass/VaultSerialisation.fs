@@ -77,7 +77,10 @@ module VaultSerialisation =
                     Name = pe.Name
                     Description = pe.Description
                     Secret = secretDto
-                    Tags = tags
+                    Tags =
+                        match secretDto with
+                        | WebLogin w -> Set.add (Tag.password) tags
+                        | _ -> tags
                 })
             (fromSecretDto pe.SecretDto)
 
