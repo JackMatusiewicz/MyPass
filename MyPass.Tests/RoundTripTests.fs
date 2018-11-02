@@ -2,8 +2,6 @@
 
 open NUnit.Framework
 open MyPass
-open Result
-open System.Linq
 open System.IO
 open System.IO.Abstractions
 
@@ -31,5 +29,5 @@ module RoundTripTests =
 
             let manager = fs.File.ReadAllBytes vaultPath
             match Vault.decrypt key manager with
-            | Result.Failure a -> Assert.Fail ()
+            | Result.Failure a -> Assert.Fail (FailReason.toString a)
             | Result.Success _ -> Assert.Pass ()

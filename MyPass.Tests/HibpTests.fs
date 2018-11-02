@@ -19,7 +19,9 @@ module HibpTests =
 
     [<Test>]
     let ``Given a dummy finder, when I check if my password is on the list, then the correct outcome occurs`` () =
-        let pe = {
+        let pe =
+            {
+                Tags = Set.empty
                 Secret = SecuredSecret.create "password" |> Secret
                 Description = Description "My bing password"
                 Name = Name "www.bing.com"

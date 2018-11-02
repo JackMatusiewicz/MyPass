@@ -93,6 +93,16 @@ module ConsoleUi =
         |> fun p -> SecurePasswordHandler.Use(p, fun p -> p |> String.fromBytes |> SecuredSecret.create)
         |> Secret
 
+    let printTags (tags : Set<Tag>) =
+        let data = Set.toList tags
+        match data with
+        | [] -> ()
+        | _ ->
+            data
+            |> List.map Tag.toString
+            |> List.reduce (sprintf "%s,%s")
+            |> printfn "Tags: %s"
+
     let private makePasswordEntry () =
         let r = getInput "What do you want to store?\n1. Web login.\n2. Secret"
         match r with
@@ -230,6 +240,7 @@ module ConsoleUi =
             printfn "--------------------------------------"
             printfn "Entry name: %s" <| Name.toString entry.Name
             printfn "Description: %s" <| Description.toString entry.Description
+            printTags entry.Tags
             match entry.Secret with
             | Secret _ -> ()
             | WebLogin wl ->
@@ -244,6 +255,31 @@ module ConsoleUi =
         Result.bind2 entryName vault (fun en v -> Vault.getPublicEntryDetails Time.get (Name en) v)
         |> Result.map (Tuple.lmap printEntryDetails)
         |> Result.map snd
+        |> fun v -> Result.bind2 ud v (storeVault fs)
+
+    let addTag () : Result<FailReason, unit> =
+        let getTag () =
+            getInput "Please enter your new tag: "
+            |> Tag.fromString
+
+        let addTag (tag : Tag) (entry, vault) : Result<FailReason, Vault> =
+            if Set.contains tag entry.Tags then
+                tag
+                |> Tag.toString
+                |> sprintf "%s was already on the entry"
+                |> FailReason.DuplicateTag
+                |> Failure
+            else
+                PasswordEntry.addTag tag entry
+                >>= (fun e -> Vault.updatePassword Time.get e vault)
+
+        let fs = new FileSystem ()
+        let ud = constructComponentsFromUserInput
+        let vault = ud >>= loadVault (fs)
+        let entryName = vault >>= getUserEntryChoice
+        let tag = getTag ()
+        Result.bind2 entryName vault (fun en v -> Vault.getPassword Time.get (Name en) v)
+        >>= (addTag tag)
         |> fun v -> Result.bind2 ud v (storeVault fs)
 
     let private givePasswordToUser (password : string) =
