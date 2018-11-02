@@ -4,6 +4,8 @@ open Newtonsoft.Json
 
 module VaultSerialisation =
 
+    type TagDto = TagDto of string
+
     type AesKeyDto = {
         Key : byte[]
     }
@@ -16,7 +18,7 @@ module VaultSerialisation =
 
     type PasswordEntryDto =
         {
-            Tags : Tag list
+            Tags : TagDto list
             SecretDto : SecretDto
             Description : Description
             Name : Name
@@ -62,7 +64,11 @@ module VaultSerialisation =
             Name = pe.Name
             Description = pe.Description
             SecretDto = toSecretDto pe.Secret
-            Tags = Set.toList pe.Tags
+            Tags =
+                pe.Tags
+                |> Set.map (Tag.toString)
+                |> Set.map TagDto
+                |> Set.toList
         }
 
     let private fromEntryDto (pe : PasswordEntryDto) : Result<FailReason, PasswordEntry> =
@@ -70,13 +76,10 @@ module VaultSerialisation =
             if obj.ReferenceEquals (pe.Tags, null) then
                 Set.empty
             else
-                let nonNullTags =
-                    pe.Tags
-                    |> List.filter
-                        (fun t ->
-                            let s = Tag.toString t
-                            obj.ReferenceEquals (s,null) <> true)
-                Set.ofList nonNullTags
+                pe.Tags
+                |> List.map (fun (TagDto t) -> t)
+                |> List.map Tag.fromString
+                |> Set.ofList
 
         Result.map
             (fun secretDto ->
