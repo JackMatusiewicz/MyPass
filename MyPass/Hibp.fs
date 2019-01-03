@@ -16,10 +16,7 @@ module Hibp =
 
     let checkHashPrefix (hashPrefix : HashPrefix) : Result<FailReason, HibpResponse> =
         let (Prefix hashString) = hashPrefix
-        let response =
-            async {
-                return Http.Request (sprintf "https://api.pwnedpasswords.com/range/%s" hashString)
-            } |> Async.RunSynchronously
+        let response = Http.Request (sprintf "https://api.pwnedpasswords.com/range/%s" hashString)
         match response.StatusCode with
         | 200 ->
             match response.Body with
