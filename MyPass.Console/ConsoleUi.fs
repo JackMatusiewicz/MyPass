@@ -284,7 +284,10 @@ module ConsoleUi =
 
     let private givePasswordToUser (password : string) =
         printfn "Your password will be in your clipboard for 15 seconds."
-        Clipboard.timedStore 15000 password
+        Clipboard.timedStore
+            15000
+            password
+            (fun attempt -> printfn "Attempt #%d to clear the clipboard failed, retrying" attempt)
         printfn "Your password has been removed from your clipboard"
 
     let getEntryName () =
