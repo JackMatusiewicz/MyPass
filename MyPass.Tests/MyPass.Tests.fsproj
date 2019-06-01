@@ -48,7 +48,8 @@
   <ItemGroup>
     <PackageReference Include="coveralls.io" version="1.4.2" />
     <PackageReference Include="coveralls.net" version="0.7.0" developmentDependency="true" />
-    <PackageReference Include="FSharp.Core" version="4.3.4" />
+    <PackageReference Include="FSharp.Core" version="4.5.2" />
+    <PackageReference Include="Hedgehog" Version="0.8.2" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.8.0" />
     <PackageReference Include="NUnit" version="3.9.0" />
     <PackageReference Include="NUnit.Console" version="3.7.0" />

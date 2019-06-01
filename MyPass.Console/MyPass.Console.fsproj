@@ -28,7 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="FSharp.Core" version="4.3.4" />
+    <PackageReference Include="FSharp.Core" version="4.5.2" />
     <PackageReference Include="Argu" version="5.1.0" />
     <PackageReference Include="System.ValueTuple" version="4.5.0" />
     <PackageReference Include="System.IO.Abstractions" version="2.1.0.178" />
