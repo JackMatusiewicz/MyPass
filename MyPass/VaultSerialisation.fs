@@ -2,6 +2,7 @@
 
 open Newtonsoft.Json
 
+[<RequireQualifiedAccess>]
 module VaultSerialisation =
 
     type TagDto = TagDto of string

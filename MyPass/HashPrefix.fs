@@ -3,6 +3,7 @@ namespace MyPass
 /// Represents the first 5 characters of a hash, used in HaveIBeenPwned.
 type HashPrefix = private Prefix of string
 
+[<RequireQualifiedAccess>]
 module HashPrefix =
 
     let make (s : string) : Result<FailReason, HashPrefix> =

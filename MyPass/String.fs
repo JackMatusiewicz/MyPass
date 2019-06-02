@@ -2,6 +2,7 @@
 
 open System.Text
 
+[<RequireQualifiedAccess>]
 module String =
 
     let ofList (data : char list) =

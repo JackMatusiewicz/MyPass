@@ -7,6 +7,7 @@ type 'a AppendOnlyRingBuffer =
         Head : int
     }
 
+[<RequireQualifiedAccess>]
 module AppendOnlyRingBuffer =
 
     let make<'a> (capacity : int) =

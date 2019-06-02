@@ -18,6 +18,7 @@ type FailReason =
     | IncorrectKeyLength of Length : (int * int)
     | DuplicateTag of Tag : string
 
+[<RequireQualifiedAccess>]
 module FailReason =
 
     let fromException (ex : Exception) : FailReason =

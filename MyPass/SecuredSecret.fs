@@ -1,7 +1,5 @@
 ﻿namespace MyPass
 
-open System.Text
-
 [<RequireQualifiedAccess>]
 [<CompilationRepresentation (CompilationRepresentationFlags.ModuleSuffix)>]
 module SecuredSecret =

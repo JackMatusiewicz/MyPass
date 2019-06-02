@@ -1,5 +1,6 @@
 ﻿namespace MyPass
 
+[<RequireQualifiedAccess>]
 module Tuple =
 
     let lmap (f : 'a -> 'b) ((a,c) : 'a * 'c) =

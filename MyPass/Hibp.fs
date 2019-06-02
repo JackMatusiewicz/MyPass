@@ -12,6 +12,7 @@ type CompromisedStatus = Compromised | NotCompromised
 /// along with a count of the number of breaches the password has been bound in.
 type HibpResponse = Response of (HashPrefix * string)
 
+[<RequireQualifiedAccess>]
 module Hibp =
 
     let checkHashPrefix (hashPrefix : HashPrefix) : Result<FailReason, HibpResponse> =

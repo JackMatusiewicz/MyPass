@@ -5,6 +5,7 @@ type Result<'a, 'b> =
     | Failure of ErrorValue : 'a
     | Success of SuccessValue : 'b
 
+[<RequireQualifiedAccess>]
 [<CompilationRepresentation (CompilationRepresentationFlags.ModuleSuffix)>]
 module Result =
 

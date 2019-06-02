@@ -1,5 +1,6 @@
 ﻿namespace MyPass
 
+[<RequireQualifiedAccess>]
 [<CompilationRepresentation (CompilationRepresentationFlags.ModuleSuffix)>]
 module Vault =
 

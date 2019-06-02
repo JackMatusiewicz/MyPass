@@ -2,7 +2,6 @@ namespace MyPass.Tests
 
 open NUnit.Framework
 open MyPass
-open Result
 
 module UrlTests =
 

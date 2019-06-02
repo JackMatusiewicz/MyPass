@@ -44,7 +44,8 @@ module ConsoleUi =
         |> Result.map (fun key -> path,key)
 
     let private getDefaultFileKeyPath () =
-        let (FileKey randomName) = FileKey.generateFileKey ()
+        let fileKey = FileKey.generateFileKey ()
+        let randomName = FileKey.getKey fileKey
         randomName + ".fk", FileKey.generateFileKey ()
 
     let private getMasterPassPhrase () =

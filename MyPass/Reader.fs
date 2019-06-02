@@ -1,7 +1,6 @@
 ﻿namespace MyPass
 
-open Result
-
+[<RequireQualifiedAccess>]
 module Reader =
 
     let map (f : 'a -> 'b) (func : 'r -> 'a) : 'r -> 'b =

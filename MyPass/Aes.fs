@@ -16,6 +16,7 @@ type AesKey =
             Key : byte[]
         }
 
+[<RequireQualifiedAccess>]
 module Aes =
 
     let private keySizeBits = 256

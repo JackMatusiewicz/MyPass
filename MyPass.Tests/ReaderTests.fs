@@ -2,7 +2,6 @@ namespace MyPass.Tests
 
 open NUnit.Framework
 open MyPass
-open Reader
 open Reader.Operators
 
 module ReaderTests =

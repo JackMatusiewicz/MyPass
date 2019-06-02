@@ -3,7 +3,6 @@
 open NUnit.Framework
 open MyPass
 open MyPass.Result.Operators
-open Result
 
 module ResultTests =
 
@@ -31,7 +30,7 @@ module ResultTests =
     [<Test>]
     [<TestCaseSource("applicativeCases")>]
     let ``Applicative over result contexts returns correct result.`` (a,b, output) =
-        let res = lift (+) <*> a <*> b
+        let res = Result.lift (+) <*> a <*> b
         Assert.That(res, Is.EqualTo(output))
 
     let cleanDivide (a : int) : Result<string, int> =

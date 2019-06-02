@@ -2,13 +2,10 @@ namespace MyPass.Tests
 
 open NUnit.Framework
 open MyPass
-open Result
-open System.Linq
 
 module TupleTests =
 
     let rec private generateDifferentPassword (pw : string) (genPass : unit -> string) : string =
-        let len = pw.Length
         let newPass = genPass ()
         match newPass = pw with
         | true -> generateDifferentPassword pw genPass

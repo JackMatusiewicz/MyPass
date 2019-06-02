@@ -2,7 +2,6 @@ namespace MyPass.Tests
 
 open NUnit.Framework
 open MyPass
-open Result
 open System.Linq
 open System.IO
 open System.IO.Abstractions

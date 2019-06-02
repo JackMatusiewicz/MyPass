@@ -4,8 +4,9 @@ open System.IO.Abstractions
 open MyPass.SecureString
 
 [<Struct>]
-type FileKey = FileKey of string
+type FileKey = internal FileKey of string
 
+[<RequireQualifiedAccess>]
 [<CompilationRepresentation (CompilationRepresentationFlags.ModuleSuffix)>]
 module FileKey =
 

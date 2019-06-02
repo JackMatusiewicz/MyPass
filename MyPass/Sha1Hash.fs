@@ -7,6 +7,7 @@ open System.Security.Cryptography
 /// Stores the hexadecimal representation of the SHA1 hash of some data.
 type Sha1Hash = private Hash of string
 
+[<RequireQualifiedAccess>]
 module Sha1Hash =
 
     let private sha1Regex = Regex("^[a-fA-F0-9]{40}$")

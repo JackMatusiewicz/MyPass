@@ -146,6 +146,7 @@ module UserActivity =
             | BreachCheck -> "Performed a breach check with HaveIBeenPwned."
         sprintf "%s - %s" (ua.Date.ToString("G")) (activityString ua.Activity)
 
+[<RequireQualifiedAccess>]
 module VaultDomain =
 
     let makeWebLogin (url : Url) (name : Name) (secret : SecuredSecret) =

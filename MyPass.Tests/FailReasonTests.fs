@@ -2,8 +2,6 @@ namespace MyPass.Tests
 
 open NUnit.Framework
 open MyPass
-open Result
-open System.Linq
 
 module FailReasonTests =
 

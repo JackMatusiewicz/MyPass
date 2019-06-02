@@ -5,6 +5,7 @@ open System
 [<Struct>]
 type Url = private Url of string
 
+[<RequireQualifiedAccess>]
 module Url =
 
     let make (s : string) : Result<FailReason, Url> =

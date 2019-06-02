@@ -1,9 +1,9 @@
 ﻿namespace MyPass
 
-open System.Security.Cryptography;
-open System.IO;
-open System;
+open System.Security.Cryptography
+open System
 
+[<RequireQualifiedAccess>]
 module Hkdf =
 
     let expand
