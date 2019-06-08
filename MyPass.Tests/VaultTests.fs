@@ -303,7 +303,7 @@ module VaultTests =
         | Failure _ -> Assert.Fail ()
         | Success v ->
             let historyData =
-                AppendOnlyRingBuffer.get v.History
+                v.History
                 |> Array.map UserActivity.toString
             Assert.That(historyData, Is.EqualTo expected)
 
@@ -375,5 +375,5 @@ module VaultTests =
         match vault with
         | Failure _ -> Assert.Fail ()
         | Success v ->
-            let historyData = v.History.Buffer.Length
-            Assert.That(historyData, Is.GreaterThan(0))
+            let historyData = v.History.Length
+            Assert.That(historyData, Is.EqualTo 0)

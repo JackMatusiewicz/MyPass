@@ -7,7 +7,7 @@ module Vault =
     let empty =
         {
             Passwords = Map.empty
-            History = AppendOnlyRingBuffer.make 100
+            History = [||]
         }
 
     let private exceptionToFailure (f : unit -> Result<FailReason, 'b>) =
@@ -34,7 +34,7 @@ module Vault =
             let activity = UserActivity.make (getTime ()) (Add name)
             {
                 Passwords = newStore
-                History = AppendOnlyRingBuffer.add activity manager.History
+                History = Array.append manager.History [| activity |]
             } |> Success
 
     /// Takes a new password entry and replaces another entry with the same key.
@@ -55,7 +55,7 @@ module Vault =
             let activity = UserActivity.make (getTime ()) (Update name)
             {
                 Passwords = newStore
-                History = AppendOnlyRingBuffer.add activity manager.History
+                History = Array.append manager.History [| activity |]
             } |> Success
 
     /// Removes a secret that has the provided name.
@@ -72,7 +72,7 @@ module Vault =
             let activity = UserActivity.make (getTime ()) (Delete name)
             {
                 Passwords = newStore
-                History = AppendOnlyRingBuffer.add activity manager.History
+                History = Array.append manager.History [| activity |]
             } |> Success
         else
             EntryNotFound "Password entry not found"
@@ -119,7 +119,7 @@ module Vault =
             let activity = UserActivity.make (getTime ()) (Get name)
             {
                 Passwords = manager.Passwords
-                History = AppendOnlyRingBuffer.add activity manager.History
+                History = Array.append manager.History [| activity |]
             } |> fun store -> Success (entry, store)
         else
             EntryNotFound "Unable to find a password matching that name."
@@ -152,7 +152,7 @@ module Vault =
             let activity = UserActivity.make (getTime ()) (Details name)
             {
                 Passwords = manager.Passwords
-                History = AppendOnlyRingBuffer.add activity manager.History
+                History = Array.append manager.History [| activity |]
             } |> fun store -> Success (entryWithoutSecret, store)
         else
             EntryNotFound "Unable to find a password matching that name."
@@ -178,7 +178,7 @@ module Vault =
 
         let newVault =
             let activity = UserActivity.make (getTime ()) BreachCheck
-            { vault with History = AppendOnlyRingBuffer.add activity vault.History }
+            { vault with History = Array.append vault.History [| activity |] }
 
         Result.map (fun comp -> comp, newVault) compromisedPasswords
 
@@ -207,6 +207,6 @@ module Vault =
 
         let newVault =
             let activity = UserActivity.make (getTime ()) DupeCheck
-            { vault with History = AppendOnlyRingBuffer.add activity vault.History }
+            { vault with History = Array.append vault.History [| activity |] }
 
         Result.map (fun comp -> comp, newVault) dupePasswords

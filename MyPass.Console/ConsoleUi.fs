@@ -393,6 +393,5 @@ module ConsoleUi =
         ud
         >>= loadVault fs
         |> Result.map (fun v -> v.History)
-        |> Result.map AppendOnlyRingBuffer.get
         |> Result.map (Array.map UserActivity.toString)
         |> Result.map (Array.iter (printfn "%s"))

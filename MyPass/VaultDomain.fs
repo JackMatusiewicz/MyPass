@@ -55,7 +55,7 @@ type UserActivity =
         Date : DateTime
     }
 
-type History = UserActivity AppendOnlyRingBuffer
+type History = UserActivity array
 
 [<Struct>]
 type EncryptedData = EncryptedData of byte[]
@@ -158,6 +158,6 @@ module VaultDomain =
 
     let internal updateSecret (newSecret : SecuredSecret) (secret : Secret) =
         match secret with
-        | Secret s -> Secret newSecret
+        | Secret _ -> Secret newSecret
         | WebLogin l ->
             WebLogin { l with SecuredData = newSecret }

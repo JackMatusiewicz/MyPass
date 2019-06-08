@@ -103,7 +103,7 @@ module VaultSerialisation =
         // TODO - not pretty but needed for back compat.
         let history : History =
             if obj.ReferenceEquals (vaultDto.History, null) then
-                AppendOnlyRingBuffer.make 100
+                [||]
             else vaultDto.History
 
         vaultDto
