@@ -69,7 +69,7 @@ module VaultTests =
         let result = Vault.removePassword Time.get (Name "www.gmail.com") vault
         match result with
         | Success _ -> Assert.Fail()
-        | Failure s -> Assert.Pass ()
+        | Failure _ -> Assert.Pass ()
 
     [<Test>]
     let ``When trying to update non-existant password entry then failure is recorded`` () =
@@ -77,7 +77,7 @@ module VaultTests =
         let result = Vault.updatePassword Time.get testPasswordEntry vault
         match result with
         | Success _ -> Assert.Fail()
-        | Failure s -> Assert.Pass ()
+        | Failure _ -> Assert.Pass ()
 
     [<Test>]
     let ``When trying to add existing password entry then failure is recorded`` () =
@@ -87,7 +87,7 @@ module VaultTests =
             >>= Vault.storePassword Time.get testPasswordEntry
         match result with
         | Success _ -> Assert.Fail()
-        | Failure s -> Assert.Pass ()
+        | Failure _ -> Assert.Pass ()
 
     [<Test>]
     let ``When to retrieve a non-existant password entry then a failure is returned`` () =
@@ -95,7 +95,7 @@ module VaultTests =
         let result = Vault.getPassword Time.get (Name "www.gmail.com") vault
         match result with
         | Success _ -> Assert.Fail()
-        | Failure s -> Assert.Pass ()
+        | Failure _ -> Assert.Pass ()
 
     [<Test>]
     let ``Given a password manager with a password, when I retrieve it then the result is the correct password`` () =
@@ -151,7 +151,7 @@ module VaultTests =
                         (fun ((Name n), k) ->
                             match k with
                             | None -> EntryNotFound n |> Failure
-                            | Some (a,b) ->
+                            | Some (a,_) ->
                                 (=) <!> (PasswordEntry.decrypt a) <*> (PasswordEntry.decrypt a))
                     |> Result.map (List.fold (&&) true)
                 match success with
@@ -176,7 +176,7 @@ module VaultTests =
             let roundTripResult = roundTrip store
             match roundTripResult with
             | Failure _ -> Assert.Pass()
-            | Success decStore -> Assert.Fail()
+            | Success _ -> Assert.Fail()
 
     [<Test>]
     let ``Given a password manager with a password, when I remove it then it is removed.`` () =
