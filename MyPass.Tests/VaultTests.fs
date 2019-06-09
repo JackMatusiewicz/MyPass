@@ -350,7 +350,7 @@ module VaultTests =
             |> Result.map snd
             >>= Vault.getPublicEntryDetails  getTime (testPasswordEntry.Name)
             |> Result.map snd
-            >>= Vault.clearHistory
+            |> Result.map Vault.clearHistory
 
         match vault with
         | Failure _ -> Assert.Fail ()

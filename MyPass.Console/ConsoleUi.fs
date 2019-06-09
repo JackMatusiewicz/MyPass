@@ -418,7 +418,9 @@ module ConsoleUi =
         let writeHistoryToFile (filePath : string) (vault : Vault) : Result<FailReason, Vault> =
             try
                 Vault.clearHistory vault
-                |> Result.map (fun (history, vault) -> writeToFile filePath history; vault)
+                |> Tuple.lmap (writeToFile filePath)
+                |> snd
+                |> Success
             with
             | _ -> Failure <| UnableToCreateFile filePath
 

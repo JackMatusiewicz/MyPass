@@ -161,11 +161,9 @@ module Vault =
     /// Clears the history from a vault, returning what has been removed
     let clearHistory
         (vault : Vault)
-        : Result<FailReason, UserActivity array * Vault>
+        : UserActivity array * Vault
         =
-        let history = vault.History
-        (history, { vault with History = [||] })
-        |> Success
+        vault.History, { vault with History = [||] }
 
     /// Finds all of the compromised entries in the vault.
     let getCompromisedPasswords
