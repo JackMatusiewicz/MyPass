@@ -92,7 +92,7 @@ module Main =
             | false ->
                 printfn "%s" splash
                 printfn "You are running MyPass in interactive mode"
-                printfn "You can choose from the following modes: CREATE | ADD | DETAIL | TAG | GET | UPDATE | REMOVE | DUPE | PWNED | HISTORY"
+                printfn "You can choose from the following modes: CREATE | ADD | DETAIL | TAG | GET | UPDATE | REMOVE | DUPE | PWNED | HISTORY | CLEARHISTORY"
                 printfn "Please enter \"exit\" to quit."
                 runApp argsParser
             | true ->
