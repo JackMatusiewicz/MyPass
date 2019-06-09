@@ -9,7 +9,7 @@ type Arguments =
     interface IArgParserTemplate with
         member x.Usage =
             match x with
-            | Mode _ -> "Specify the mode you wish to run, choose from: CREATE|ADD|DETAIL|TAG|GET|UPDATE|DUPE|PWNED|HISTORY"
+            | Mode _ -> "Specify the mode you wish to run, choose from: CREATE|ADD|DETAIL|TAG|GET|UPDATE|DUPE|PWNED|HISTORY|CLEARHISTORY"
 
 module Main =
 
@@ -54,6 +54,8 @@ module Main =
             ConsoleUi.printHistory ()
         | "tag" ->
             ConsoleUi.addTag ()
+        | "clearhistory" ->
+            ConsoleUi.clearHistory ()
         | _ ->
             argsParser.PrintUsage ()
             |> sprintf "%s"
