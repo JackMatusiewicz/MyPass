@@ -308,6 +308,57 @@ module VaultTests =
             Assert.That(historyData, Is.EqualTo expected)
 
     [<Test>]
+    let ``Given a password manager and some operations, when history is cleared, then correct history is returned`` () =
+        let now = System.DateTime.UtcNow
+        let dates =
+            [| 1.0 .. 10.0 |]
+            |> Array.map (fun i -> now.AddDays(i))
+
+        let getTime =
+            let mutable counter = 0
+            fun () ->
+                let date = dates.[counter]
+                counter <- counter + 1
+                date
+
+        let expected =
+            [|
+                sprintf "%s - %s" (dates.[0].ToString("G")) ("Added www.gmail.com to the vault.")
+                sprintf "%s - %s" (dates.[1].ToString("G")) ("Added www.bing.com to the vault.")
+                sprintf "%s - %s" (dates.[2].ToString("G")) ("Deleted www.bing.com from the vault.")
+                sprintf "%s - %s" (dates.[3].ToString("G")) ("Updated www.gmail.com in the vault.")
+                sprintf "%s - %s" (dates.[4].ToString("G")) ("Performed a secret reuse check.")
+                sprintf "%s - %s" (dates.[5].ToString("G")) ("Performed a breach check with HaveIBeenPwned.")
+                sprintf "%s - %s" (dates.[6].ToString("G")) ("Got the secret of www.gmail.com.")
+                sprintf "%s - %s" (dates.[7].ToString("G")) ("Got the public details of www.gmail.com.")
+            |]
+
+        let updatedEntry =
+            PasswordEntry.updateSecret
+                (SecuredSecret.create "newPassword")
+                testPasswordEntry
+        let vault =
+            Vault.storePassword getTime testPasswordEntry Vault.empty
+            >>= Vault.storePassword getTime testPasswordEntry2
+            >>= Vault.removePassword  getTime (testPasswordEntry2.Name)
+            >>= Vault.updatePassword getTime updatedEntry
+            >>= Vault.findReusedSecrets getTime
+            |> Result.map snd
+            >>= Vault.getCompromisedPasswords getTime (fun _ -> Success NotCompromised)
+            |> Result.map snd
+            >>= Vault.getPassword  getTime (testPasswordEntry.Name)
+            |> Result.map snd
+            >>= Vault.getPublicEntryDetails  getTime (testPasswordEntry.Name)
+            |> Result.map snd
+            >>= Vault.clearHistory
+
+        match vault with
+        | Failure _ -> Assert.Fail ()
+        | Success (history, v) ->
+            Assert.That(history |> Array.map UserActivity.toString, Is.EqualTo expected)
+            Assert.That (v.History, Is.Empty)
+
+    [<Test>]
     let ``Given a Vault with a secret, when I request the public details, then I can't access the password`` () =
 
         let vault = Vault.storePassword Time.get testPasswordEntry Vault.empty

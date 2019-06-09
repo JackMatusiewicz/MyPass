@@ -342,7 +342,7 @@ module ConsoleUi =
         ud
         >>= loadVault fs
         >>= changePassword
-        >>= (fun d -> Result.bind ud (fun ud -> storeVault fs ud d))
+        |> (fun vault -> Result.bind2 ud vault (storeVault fs))
 
     let private removePw (vault : Vault) : Result<FailReason, Vault> =
         getUserEntryChoice vault
@@ -356,7 +356,7 @@ module ConsoleUi =
         ud
         >>= loadVault fs
         >>= removePw
-        >>= (fun d -> Result.bind ud (fun ud -> storeVault fs ud d))
+        |> (fun vault -> Result.bind2 ud vault (storeVault fs))
 
     let checkForCompromisedPasswords () =
         let ud = constructComponentsFromUserInput
@@ -395,3 +395,35 @@ module ConsoleUi =
         |> Result.map (fun v -> v.History)
         |> Result.map (Array.map UserActivity.toString)
         |> Result.map (Array.iter (printfn "%s"))
+
+    let clearHistory () =
+        let fs = new FileSystem ()
+
+        let historyToCsvLine (activity : UserActivity) =
+            let activityToCsv (activity : Activity) =
+                match activity with
+                | Add (Name name) -> sprintf "Add,%s" name
+                | Delete (Name name) -> sprintf "Delete,%s" name
+                | Update (Name name) -> sprintf "Update,%s" name
+                | Get (Name name) -> sprintf "Get,%s" name
+                | Details (Name name) -> sprintf "Details,%s" name
+                | DupeCheck -> "DupeCheck,"
+                | BreachCheck -> "BreachCheck,"
+            sprintf "%s,%s" (activity.Date.ToString "O") (activityToCsv activity.Activity)
+
+        let writeToFile (filePath : string) (history : UserActivity array) =
+            Array.map historyToCsvLine history
+            |> fun data -> fs.File.WriteAllLines (filePath, data)
+
+        let writeHistoryToFile (filePath : string) (vault : Vault) : Result<FailReason, Vault> =
+            try
+                Vault.clearHistory vault
+                |> Result.map (fun (history, vault) -> writeToFile filePath history; vault)
+            with
+            | _ -> Failure <| UnableToCreateFile filePath
+
+        let ud = constructComponentsFromUserInput
+        ud
+        >>= loadVault fs
+        >>= writeHistoryToFile (getInput "Please enter the path (including filename and extension) where you'd like to store the history")
+        |> (fun vault -> Result.bind2 ud vault (storeVault fs))

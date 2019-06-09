@@ -17,6 +17,7 @@ type FailReason =
     | InvalidSha1Hash
     | IncorrectKeyLength of Length : (int * int)
     | DuplicateTag of Tag : string
+    | UnableToCreateFile of FilePath : string
 
 [<RequireQualifiedAccess>]
 module FailReason =
@@ -40,3 +41,4 @@ module FailReason =
         | InvalidSha1Hash -> "The value was an invalid sha1 hash"
         | IncorrectKeyLength (expected, actual) -> sprintf "Expected a key of length %d but got %d" expected actual
         | DuplicateTag tag -> sprintf "Duplicate tag found: %s" tag
+        | UnableToCreateFile filePath -> sprintf "Unable to create a file at location: %s" filePath
