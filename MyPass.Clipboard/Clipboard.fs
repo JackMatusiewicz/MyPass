@@ -14,7 +14,7 @@ module Clipboard =
             with
             | _ ->
                 printfn "Waiting for %d seconds before trying to clear the clipboard" (attempt + 1)
-                System.Theading.Thead.Sleep ((attempt + 1) * 1000)
+                System.Threading.Thread.Sleep ((attempt + 1) * 1000)
                 onClearFail (attempt + 1)
                 attemptToClearClipboard onClearFail (attempt + 1)
 
