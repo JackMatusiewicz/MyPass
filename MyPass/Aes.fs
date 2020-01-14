@@ -2,7 +2,6 @@
 
 open System.IO
 open System.Security.Cryptography
-open System.Text
 
 [<Struct>]
 type Salt = Salt of string
