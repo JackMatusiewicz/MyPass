@@ -5,7 +5,6 @@
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFSharpCoreVersion>4.4.1.0</TargetFSharpCoreVersion>
   </PropertyGroup>
-
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Input.fs" />
@@ -15,7 +14,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-
   <ItemGroup>
     <Reference Include="mscorlib" />
     <Reference Include="System" />
@@ -26,11 +24,10 @@
     <ProjectReference Include="..\MyPass.SecureString\MyPass.SecureString.csproj" />
     <ProjectReference Include="..\MyPass\MyPass.fsproj" />
   </ItemGroup>
-
   <ItemGroup>
-    <PackageReference Include="FSharp.Core" version="4.5.2" />
-    <PackageReference Include="Argu" version="5.1.0" />
-    <PackageReference Include="System.ValueTuple" version="4.5.0" />
-    <PackageReference Include="System.IO.Abstractions" version="2.1.0.178" />
+    <PackageReference Include="FSharp.Core" version="4.5.2" Version="4.5.2" />
+    <PackageReference Include="Argu" version="5.1.0" Version="5.1.0" />
+    <PackageReference Include="System.ValueTuple" version="4.5.0" Version="4.5.0" />
+    <PackageReference Include="System.IO.Abstractions" version="2.1.0.178" Version="2.1.0.178" />
   </ItemGroup>
 </Project>
