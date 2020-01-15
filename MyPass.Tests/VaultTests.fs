@@ -231,12 +231,12 @@ module VaultTests =
                 testPasswordEntry
         let result =
             Vault.storePassword Time.get testPasswordEntry Vault.empty
-            >>= Vault.updatePassword Time.get updatedEntry
+            |> fun vault -> Result.bind2 updatedEntry vault (Vault.updatePassword Time.get)
             >>= Vault.getPassword Time.get (Name "www.gmail.com")
         match result with
         | Failure _ -> Assert.Fail ()
         | Success pw ->
-            let pwOne = PasswordEntry.decrypt updatedEntry
+            let pwOne = updatedEntry >>= PasswordEntry.decrypt
             let pwTwo = PasswordEntry.decrypt (fst pw)
             match pwOne,pwTwo with
             | Success a, Success b ->

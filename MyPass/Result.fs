@@ -39,6 +39,9 @@ module Result =
         | Failure f -> ()
         | Success s -> f s
 
+    let join (a : Result<'c, Result<'c, 'a>>) : Result<'c, 'a> =
+        bind a id
+
     module Operators =
 
         let (<!>) = map
