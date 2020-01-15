@@ -331,7 +331,7 @@ module ConsoleUi =
                     |> fun p -> SecurePasswordHandler.Use(p, fun p -> p |> String.fromBytes |> SecuredSecret.create)
                 Result.bind choice (fun n -> Vault.getPassword Time.get n v)
                 |> Result.map (Tuple.lmap (PasswordEntry.updateSecret pw)))
-        >>= ((<||) (Vault.updatePassword Time.get))
+        >>= (fun (pe, vault) -> pe >>= fun pe -> Vault.updatePassword Time.get pe vault)
         >>=
             (fun v ->
                 Result.bind choice (fun n -> showSpecificPassword n v))

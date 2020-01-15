@@ -289,7 +289,7 @@ module VaultTests =
             Vault.storePassword getTime testPasswordEntry Vault.empty
             >>= Vault.storePassword getTime testPasswordEntry2
             >>= Vault.removePassword  getTime (testPasswordEntry2.Name)
-            >>= Vault.updatePassword getTime updatedEntry
+            |> fun v -> Result.bind2 updatedEntry v (Vault.updatePassword getTime)
             >>= Vault.findReusedSecrets getTime
             |> Result.map snd
             >>= Vault.getCompromisedPasswords getTime (fun _ -> Success NotCompromised)
@@ -341,7 +341,7 @@ module VaultTests =
             Vault.storePassword getTime testPasswordEntry Vault.empty
             >>= Vault.storePassword getTime testPasswordEntry2
             >>= Vault.removePassword  getTime (testPasswordEntry2.Name)
-            >>= Vault.updatePassword getTime updatedEntry
+            |> fun v -> Result.bind2 updatedEntry v (Vault.updatePassword getTime)
             >>= Vault.findReusedSecrets getTime
             |> Result.map snd
             >>= Vault.getCompromisedPasswords getTime (fun _ -> Success NotCompromised)
