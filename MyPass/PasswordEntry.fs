@@ -1,5 +1,6 @@
 namespace MyPass
 
+
 [<RequireQualifiedAccess>]
 [<CompilationRepresentation (CompilationRepresentationFlags.ModuleSuffix)>]
 module PasswordEntry =
@@ -35,8 +36,8 @@ module PasswordEntry =
         (newSecret : SecuredSecret)
         (entry : PasswordEntry)
         =
-        let newSecret = VaultDomain.updateSecret newSecret entry.Secret
-        { entry with Secret = newSecret }
+        VaultDomain.updateSecret newSecret entry.Secret
+        |> Result.map (fun newSecret -> { entry with Secret = newSecret })
 
     let addTag (tag : Tag) (entry : PasswordEntry) : Result<FailReason, PasswordEntry> =
         match Set.contains tag entry.Tags with

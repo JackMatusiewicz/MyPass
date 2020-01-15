@@ -18,6 +18,7 @@ type FailReason =
     | IncorrectKeyLength of Length : (int * int)
     | DuplicateTag of Tag : string
     | UnableToCreateFile of FilePath : string
+    | AttemptedToReplaceFileWithSecret
 
 [<RequireQualifiedAccess>]
 module FailReason =

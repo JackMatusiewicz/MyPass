@@ -58,7 +58,10 @@ type UserActivity =
 type History = UserActivity array
 
 [<Struct>]
-type EncryptedData = EncryptedData of byte[]
+type EncryptedData = EncryptedData of byte array
+
+[<Struct>]
+type EncryptedFile = EncryptedFile of byte array
 
 // The rationale behind this being private is that we can expose the data inside without the key.
 // However, if we have a public function that gives the data and the key, we have no control
@@ -71,6 +74,17 @@ type SecuredSecret =
             Key : AesKey
         }
 
+type SecuredFile =
+    private
+        {
+            File : EncryptedFile
+            Key : AesKey
+        }
+
+type SecuredData =
+    | Secret of SecuredSecret
+    | File of SecuredFile
+
 type WebLogin =
     {
         SecuredData : SecuredSecret
@@ -82,6 +96,7 @@ type WebLogin =
 type Secret =
     | Secret of Secret : SecuredSecret
     | WebLogin of Login : WebLogin
+    | EncryptedFile of SecuredFile
 
 type PasswordEntry =
     {
@@ -156,8 +171,10 @@ module VaultDomain =
             SecuredData = secret
         } |> WebLogin
 
-    let internal updateSecret (newSecret : SecuredSecret) (secret : Secret) =
+    let internal updateSecret (newSecret : SecuredSecret) (secret : Secret) : Result<FailReason, Secret> =
         match secret with
-        | Secret _ -> Secret newSecret
+        | Secret _ -> Secret newSecret |> Success
         | WebLogin l ->
-            WebLogin { l with SecuredData = newSecret }
+            WebLogin { l with SecuredData = newSecret } |> Success
+        | EncryptedFile _ ->
+            Failure AttemptedToReplaceFileWithSecret
