@@ -8,11 +8,17 @@ module SecuredSecret =
         sd.Data
 
     /// Decrypts the secret that lives inside the SecuredSecret
-    let decrypt (sd : SecuredSecret) : Result<FailReason, string> =
+    let decrypt (sd : SecuredData) : Result<FailReason, string> =
+        let encryptedBytes, key =
+            match sd with
+            | SecuredData.Secret ss ->
+                let (EncryptedData data) = ss.Data
+                data, ss.Key
+            | SecuredData.File sf ->
+                let (EncryptedFileData data) = sf.File
+                data, sf.Key
         try
-            let (EncryptedData encryptedBytes) = sd.Data
-
-            sd.Key
+            key
             |> Aes.decrypt encryptedBytes
             |> String.fromBytes
             |> Success
@@ -22,8 +28,8 @@ module SecuredSecret =
             |> Failure
 
     /// Gets the Sha1Hash of the secret inside the SecuredSecret
-    let hash (secret : SecuredSecret) : Result<FailReason, Sha1Hash> =
-        decrypt secret |> Result.map (Sha1Hash.make)
+    let hash (secret : SecuredData) : Result<FailReason, Sha1Hash> =
+        decrypt secret |> Result.map Sha1Hash.make
 
     let create (password : string) : SecuredSecret =
         let passwordKey = Aes.make ()

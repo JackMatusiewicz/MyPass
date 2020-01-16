@@ -61,7 +61,7 @@ type History = UserActivity array
 type EncryptedData = EncryptedData of byte array
 
 [<Struct>]
-type EncryptedFile = EncryptedFile of byte array
+type EncryptedFile = EncryptedFileData of byte array
 
 // The rationale behind this being private is that we can expose the data inside without the key.
 // However, if we have a public function that gives the data and the key, we have no control

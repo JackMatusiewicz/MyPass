@@ -5,10 +5,11 @@ namespace MyPass
 [<CompilationRepresentation (CompilationRepresentationFlags.ModuleSuffix)>]
 module PasswordEntry =
 
-    let getSecureData (entry : PasswordEntry) : SecuredSecret =
+    let getSecureData (entry : PasswordEntry) : SecuredData =
         match entry.Secret with
-        | WebLogin wl -> wl.SecuredData
-        | Secret s -> s
+        | WebLogin wl -> SecuredData.Secret wl.SecuredData
+        | Secret s -> SecuredData.Secret s
+        | EncryptedFile ef -> File ef
 
     let decrypt (entry : PasswordEntry) : Result<FailReason, string> =
         getSecureData entry
