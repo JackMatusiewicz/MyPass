@@ -27,20 +27,16 @@ module Result =
         | Success s -> f s
         | Failure f -> Failure f
 
+    let join (a : Result<'c, Result<'c, 'a>>) : Result<'c, 'a> =
+        bind a id
+
     let bind2 (a : Result<'c, 'a>) (b : Result<'c, 'b>) (f : 'a -> 'b -> Result<'c, 'd>) =
-        match a,b with
-        | (Success a), (Success b) ->
-            f a b
-        | (Failure a), _ -> Failure a
-        | _, (Failure b) -> Failure b
+        join (apply (map f a) b)
 
     let iter (f : 'a -> unit) (a : Result<'f, 'a>) : unit =
         match a with
         | Failure f -> ()
         | Success s -> f s
-
-    let join (a : Result<'c, Result<'c, 'a>>) : Result<'c, 'a> =
-        bind a id
 
     module Operators =
 
