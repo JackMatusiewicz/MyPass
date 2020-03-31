@@ -9,6 +9,7 @@ open System.Security
 open System.IO
 open System.IO.Abstractions
 open MyPass.SecureString
+open System.Text.RegularExpressions
 
 ///These are all the specific pieces of information we require from the user.
 type UserInput = {
@@ -143,7 +144,7 @@ module ConsoleUi =
             (getVaultPath ())
             (getUserName ())
             (getMasterPassPhrase ())
-        |> fun f -> Result.map f (getFileKeyPath (new FileSystem ()))
+        |> fun f -> Result.map f (getFileKeyPath (FileSystem ()))
 
     let makeUserData (userInput : UserInput) =
         let fileKeyBytes = FileKey.toBytes userInput.FileKey
@@ -160,6 +161,13 @@ module ConsoleUi =
         |> (Result.map makeUserData)
 
     let private getUserEntryChoice (v : Vault) =
+        let matchAll = """^.*$"""
+        let getRegex () =
+            sprintf "Please enter a filter (press enter if you want to see everything):"
+            |> getInput
+            |> fun s -> if String.IsNullOrEmpty s then matchAll else s
+            |> fun s -> Regex s
+
         let getUserChoice (max : int) =
             let v =
                 sprintf "Please pick a password (0 - %d)" max
@@ -172,18 +180,25 @@ module ConsoleUi =
                 |> InvalidChoice
                 |> Failure
 
+        let regex = getRegex ()
+
         let choices =
             v.Passwords
             |> Map.toList
             |> List.map fst
+            |> List.filter (fun (Name k) -> let m = regex.Match(k) in m.Success && m.Value <> "")
             |> List.mapi (fun i (Name k) -> (i,k))
 
-        List.iter (fun (index, name) -> printfn "%d) %s" index name) choices
+        match choices with
+        | [] ->
+            Failure <| FilterLeadToNoMatch (regex.ToString())
+        | choices ->
+            List.iter (fun (index, name) -> printfn "%d) %s" index name) choices
 
-        getUserChoice (List.length choices - 1)
-        |> Result.map (fun i -> List.item i choices)
-        |> Result.map snd
-        |> Result.map (fun c -> printfn "You have chosen: %s" c; c)
+            getUserChoice (List.length choices - 1)
+            |> Result.map (fun i -> List.item i choices)
+            |> Result.map snd
+            |> Result.map (fun c -> printfn "You have chosen: %s" c; c)
 
     let constructVault
         (fs : IFileSystem)
@@ -206,7 +221,7 @@ module ConsoleUi =
 
     let createNewVault () =
         (makeUserData <-| getUserInputForNewVault) ()
-        |> constructVault (new FileSystem ())
+        |> constructVault (FileSystem ())
 
     let private loadVault (fs : IFileSystem) (userData : UserData) =
         let manager = fs.File.ReadAllBytes userData.UserInput.VaultPath
@@ -234,7 +249,7 @@ module ConsoleUi =
 
     let addSecret () =
         constructComponentsFromUserInput
-        |> Result.map (addSecretToVault (new FileSystem ()))
+        |> Result.map (addSecretToVault (FileSystem ()))
 
     let printDetail () : Result<FailReason, unit> =
         let printEntryDetails (entry : PasswordEntry) =
@@ -249,7 +264,7 @@ module ConsoleUi =
                 printfn "URL: %s" <| Url.toString wl.Url
             printfn "--------------------------------------"
 
-        let fs = new FileSystem ()
+        let fs = FileSystem ()
         let ud = constructComponentsFromUserInput
         let vault = ud >>= loadVault (fs)
         let entryName = vault >>= getUserEntryChoice
@@ -274,7 +289,7 @@ module ConsoleUi =
                 PasswordEntry.addTag tag entry
                 >>= (fun e -> Vault.updatePassword Time.get e vault)
 
-        let fs = new FileSystem ()
+        let fs = FileSystem ()
         let ud = constructComponentsFromUserInput
         let vault = ud >>= loadVault (fs)
         let entryName = vault >>= getUserEntryChoice
@@ -314,7 +329,7 @@ module ConsoleUi =
         >>= (fun name -> showSpecificPassword (Name name) v)
 
     let printPassword () : Result<FailReason, unit> =
-        let fs = new FileSystem ()
+        let fs = FileSystem ()
         let ud = constructComponentsFromUserInput
         let vault = ud >>= loadVault (fs)
         let updatedVault = vault >>= showPasswordToUser
@@ -332,38 +347,36 @@ module ConsoleUi =
                 Result.bind choice (fun n -> Vault.getPassword Time.get n v)
                 |> Result.map (Tuple.lmap (PasswordEntry.updateSecret pw)))
         >>= ((<||) (Vault.updatePassword Time.get))
-        >>=
-            (fun v ->
-                Result.bind choice (fun n -> showSpecificPassword n v))
+        >>= fun v -> Result.bind choice (fun n -> showSpecificPassword n v)
 
     let updatePassword () =
         let ud = constructComponentsFromUserInput
-        let fs = new FileSystem ()
+        let fs = FileSystem ()
         ud
         >>= loadVault fs
         >>= changePassword
-        |> (fun vault -> Result.bind2 ud vault (storeVault fs))
+        |> fun vault -> Result.bind2 ud vault (storeVault fs)
 
     let private removePw (vault : Vault) : Result<FailReason, Vault> =
         getUserEntryChoice vault
         |> Result.map Name
-        >>= (fun name -> Vault.removePassword Time.get name vault)
+        >>= fun name -> Vault.removePassword Time.get name vault
 
     //TODO - there is lots of boilerplate duplication, refactor this!
     let removePassword () =
         let ud = constructComponentsFromUserInput
-        let fs = new FileSystem ()
+        let fs = FileSystem ()
         ud
         >>= loadVault fs
         >>= removePw
-        |> (fun vault -> Result.bind2 ud vault (storeVault fs))
+        |> fun vault -> Result.bind2 ud vault (storeVault fs)
 
     let checkForCompromisedPasswords () =
         let ud = constructComponentsFromUserInput
-        let fs = new FileSystem ()
+        let fs = FileSystem ()
         ud
         >>= loadVault fs
-        >>= (Vault.getCompromisedPasswords Time.get (Hibp.isCompromised Hibp.checkHashPrefix))
+        >>= Vault.getCompromisedPasswords Time.get (Hibp.isCompromised Hibp.checkHashPrefix)
         |> fun data -> printfn "Here are a list of compromised passwords:"; data
         |> Result.map
             (fun (data, vault) ->
@@ -373,7 +386,7 @@ module ConsoleUi =
 
     let showDuplicatePasswords () =
         let ud = constructComponentsFromUserInput
-        let fs = new FileSystem ()
+        let fs = FileSystem ()
         ud
         >>= loadVault fs
         >>= Vault.findReusedSecrets Time.get
@@ -388,7 +401,7 @@ module ConsoleUi =
 
     let printHistory () =
         let ud = constructComponentsFromUserInput
-        let fs = new FileSystem ()
+        let fs = FileSystem ()
 
         ud
         >>= loadVault fs
@@ -397,7 +410,7 @@ module ConsoleUi =
         |> Result.map (Array.iter (printfn "%s"))
 
     let clearHistory () =
-        let fs = new FileSystem ()
+        let fs = FileSystem ()
 
         let historyToCsvLine (activity : UserActivity) =
             let activityToCsv (activity : Activity) =
