@@ -186,7 +186,7 @@ module ConsoleUi =
             v.Passwords
             |> Map.toList
             |> List.map fst
-            |> List.filter (fun (Name k) -> regex.Match(k).Success)
+            |> List.filter (fun (Name k) -> let m = regex.Match(k) in m.Success && m.Value <> "")
             |> List.mapi (fun i (Name k) -> (i,k))
 
         match choices with
