@@ -11,6 +11,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Terminal.Gui" Version="1.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\MyPass.SecureString\MyPass.SecureString.csproj" />
     <ProjectReference Include="..\MyPass\MyPass.fsproj" />
   </ItemGroup>
