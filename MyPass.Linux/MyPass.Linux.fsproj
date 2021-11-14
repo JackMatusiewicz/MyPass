@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Input.fs" />
+    <Compile Include="ConsoleUi.fs" />
+    <Compile Include="Program.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="mscorlib" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Numerics" version="4.0.0" />
+    <Reference Include="Microsoft.CSharp" version="6.0.0" />
+    <ProjectReference Include="..\MyPass.SecureString\MyPass.SecureString.csproj" />
+    <ProjectReference Include="..\MyPass\MyPass.fsproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FSharp.Core" version="5.0.2" />
+    <PackageReference Include="Argu" version="5.1.0" />
+    <PackageReference Include="System.ValueTuple" version="4.5.0" />
+    <PackageReference Include="System.IO.Abstractions" version="2.1.0.178" />
+  </ItemGroup>
+
+</Project>
