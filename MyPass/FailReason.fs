@@ -19,6 +19,7 @@ type FailReason =
     | DuplicateTag of Tag : string
     | UnableToCreateFile of FilePath : string
     | FilterLeadToNoMatch of Regex : string
+    | CannotEditUsernameOfSecuredSecret of SecretName : string
 
 [<RequireQualifiedAccess>]
 module FailReason =

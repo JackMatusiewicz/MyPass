@@ -48,3 +48,18 @@ module PasswordEntry =
             { entry with
                 Tags = Set.add tag entry.Tags
             } |> Success
+
+    let updateDescription (description : Description) (entry : PasswordEntry) : PasswordEntry =
+        { entry with Description = description }
+
+    let updateWebLoginUsername (username : Name) (entry : PasswordEntry) : Result<FailReason, PasswordEntry> =
+        match entry.Secret with
+        | WebLogin login ->
+            let updatedLogin = { login with UserName = username }
+            { entry with Secret = WebLogin updatedLogin }
+            |> Success
+        | Secret _ ->
+            entry.Name
+            |> Name.toString
+            |> CannotEditUsernameOfSecuredSecret
+            |> Failure
