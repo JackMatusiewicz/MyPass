@@ -1,9 +1,8 @@
-image: Visual Studio 2022
-
 environment:
+  build_version: 6.5.3
   COVERALLS_REPO_TOKEN:
     secure: E4QGOzsFKIG9JaF8MwZdI7gZct7pJ1eekTiKeTmOJIs71+THZNrrfc0l/ORxoyB/
-
+image: Visual Studio 2022
 configuration:
   - Debug
   - Release
