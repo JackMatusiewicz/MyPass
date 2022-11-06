@@ -428,3 +428,53 @@ module VaultTests =
         | Success v ->
             let historyData = v.History.Length
             Assert.That(historyData, Is.EqualTo 0)
+
+    [<Test>]
+    let ``Given a vault with a web secret, updating the username stores the new username`` () =
+        let time = fun () -> System.DateTime.MinValue
+        
+        let updatedEntryName =
+            Result.bind testWebLogin (fun pe -> Vault.storePassword time pe Vault.empty)
+            |> fun v -> Result.bind v (Vault.updateUsername time webLoginName (Name "Jazzy"))
+            |> fun v -> Result.bind v (Vault.getPassword time webLoginName)
+            |> Result.map (fun (pe, v) -> pe.Secret, v.History)
+
+        match updatedEntryName with
+        | Success (WebLogin wl, history) ->
+            Assert.That (wl.UserName, Is.EqualTo (Name "Jazzy"))
+            let lastHistoryItem = history.[history.Length - 2]
+            Assert.That (lastHistoryItem.Activity, Is.EqualTo (UpdateUsername webLoginName))
+        | _ -> Assert.Fail ()
+
+    [<Test>]
+    let ``Given a vault with a non-web secret, updating the username fails`` () =
+        let time = fun () -> System.DateTime.MinValue
+        
+        let updatedEntryName =
+            Vault.storePassword time testPasswordEntry Vault.empty
+            |> fun v -> Result.bind v (Vault.updateUsername time testPasswordEntry.Name (Name "Jazzy"))
+
+        match updatedEntryName with
+        | Failure fr ->
+            let name = testPasswordEntry.Name |> Name.toString
+            Assert.That (fr, Is.EqualTo (FailReason.CannotEditUsernameOfSecuredSecret name))
+        | _ -> Assert.Fail ()
+
+    [<Test>]
+    let ``Given a vault with an entry, when the description is updated then the new description is stored`` () =
+        let time = fun () -> System.DateTime.MinValue
+        
+        let updatedEntryName =
+            Vault.storePassword time testPasswordEntry Vault.empty
+            |> fun v -> Result.bind v (Vault.updateDescription time testPasswordEntry.Name (Description "JazzyDesc"))
+            |> fun v -> Result.bind v (Vault.getPassword time testPasswordEntry.Name)
+            |> Result.map (fun (pe, v) -> pe.Description, v.History)
+
+        match updatedEntryName with
+        | Success (pe, history) ->
+            let desc = pe |> Description.toString
+            Assert.That (desc, Is.EqualTo "JazzyDesc")
+            let lastHistoryItem = history.[history.Length - 2]
+            Assert.That (lastHistoryItem.Activity, Is.EqualTo (UpdateDescription testPasswordEntry.Name))
+        | _ -> Assert.Fail ()
+            
