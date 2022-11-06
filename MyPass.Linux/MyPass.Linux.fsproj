@@ -12,11 +12,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="mscorlib" />
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Numerics" version="4.0.0" />
-    <Reference Include="Microsoft.CSharp" version="6.0.0" />
     <ProjectReference Include="..\MyPass.SecureString\MyPass.SecureString.csproj" />
     <ProjectReference Include="..\MyPass\MyPass.fsproj" />
   </ItemGroup>

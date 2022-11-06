@@ -421,6 +421,8 @@ module ConsoleUi =
                 | Add (Name name) -> sprintf "Add,%s" name
                 | Delete (Name name) -> sprintf "Delete,%s" name
                 | Update (Name name) -> sprintf "Update,%s" name
+                | UpdateUsername (Name name) -> sprintf "UpdateUser,%s" name
+                | UpdateDescription (Name name) -> sprintf "UpdateDescription,%s" name
                 | Get (Name name) -> sprintf "Get,%s" name
                 | Details (Name name) -> sprintf "Details,%s" name
                 | DupeCheck -> "DupeCheck,"
