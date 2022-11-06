@@ -61,7 +61,7 @@
     <PackageReference Include="NUnit.Extension.VSProjectLoader" version="3.5.0" />
     <PackageReference Include="NUnit3TestAdapter" version="3.9.0" />
     <PackageReference Include="OpenCover" version="4.6.519" />
-    <PackageReference Include="System.IO.Abstractions" version="2.1.0.178" />
+    <PackageReference Include="System.IO.Abstractions" version="2.1.0.178" Version="17.2.3" />
     <PackageReference Update="FSharp.Core" Version="6.0.6" />
   </ItemGroup>
 </Project>

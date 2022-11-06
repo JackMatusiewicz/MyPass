@@ -45,3 +45,4 @@ module FailReason =
         | DuplicateTag tag -> sprintf "Duplicate tag found: %s" tag
         | UnableToCreateFile filePath -> sprintf "Unable to create a file at location: %s" filePath
         | FilterLeadToNoMatch regex -> sprintf "The filter regex lead to no matches: %s" regex
+        | CannotEditUsernameOfSecuredSecret secretName -> sprintf "Unable to modify the username of a non-web secret: %s" secretName

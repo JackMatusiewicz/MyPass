@@ -42,7 +42,7 @@
     <PackageReference Include="FSharp.Data" Version="5.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.Cryptography.KeyDerivation" Version="7.0.0-rc.2.22476.2" />
     <PackageReference Include="Newtonsoft.Json" version="11.0.1" Version="13.0.1" />
-    <PackageReference Include="System.IO.Abstractions" version="2.1.0.178" />
+    <PackageReference Include="System.IO.Abstractions" version="2.1.0.178" Version="17.2.3" />
     <PackageReference Update="FSharp.Core" Version="6.0.6" />
   </ItemGroup>
 </Project>
