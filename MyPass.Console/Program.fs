@@ -9,7 +9,7 @@ type Arguments =
     interface IArgParserTemplate with
         member x.Usage =
             match x with
-            | Mode _ -> "Specify the mode you wish to run, choose from: CREATE|ADD|DETAIL|TAG|GET|UPDATE|DUPE|PWNED|HISTORY|CLEARHISTORY"
+            | Mode _ -> "Specify the mode you wish to run, choose from: CREATE | ADD | DETAIL | TAG | GET | UPDATE | UPDATEUSER | UPDATEDESC | REMOVE | DUPE | PWNED | HISTORY | CLEARHISTORY"
 
 module Main =
 
@@ -44,6 +44,10 @@ module Main =
             ConsoleUi.printPassword ()
         | "update" ->
             ConsoleUi.updatePassword ()
+        | "updateuser" ->
+            ConsoleUi.updateUsername ()
+        | "updatedesc" ->
+            ConsoleUi.updateDescription ()
         | "remove" ->
             ConsoleUi.removePassword ()
         | "pwned" ->
@@ -92,7 +96,7 @@ module Main =
             | false ->
                 printfn "%s" splash
                 printfn "You are running MyPass in interactive mode"
-                printfn "You can choose from the following modes: CREATE | ADD | DETAIL | TAG | GET | UPDATE | REMOVE | DUPE | PWNED | HISTORY | CLEARHISTORY"
+                printfn "You can choose from the following modes: CREATE | ADD | DETAIL | TAG | GET | UPDATE | UPDATEUSER | UPDATEDESC | REMOVE | DUPE | PWNED | HISTORY | CLEARHISTORY"
                 printfn "Please enter \"exit\" to quit."
                 runApp argsParser
             | true ->

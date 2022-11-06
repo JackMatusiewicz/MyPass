@@ -48,6 +48,8 @@ type Activity =
     | Details of Name
     | DupeCheck
     | BreachCheck
+    | UpdateUsername of Name
+    | UpdateDescription of Name
 
 type UserActivity =
     {
@@ -140,6 +142,8 @@ module UserActivity =
             | Add n -> sprintf "Added %s to the vault." <| Name.toString n
             | Delete n -> sprintf "Deleted %s from the vault." <| Name.toString n
             | Update n -> sprintf "Updated %s in the vault." <| Name.toString n
+            | UpdateUsername n -> sprintf "Updated the username of %s in the vault" <| Name.toString n
+            | UpdateDescription n -> sprintf "Updated the description of %s in the vault" <| Name.toString n
             | Get n -> sprintf "Got the secret of %s." <| Name.toString n
             | Details n -> sprintf "Got the public details of %s." <| Name.toString n
             | DupeCheck -> "Performed a secret reuse check."

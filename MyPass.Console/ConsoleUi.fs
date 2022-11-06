@@ -75,6 +75,10 @@ module ConsoleUi =
         else
             generatePassword ()
 
+    let getUpdateForField (field : string) =
+        printfn "Please enter the updated text for the following field: %s\n" field
+        Console.ReadLine ()
+
     let private getWebsiteUrl () =
         getInput "Please enter the URL of the site"
         |> Url.make
@@ -357,6 +361,48 @@ module ConsoleUi =
         >>= changePassword
         |> fun vault -> Result.bind2 ud vault (storeVault fs)
 
+    let private changeUsername (vault : Vault) : Result<FailReason, Vault> =
+        let choice = getUserEntryChoice vault |> Result.map Name
+
+        Result.bind choice
+            (fun name ->
+                Vault.getPassword Time.get name vault
+                >>=
+                    (fun (pe, v) ->
+                        let newUsername = getUpdateForField "Username"
+                        Vault.updateUsername Time.get pe.Name (Name newUsername) v
+                    )
+            )
+
+    let updateUsername () =
+        let ud = constructComponentsFromUserInput
+        let fs = FileSystem ()
+        ud
+        >>= loadVault fs
+        >>= changeUsername
+        |> fun vault -> Result.bind2 ud vault (storeVault fs)
+
+    let private changeDescription (vault : Vault) : Result<FailReason, Vault> =
+        let choice = getUserEntryChoice vault |> Result.map Name
+
+        Result.bind choice
+            (fun name ->
+                Vault.getPassword Time.get name vault
+                >>=
+                    (fun (pe, v) ->
+                        let newUsername = getUpdateForField "Description"
+                        Vault.updateDescription Time.get pe.Name (Description newUsername) v
+                    )
+            )
+
+    let updateDescription () =
+        let ud = constructComponentsFromUserInput
+        let fs = FileSystem ()
+        ud
+        >>= loadVault fs
+        >>= changeDescription
+        |> fun vault -> Result.bind2 ud vault (storeVault fs)
+
     let private removePw (vault : Vault) : Result<FailReason, Vault> =
         getUserEntryChoice vault
         |> Result.map Name
@@ -418,6 +464,8 @@ module ConsoleUi =
                 | Add (Name name) -> sprintf "Add,%s" name
                 | Delete (Name name) -> sprintf "Delete,%s" name
                 | Update (Name name) -> sprintf "Update,%s" name
+                | UpdateUsername (Name name) -> sprintf "UpdateUser,%s" name
+                | UpdateDescription (Name name) -> sprintf "UpdateDescription,%s" name
                 | Get (Name name) -> sprintf "Get,%s" name
                 | Details (Name name) -> sprintf "Details,%s" name
                 | DupeCheck -> "DupeCheck,"

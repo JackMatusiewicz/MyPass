@@ -58,6 +58,50 @@ module Vault =
                 History = Array.append manager.History [| activity |]
             } |> Success
 
+    /// Takes a new username and modifies the existing entry to have the new username.
+    let updateUsername
+        (getTime : unit -> System.DateTime)
+        (entryName : Name)
+        (username : Name)
+        (manager : Vault)
+        : Result<FailReason, Vault>
+        =
+        let store = manager.Passwords
+        if Map.containsKey entryName store = false then
+            EntryNotFound "Password entry not found"
+            |> Failure
+        else
+            let entry = Map.find entryName store
+            let updatedEntry = PasswordEntry.updateWebLoginUsername username entry
+            
+            let activity = UserActivity.make (getTime ()) (UpdateUsername entryName)
+
+            updatedEntry
+            |> Result.map (fun e -> Map.add e.Name e store)
+            |> Result.map (fun ps -> { Passwords = ps ; History = Array.append manager.History [| activity |] })
+
+    /// Modifies the description of the entry in the vault.
+    let rec updateDescription
+        (getTime : unit -> System.DateTime)
+        (entryName : Name)
+        (description : Description)
+        (manager : Vault)
+        : Result<FailReason, Vault>
+        =
+        let store = manager.Passwords
+        if Map.containsKey entryName store = false then
+            EntryNotFound "Password entry not found"
+            |> Failure
+        else
+            let entry = Map.find entryName store
+            let updatedEntry = PasswordEntry.updateDescription description entry
+            
+            let activity = UserActivity.make (getTime ()) (UpdateDescription entryName)
+
+            Map.add entryName updatedEntry store
+            |> fun ps -> { Passwords = ps ; History = Array.append manager.History [| activity |] }
+            |> Success
+
     /// Removes a secret that has the provided name.
     /// Will fail if there is no secret with the provided name.
     let removePassword
