@@ -18,11 +18,10 @@ module SecureInput =
             ['a'..'z']
             @ ['A'..'Z']
             @ ['0'..'9']
-            @ ['_';'!';'@';'#';'$';'%';'^';'&';'*';'(';')';',';'.';'?';'"';':';'{';'}';'|';'<';'>'; ' '; '+'; '~']
+            @ ['_';'!';'@';'#';'$';'%';'^';'&';'*';'(';')';',';'.';'?';'"';':';'{';'}';'|';'<';'>'; ' '; '+'; '~' ; '£' ; '[' ; ']']
         fun c -> List.contains c chars
 
     let private isValidKeyPress (key : ConsoleKeyInfo) =
-        let pressModifier = (int key.Modifiers)
         if altOrCtrlPressed (key.Modifiers) then
             false
         else if not (isValidPasswordCharacter key.KeyChar) then
