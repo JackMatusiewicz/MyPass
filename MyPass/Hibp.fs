@@ -26,10 +26,10 @@ module Hibp =
         | sc -> Failure (HttpRequestFailed sc)
 
     let toHashes (response : HibpResponse) : Result<FailReason, Set<Sha1Hash>> =
-        let (Response ((Prefix hashPrefix), suffixData)) = response
+        let (Response (Prefix hashPrefix, suffixData)) = response
         suffixData.Split ([|"\r\n"|], StringSplitOptions.RemoveEmptyEntries)
         |> Array.toList
-        |> List.map (fun (d : string) -> (d.Split([|':'|])).[0])
+        |> List.map (fun (d : string) -> d.Split([|':'|]).[0])
         |> List.map (fun d -> hashPrefix + d)
         |> List.traverse Sha1Hash.fromString
         |> Result.map Set.ofList

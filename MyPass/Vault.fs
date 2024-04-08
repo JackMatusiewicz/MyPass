@@ -221,7 +221,7 @@ module Vault =
             vault.Passwords
             |> Map.toArray
             |> Array.map (Tuple.map PasswordEntry.getSecureData)
-            |> Array.Parallel.map (Tuple.map isCompromised)
+            |> Array.map (Tuple.map isCompromised)
             |> Array.toList
             |> List.traverse (Tuple.sequence)
             |> Result.map (List.filter (fun (_,b) -> b = Compromised))
