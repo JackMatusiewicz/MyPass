@@ -10,8 +10,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="FSharp.Core" version="5.0.2" Version="6.0.6" />
-    <PackageReference Update="FSharp.Core" Version="6.0.6" />
+    <PackageReference Include="FSharp.Core" version="5.0.2" Version="8.0.200" />
+    <PackageReference Update="FSharp.Core" Version="8.0.200" />
   </ItemGroup>
 
 </Project>
