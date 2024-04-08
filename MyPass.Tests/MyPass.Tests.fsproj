@@ -43,9 +43,9 @@
   <ItemGroup>
     <PackageReference Include="coveralls.io" version="1.4.2" />
     <PackageReference Include="coveralls.net" version="0.7.0" developmentDependency="true" />
-    <PackageReference Include="FSharp.Core" version="4.5.2" Version="6.0.6" />
+    <PackageReference Include="FSharp.Core" version="8.0.200" />
     <PackageReference Include="Hedgehog" Version="0.8.2" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.8.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
     <PackageReference Include="NUnit" version="3.9.0" />
     <PackageReference Include="NUnit.Console" version="3.7.0" />
     <PackageReference Include="NUnit.ConsoleRunner" version="3.7.0" />
@@ -56,7 +56,6 @@
     <PackageReference Include="NUnit.Extension.VSProjectLoader" version="3.5.0" />
     <PackageReference Include="NUnit3TestAdapter" version="3.9.0" />
     <PackageReference Include="OpenCover" version="4.6.519" />
-    <PackageReference Include="System.IO.Abstractions" version="2.1.0.178" Version="17.2.3" />
-    <PackageReference Update="FSharp.Core" Version="6.0.6" />
+    <PackageReference Include="System.IO.Abstractions" version="2.1.0.178" Version="21.0.2" />
   </ItemGroup>
 </Project>
