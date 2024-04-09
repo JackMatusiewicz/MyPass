@@ -9,7 +9,7 @@ configuration:
 install:
 - cmd: appveyor downloadfile https://dist.nuget.org/win-x86-commandline/v6.3.1/nuget.exe
 before_build:
-- cmd: .\nuget.exe restore
+- cmd: dotnet restore
 build:
   project: MyPass.sln
   verbosity: normal
